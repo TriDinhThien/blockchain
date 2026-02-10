@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xác Thực Sản Phẩm - Truy Xuất Mỹ Phẩm Blockchain</title>
+
+  <!-- Web3 -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+
+  <!-- CSS Styles (tương tự manufacturer) -->
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f8ff; /* Light sea blue background */
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 119, 182, 0.2); /* Sea blue shadow */
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0077b6; /* Sea blue */
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    #result {
+      background-color: #e6f7ff; /* Light blue background */
+      border: 1px solid #00a8e8;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    #result p {
+      margin: 10px 0;
+    }
+
+    #result strong {
+      color: #0077b6;
+    }
+
+    /* Responsive design */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Thông Tin Sản Phẩm</h1>
+    <div id="result">Đang tải thông tin...</div>
+  </div>
+
+<script>
+  /* =======================
+     1. CONTRACT CONFIG (giống manufacturer)
+  ======================= */
+  const contractAddress = "0x2A7aa0CBB0c66d5fF1248dBe8c6433a1bDA6d375";
+
+  const abi = [
+    // Paste toàn bộ ABI giống trong manufacturer.html của bạn
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
+        { "indexed": false, "internalType": "address", "name": "newOwner", "type": "address" }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
+        { "indexed": false, "internalType": "string", "name": "name", "type": "string" }
+      ],
+      "name": "ProductCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
+        { "indexed": false, "internalType": "string", "name": "newStatus", "type": "string" }
+      ],
+      "name": "StatusUpdated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "productCount",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "name": "products",
+      "outputs": [
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "batchID", "type": "string" },
+        { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
+        { "internalType": "string", "name": "origin", "type": "string" },
+        { "internalType": "bool", "name": "isAuthentic", "type": "bool" },
+        { "internalType": "address", "name": "owner", "type": "address" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "string", "name": "_name", "type": "string" },
+        { "internalType": "string", "name": "_batchID", "type": "string" },
+        { "internalType": "uint256", "name": "_manufactureDate", "type": "uint256" },
+        { "internalType": "string", "name": "_origin", "type": "string" }
+      ],
+      "name": "createProduct",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "_id", "type": "uint256" },
+        { "internalType": "string", "name": "_newStatus", "type": "string" }
+      ],
+      "name": "updateStatus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "_id", "type": "uint256" },
+        { "internalType": "address", "name": "_newOwner", "type": "address" }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }],
+      "name": "verifyProduct",
+      "outputs": [
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "batchID", "type": "string" },
+        { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
+        { "internalType": "string", "name": "origin", "type": "string" },
+        { "internalType": "bool", "name": "isAuthentic", "type": "bool" },
+        { "internalType": "string[]", "name": "history", "type": "string[]" },
+        { "internalType": "address", "name": "owner", "type": "address" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ];
+
+  let web3;
+  let contract;
+
+  /* =======================
+     2. INIT WEB3 (giống manufacturer)
+  ======================= */
+  window.addEventListener("load", async () => {
+    // Lấy ID từ URL query (ví dụ: ?id=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = Number(urlParams.get('id'));
+
+    if (!id) {
+      document.getElementById('result').innerHTML = '<p style="color: red;">Không tìm thấy ID sản phẩm!</p>';
+      return;
+    }
+
+    web3 = new Web3('http://127.0.0.1:7545'); // Ganache RPC (không cần MetaMask vì chỉ đọc)
+    contract = new web3.eth.Contract(abi, contractAddress);
+
+    try {
+      const result = await contract.methods.verifyProduct(id).call();
+
+      // Hiển thị thông tin
+      document.getElementById('result').innerHTML = `
+        <p><strong>Tên sản phẩm:</strong> ${result[0]}</p>
+        <p><strong>Mã lô:</strong> ${result[1]}</p>
+        <p><strong>Ngày sản xuất:</strong> ${new Date(Number(result[2]) * 1000).toLocaleString('vi-VN')}</p> <!-- Chuyển timestamp sang ngày -->
+        <p><strong>Nguồn gốc:</strong> ${result[3]}</p>
+        <p><strong>Chính hãng:</strong> ${result[4] ? 'Có' : 'Không'}</p>
+        <p><strong>Lịch sử:</strong> <br>${result[5].join('<br>')}</p>
+        <p><strong>Chủ sở hữu hiện tại:</strong> ${result[6]}</p>
+      `;
+    } catch (err) {
+      console.error(err);
+      document.getElementById('result').innerHTML = '<p style="color: red;">Lỗi: ' + (err.message || err) + '</p>';
+    }
+  });
+</script>
+
+</body>
+</html>
