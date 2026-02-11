@@ -8,10 +8,15 @@ module.exports = {
       network_id: "*"
     },
     sepolia: {
-      provider: () => new HDWalletProvider('0x4326C76724E1df1882CFCF6f5B024886d90AB0CF', 'https://eth-mainnet.g.alchemy.com/v2/FHuTWnQgs8moKCX31IqeB'), // Thay private key (từ Bước 4) và Alchemy URL (từ Bước 2)
-      network_id: 11155111,
+      provider: () => new HDWalletProvider(
+        // Private key của bạn (không có tiền tố 0x)
+        '4326C76724E1df1882CFCF6f5B024886d90AB0CF',
+        // Endpoint Sepolia từ Alchemy (ví dụ)
+        'https://eth-mainnet.g.alchemy.com/v2/FHuTWnQgs8moKCX31IqeB'
+      ),
+      network_id: 11155111,   // Sepolia chain ID
       gas: 5500000,
-      gasPrice: 20000000000, // 20 gwei
+      gasPrice: 20000000000,  // 20 gwei
       confirmations: 2,
       timeoutBlocks: 200,
       skipDryRun: true
@@ -19,7 +24,7 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: "0.8.0"
+      version: "0.8.21" // hoặc phiên bản bạn dùng trong hợp đồng
     }
   }
 };
