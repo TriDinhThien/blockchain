@@ -129,7 +129,7 @@
 /* =======================
    1. CONTRACT CONFIG
 ======================= */
-const contractAddress = "0x8AF3c8aa5D9c63a40F4D9b6C7c30e2Fa3e5F8170";
+const contractAddress = "0x2A7aa0CBB0c66d5fF1248dBe8c6433a1bDA6d375";
 
 const abi = [
   {
@@ -263,10 +263,13 @@ async function createProduct() {
   }
 
   try {
-    // Xóa estimateGas, dùng gas fixed để giảm request
+    const gas = await contract.methods
+      .createProduct(name, batchID, manufactureDate, origin)
+      .estimateGas({ from: account });
+
     await contract.methods
       .createProduct(name, batchID, manufactureDate, origin)
-      .send({ from: account, gas: 300000 }); // Gas fixed 300000 để tránh gọi estimateGas
+      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // ✅ ép gas về Number
 
     let id = await contract.methods.productCount().call();
     id = Number(id); // ✅ ép BigInt về Number
@@ -275,7 +278,7 @@ async function createProduct() {
 
     QRCode.toCanvas(
       document.getElementById("qrCode"),
-      `https://blockchain-rho-two.vercel.app/verify.html?id=${id}`, // ✅ Sửa thành URL đầy đủ
+      `http://localhost:3000/verify.html?id=${id}`, // ✅ Sửa thành URL đầy đủ
       err => err && console.error(err)
     );
   } catch (err) {
@@ -304,10 +307,13 @@ async function transferOwnership() {
   }
 
   try {
-    // Xóa estimateGas, dùng gas fixed để giảm request
+    const gas = await contract.methods
+      .transferOwnership(id, newOwner)
+      .estimateGas({ from: account });
+
     await contract.methods
       .transferOwnership(id, newOwner)
-      .send({ from: account, gas: 300000 }); // Gas fixed 300000 để tránh gọi estimateGas
+      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // Ép gas về Number an toàn
 
     alert("Chuyển giao quyền sở hữu thành công!");
   } catch (err) {
