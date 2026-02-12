@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,7 +17,7 @@
   <button onclick="transferOwnership()">Chuyển Giao Cho Người Mua</button>
 
   <script>
-    const contractAddress = '0x8AF3c8aa5D9c63a40F4D9b6C7c30e2Fa3e5F8170'; // Address mới từ migrate gần nhất
+    const contractAddress = '0xb4D1159D9A955D7004c0431f57Df7FB067a53d23'; // Address mới từ migrate gần nhất
     const abi = [
   {
     "anonymous": false,
@@ -168,12 +169,12 @@
         "type": "uint256"
       },
       {
-        "internalType": "string",
-        "name": "_newStatus",
-        "type": "string"
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
       }
     ],
-    "name": "updateStatus",
+    "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -186,12 +187,12 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "_newOwner",
-        "type": "address"
+        "internalType": "string",
+        "name": "_newStatus",
+        "type": "string"
       }
     ],
-    "name": "transferOwnership",
+    "name": "updateStatus",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -246,14 +247,13 @@
     "type": "function"
   }
 ];
-    const web3 = new Web3('https://eth-sepolia.g.alchemy.com/v2/FHuTWnQgs8moKCX31IqeB');
+    const web3 = new Web3('http://127.0.0.1:7545');
     const contract = new web3.eth.Contract(abi, contractAddress);
     async function updateStatus() {
       const accounts = await web3.eth.getAccounts();
       const id = parseInt(document.getElementById('updateId').value);
       const newStatus = document.getElementById('newStatus').value;
-      // Xóa estimateGas, dùng gas fixed để giảm request
-      await contract.methods.updateStatus(id, newStatus).send({from: accounts[0], gas: 300000});
+      await contract.methods.updateStatus(id, newStatus).send({from: accounts[0]});
       alert('Cập nhật thành công');
     }
 
@@ -266,8 +266,7 @@
         return;
       }
       try {
-        // Xóa estimateGas, dùng gas fixed để giảm request
-        await contract.methods.transferOwnership(id, buyerAddress).send({from: accounts[0], gas: 300000});
+        await contract.methods.transferOwnership(id, buyerAddress).send({from: accounts[0]});
         alert('Chuyển giao quyền sở hữu thành công cho người mua!');
       } catch (error) {
         alert('Lỗi: ' + error.message);
@@ -276,3 +275,4 @@
   </script>
 </body>
 </html>
+```
