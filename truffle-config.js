@@ -8,7 +8,7 @@ module.exports = {
       network_id: "*"
     },
     sepolia: {
-      provider: () => new HDWalletProvider('bd65205cd1bb86a45b005173525acc7f6da9f26544eac29f65e53d1d5b19ad96', 'https://eth-mainnet.g.alchemy.com/v2/FHuTWnQgs8moKCX31IqeB'), // Thay private key (từ Bước 4) và Alchemy URL (từ Bước 2)
+      provider: () => new HDWalletProvider('bd65205cd1bb86a45b005173525acc7f6da9f26544eac29f65e53d1d5b19ad96', 'https://eth-sepolia.g.alchemy.com/v2/FHuTWnQgs8moKCX31IqeB'),
       network_id: 11155111,
       gas: 5500000,
       gasPrice: 20000000000, // 20 gwei
