@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,15 +5,17 @@
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 </head>
 <body>
-  <h1>Nhà Phân Phối: Cập Nhật Trạng Thái</h1>
+  <h1>Nhà Phân Phối</h1>
+
+  <h2>Cập Nhật Trạng Thái</h2>
   <input id="updateId" placeholder="ID sản phẩm"><br>
   <input id="newStatus" placeholder="Trạng thái mới"><br>
   <button onclick="updateStatus()">Cập Nhật</button>
 
-  <h2>Chuyển Giao Quyền Sở Hữu Cho Người Mua</h2>
+  <h2>Chuyển Giao Quyền Sở Hữu</h2>
   <input id="transferId" placeholder="ID sản phẩm"><br>
-  <input id="buyerAddress" placeholder="Địa chỉ MetaMask của người mua (0x...)"><br>
-  <button onclick="transferOwnership()">Chuyển Giao Cho Người Mua</button>
+  <input id="buyerAddress" placeholder="Địa chỉ ví người mua (0x...)"><br>
+  <button onclick="transferOwnership()">Chuyển Giao</button>
 
   <script>
     const contractAddress = '0x8AF3c8aa5D9c63a40F4D9b6C7c30e2Fa3e5F8170'; // Address mới từ migrate gần nhất
@@ -247,32 +248,70 @@
     "type": "function"
   }
 ];
-    const web3 = new Web3('https://eth-sepolia.g.alchemy.com/v2/gWTa6ktLIzSWfLCXRGA9N');
-    const contract = new web3.eth.Contract(abi, contractAddress);
-    async function updateStatus() {
-      const accounts = await web3.eth.getAccounts();
-      const id = parseInt(document.getElementById('updateId').value);
-      const newStatus = document.getElementById('newStatus').value;
-      await contract.methods.updateStatus(id, newStatus).send({from: accounts[0]});
-      alert('Cập nhật thành công');
-    }
 
-    async function transferOwnership() {
-      const accounts = await web3.eth.getAccounts();
-      const id = parseInt(document.getElementById('transferId').value);
-      const buyerAddress = document.getElementById('buyerAddress').value;
-      if (!buyerAddress.startsWith('0x') || buyerAddress.length !== 42) {
-        alert('Địa chỉ không hợp lệ! Phải bắt đầu bằng 0x và dài 42 ký tự.');
-        return;
-      }
-      try {
-        await contract.methods.transferOwnership(id, buyerAddress).send({from: accounts[0]});
-        alert('Chuyển giao quyền sở hữu thành công cho người mua!');
-      } catch (error) {
-        alert('Lỗi: ' + error.message);
-      }
-    }
-  </script>
+let web3;
+let contract;
+let account;
+
+window.addEventListener("load", async () => {
+  if (window.ethereum) {
+    web3 = new Web3(window.ethereum);
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    account = accounts[0];
+    contract = new web3.eth.Contract(abi, contractAddress);
+    console.log("Connected:", account);
+  } else {
+    alert("Vui lòng cài MetaMask!");
+  }
+});
+
+async function updateStatus() {
+  const id = Number(document.getElementById("updateId").value);
+  const newStatus = document.getElementById("newStatus").value;
+
+  if (!id || !newStatus) {
+    alert("Nhập đầy đủ thông tin!");
+    return;
+  }
+
+  try {
+    const gas = await contract.methods
+      .updateStatus(id, newStatus)
+      .estimateGas({ from: account });
+
+    await contract.methods
+      .updateStatus(id, newStatus)
+      .send({ from: account, gas: Math.floor(Number(gas) * 1.2) });
+
+    alert("Cập nhật thành công!");
+  } catch (err) {
+    alert("Lỗi: " + err.message);
+  }
+}
+
+async function transferOwnership() {
+  const id = Number(document.getElementById("transferId").value);
+  const buyerAddress = document.getElementById("buyerAddress").value.trim();
+
+  if (!web3.utils.isAddress(buyerAddress)) {
+    alert("Địa chỉ ví không hợp lệ!");
+    return;
+  }
+
+  try {
+    const gas = await contract.methods
+      .transferOwnership(id, buyerAddress)
+      .estimateGas({ from: account });
+
+    await contract.methods
+      .transferOwnership(id, buyerAddress)
+      .send({ from: account, gas: Math.floor(Number(gas) * 1.2) });
+
+    alert("Chuyển giao thành công!");
+  } catch (err) {
+    alert("Lỗi: " + err.message);
+  }
+}
+</script>
 </body>
 </html>
-```
