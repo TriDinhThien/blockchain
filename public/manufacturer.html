@@ -263,13 +263,10 @@ async function createProduct() {
   }
 
   try {
-    const gas = await contract.methods
-      .createProduct(name, batchID, manufactureDate, origin)
-      .estimateGas({ from: account });
-
+    // Xóa estimateGas, dùng gas fixed để giảm request
     await contract.methods
       .createProduct(name, batchID, manufactureDate, origin)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // ✅ ép gas về Number
+      .send({ from: account, gas: 300000 }); // Gas fixed 300000 để tránh gọi estimateGas
 
     let id = await contract.methods.productCount().call();
     id = Number(id); // ✅ ép BigInt về Number
@@ -307,13 +304,10 @@ async function transferOwnership() {
   }
 
   try {
-    const gas = await contract.methods
-      .transferOwnership(id, newOwner)
-      .estimateGas({ from: account });
-
+    // Xóa estimateGas, dùng gas fixed để giảm request
     await contract.methods
       .transferOwnership(id, newOwner)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // Ép gas về Number an toàn
+      .send({ from: account, gas: 300000 }); // Gas fixed 300000 để tránh gọi estimateGas
 
     alert("Chuyển giao quyền sở hữu thành công!");
   } catch (err) {
