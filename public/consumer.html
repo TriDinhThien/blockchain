@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,14 +6,12 @@
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 </head>
 <body>
-  <h1>Xác Thực Sản Phẩm</h1>
-
-  <input id="verifyId" placeholder="ID sản phẩm"><br>
+  <h1>Người Tiêu Dùng: Xác Thực Sản Phẩm</h1>
+  <input id="verifyId" placeholder="ID sản phẩm (từ QR)"><br>
   <button onclick="verifyProduct()">Xác Thực</button>
-
   <div id="result"></div>
   <script>
-    const contractAddress = '0x8AF3c8aa5D9c63a40F4D9b6C7c30e2Fa3e5F8170'; // Address mới từ migrate gần nhất
+    const contractAddress = '0xb4D1159D9A955D7004c0431f57Df7FB067a53d23'; // Address mới từ migrate gần nhất
     const abi = [
   {
     "anonymous": false,
@@ -242,38 +241,22 @@
     "type": "function"
   }
 ];
-let web3;
-let contract;
-
-window.addEventListener("load", async () => {
-  if (window.ethereum) {
-    web3 = new Web3(window.ethereum);
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-    contract = new web3.eth.Contract(abi, contractAddress);
-  } else {
-    alert("Vui lòng cài MetaMask!");
-  }
-});
-
-async function verifyProduct() {
-  const id = Number(document.getElementById("verifyId").value);
-
-  try {
-    const result = await contract.methods.verifyProduct(id).call();
-
-    document.getElementById("result").innerHTML = `
-      Tên: ${result[0]} <br>
-      Mã lô: ${result[1]} <br>
-      Ngày sản xuất: ${result[2]} <br>
-      Nguồn gốc: ${result[3]} <br>
-      Chính hãng: ${result[4] ? "Có" : "Không"} <br>
-      Lịch sử: ${result[5].join("<br>")} <br>
-      Chủ sở hữu: ${result[6]}
-    `;
-  } catch (err) {
-    alert("Lỗi: " + err.message);
-  }
-}
-</script>
+    const web3 = new Web3('http://127.0.0.1:7545');
+    const contract = new web3.eth.Contract(abi, contractAddress);
+    async function verifyProduct() {
+      const id = parseInt(document.getElementById('verifyId').value);
+      const result = await contract.methods.verifyProduct(id).call();
+      document.getElementById('result').innerHTML = `
+        Tên: ${result[0]}<br>
+        Mã lô: ${result[1]}<br>
+        Ngày sản xuất: ${result[2]}<br>
+        Nguồn gốc: ${result[3]}<br>
+        Chính hãng: ${result[4] ? 'Có' : 'Không'}<br>
+        Lịch sử: ${result[5].join('<br>')}<br>
+        Owner hiện tại: ${result[6]}
+      `;
+    }
+  </script>
 </body>
 </html>
+```
