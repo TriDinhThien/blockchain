@@ -108,6 +108,22 @@ button:hover{
 <div class="user-info" id="userInfo"></div>
 
 <div class="section">
+  <h2>Xác Nhận Lô Hàng Nhập</h2>
+  <input id="receiveId" placeholder="ID sản phẩm (từ nhà sản xuất)">
+  <input id="receiveQuantity" placeholder="Số lượng nhận (ví dụ: 100)">
+  <button onclick="receiveShipment()">Xác Nhận Nhận Hàng</button>
+</div>
+
+<div class="section">
+  <h2>Cập Nhật Thông Tin Phân Phối</h2>
+  <input id="distributeId" placeholder="ID sản phẩm">
+  <input id="nextLocation" placeholder="Nơi phân phối tiếp theo (ví dụ: Cửa hàng ABC)">
+  <input id="distributionLocation" placeholder="Địa điểm phân phối (ví dụ: TP.HCM)">
+  <input id="distributeQuantity" placeholder="Số lượng phân phối (ví dụ: 50)">
+  <button onclick="updateDistribution()">Cập Nhật Phân Phối</button>
+</div>
+
+<div class="section">
   <h2>Cập Nhật Trạng Thái</h2>
   <input id="updateId" placeholder="ID sản phẩm">
   <input id="newStatus" placeholder="Trạng thái mới (Đang vận chuyển, Đã giao...)">
@@ -163,6 +179,70 @@ function showStatus(message, success=true){
   box.style.background = success ? "#d4edda" : "#f8d7da";
   box.style.color = success ? "#155724" : "#721c24";
   box.innerText = message;
+}
+
+// ================= RECEIVE SHIPMENT =================
+async function receiveShipment(){
+  try{
+    const id = parseInt(receiveId.value);
+    const quantity = receiveQuantity.value;
+
+    if(!id || !quantity){
+      showStatus("Vui lòng nhập đầy đủ thông tin!", false);
+      return;
+    }
+
+    const timestamp = new Date().toLocaleString('vi-VN');
+    const newStatus = `Đã nhận lô hàng từ nhà sản xuất lúc ${timestamp}, số lượng: ${quantity}`;
+
+    document.body.classList.add("loading");
+
+    const accounts = await web3.eth.getAccounts();
+
+    await contract.methods
+      .updateStatus(id, newStatus)
+      .send({ from: accounts[0] });
+
+    showStatus("Xác nhận nhận hàng thành công!");
+
+  } catch(err){
+    showStatus("Lỗi: " + err.message, false);
+  }
+
+  document.body.classList.remove("loading");
+}
+
+// ================= UPDATE DISTRIBUTION =================
+async function updateDistribution(){
+  try{
+    const id = parseInt(distributeId.value);
+    const nextLoc = nextLocation.value;
+    const loc = distributionLocation.value;
+    const quantity = distributeQuantity.value;
+
+    if(!id || !nextLoc || !loc || !quantity){
+      showStatus("Vui lòng nhập đầy đủ thông tin!", false);
+      return;
+    }
+
+    const timestamp = new Date().toLocaleString('vi-VN');
+    const newStatus = `Phân phối đến ${nextLoc} lúc ${timestamp}, địa điểm: ${loc}, số lượng: ${quantity}`;
+
+    document.body.classList.add("loading");
+
+    const accounts = await web3.eth.getAccounts();
+
+    await contract.methods
+      .updateStatus(id, newStatus)
+      .send({ from: accounts[0] });
+
+    showStatus("Cập nhật phân phối thành công!");
+
+  } catch(err){
+    showStatus("Lỗi: " + err.message, false);
+  }
+
+  document.body.classList.remove("loading");
 }
 
 // ================= UPDATE STATUS =================
