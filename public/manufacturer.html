@@ -278,7 +278,7 @@ async function createProduct() {
 
     QRCode.toCanvas(
       document.getElementById("qrCode"),
-      `https://blockchain-rho-two.vercel.app/verify.html?id=${id}`, // ✅ Sửa thành URL đầy đủ
+      `http://localhost:3000/verify.html?id=${id}`, // ✅ Sửa thành URL đầy đủ
       err => err && console.error(err)
     );
   } catch (err) {
