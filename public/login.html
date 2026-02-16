@@ -1,166 +1,156 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đăng Nhập - Hệ Thống Truy Xuất Blockchain</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng Nhập - Blockchain Traceability</title>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f0f8ff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f0f8ff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  margin:0;
+}
 
-    .container {
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0,119,182,0.2);
-      width: 100%;
-      max-width: 420px;
-    }
+.container{
+  background:#fff;
+  padding:40px;
+  border-radius:15px;
+  box-shadow:0 4px 20px rgba(0,119,182,0.2);
+  width:100%;
+  max-width:420px;
+}
 
-    h1 {
-      text-align: center;
-      color: #0077b6;
-      margin-bottom: 30px;
-    }
+h1{
+  text-align:center;
+  color:#0077b6;
+}
 
-    .tabs {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 25px;
-    }
+.tabs{
+  display:flex;
+  gap:10px;
+  margin:20px 0;
+}
 
-    .tabs button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background: #e6f7ff;
-      cursor: pointer;
-      font-weight: bold;
-      border-radius: 8px;
-      margin: 0 5px;
-      transition: 0.3s;
-    }
+.tabs button{
+  flex:1;
+  padding:10px;
+  border:none;
+  background:#e6f7ff;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
 
-    .tabs button.active {
-      background: #0077b6;
-      color: white;
-    }
+.tabs button.active{
+  background:#0077b6;
+  color:white;
+}
 
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #00a8e8;
-      border-radius: 8px;
-      font-size: 15px;
-      box-sizing: border-box;
-    }
+input,select{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border:1px solid #00a8e8;
+  border-radius:8px;
+}
 
-    button.submit-btn {
-      width: 100%;
-      padding: 12px;
-      background-color: #0077b6;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
+.submit-btn{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  background:#0077b6;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
 
-    .google-btn {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-    }
+.google-btn{
+  margin-top:20px;
+  display:flex;
+  justify-content:center;
+}
 
-    .hidden { display: none; }
+.hidden{display:none;}
 
-    .footer-text {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-      color: #555;
-    }
-  </style>
+.footer{
+  text-align:center;
+  margin-top:20px;
+  font-size:14px;
+  color:#555;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-  <h1>Hệ Thống Truy Xuất</h1>
+<h1>Hệ Thống Truy Xuất</h1>
 
-  <div class="tabs">
-    <button id="loginTab" class="active" onclick="switchTab('login')">Đăng Nhập</button>
-    <button id="registerTab" onclick="switchTab('register')">Tạo Tài Khoản</button>
-  </div>
+<div class="tabs">
+<button id="loginTab" class="active">Đăng Nhập</button>
+<button id="registerTab">Tạo Tài Khoản</button>
+</div>
 
-  <!-- LOGIN FORM -->
-  <form id="loginForm">
-    <input type="text" id="loginUsername" placeholder="Username" required>
-    <input type="password" id="loginPassword" placeholder="Password" required>
-    <button type="submit" class="submit-btn">Đăng Nhập</button>
-  </form>
+<form id="loginForm">
+<input type="text" id="loginUsername" placeholder="Username" required>
+<input type="password" id="loginPassword" placeholder="Password" required>
+<button type="submit" class="submit-btn">Đăng Nhập</button>
+</form>
 
-  <!-- REGISTER FORM -->
-  <form id="registerForm" class="hidden">
-    <input type="text" id="regUsername" placeholder="Username" required>
-    <input type="email" id="regEmail" placeholder="Email" required>
-    <input type="password" id="regPassword" placeholder="Password" required>
+<form id="registerForm" class="hidden">
+<input type="text" id="regUsername" placeholder="Username" required>
+<input type="email" id="regEmail" placeholder="Email" required>
+<input type="password" id="regPassword" placeholder="Password" required>
 
-    <select id="regRole" required>
-      <option value="">-- Chọn vai trò --</option>
-      <option value="manufacturer">Manufacturer</option>
-      <option value="distributor">Distributor</option>
-      <option value="consumer">Consumer</option>
-    </select>
+<select id="regRole" required>
+<option value="">-- Chọn vai trò --</option>
+<option value="manufacturer">Manufacturer</option>
+<option value="distributor">Distributor</option>
+<option value="consumer">Consumer</option>
+</select>
 
-    <button type="submit" class="submit-btn">Tạo Tài Khoản</button>
-  </form>
+<button type="submit" class="submit-btn">Tạo Tài Khoản</button>
+</form>
 
-  <!-- GOOGLE LOGIN -->
-  <div class="google-btn">
-    <div id="g_id_onload"
-         data-client_id="855020965586-8fj4ej3geam9lq4poqp6u284sac25rdc.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse">
-    </div>
+<div class="google-btn">
+<div id="g_id_signin"></div>
+</div>
 
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="large"
-         data-theme="outline">
-    </div>
-  </div>
-
-  <div class="footer-text">
-    © 2026 Blockchain Traceability System
-  </div>
+<div class="footer">
+© 2026 Blockchain Traceability System
+</div>
 
 </div>
 
 <script>
 
 // ================= TAB SWITCH =================
-function switchTab(type) {
+const loginTab = document.getElementById("loginTab");
+const registerTab = document.getElementById("registerTab");
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+
+loginTab.onclick = () => switchTab("login");
+registerTab.onclick = () => switchTab("register");
+
+function switchTab(type){
   loginForm.classList.toggle("hidden", type !== "login");
   registerForm.classList.toggle("hidden", type !== "register");
-  loginTab.classList.toggle("active", type === "login");
-  registerTab.classList.toggle("active", type === "register");
+  loginTab.classList.toggle("active", type==="login");
+  registerTab.classList.toggle("active", type==="register");
 }
 
 // ================= REGISTER =================
-registerForm.addEventListener("submit", function(e){
+registerForm.addEventListener("submit", e=>{
   e.preventDefault();
 
   const username = regUsername.value.trim();
@@ -168,17 +158,13 @@ registerForm.addEventListener("submit", function(e){
   const password = regPassword.value;
   const role = regRole.value;
 
-  if(!role){
-    alert("Vui lòng chọn vai trò");
-    return;
-  }
+  if(!role) return alert("Vui lòng chọn vai trò");
 
   if(localStorage.getItem("user_"+username)){
-    alert("Username đã tồn tại!");
-    return;
+    return alert("Username đã tồn tại!");
   }
 
-  const user = { username, email, password, role };
+  const user = {username,email,password,role};
   localStorage.setItem("user_"+username, JSON.stringify(user));
 
   alert("Tạo tài khoản thành công!");
@@ -186,75 +172,85 @@ registerForm.addEventListener("submit", function(e){
 });
 
 // ================= LOGIN =================
-loginForm.addEventListener("submit", function(e){
+loginForm.addEventListener("submit", e=>{
   e.preventDefault();
 
   const username = loginUsername.value.trim();
   const password = loginPassword.value;
 
   const stored = localStorage.getItem("user_"+username);
-
-  if(!stored){
-    alert("Tài khoản không tồn tại!");
-    return;
-  }
+  if(!stored) return alert("Tài khoản không tồn tại!");
 
   const user = JSON.parse(stored);
+  if(user.password !== password) return alert("Sai mật khẩu!");
 
-  if(user.password !== password){
-    alert("Sai mật khẩu!");
-    return;
-  }
-
-  localStorage.setItem("currentUser", JSON.stringify(user));
+  saveSession(user);
   redirectByRole(user.role);
 });
 
-// ================= GOOGLE LOGIN =================
-function handleCredentialResponse(response) {
+// ================= GOOGLE INIT =================
+window.onload = function(){
 
-  fetch("/api/google-login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token: response.credential })
+  google.accounts.id.initialize({
+    client_id: "YOUR_GOOGLE_CLIENT_ID",
+    callback: handleCredentialResponse,
+    auto_select: false,      // ❌ Tắt auto login
+    cancel_on_tap_outside: true
+  });
+
+  google.accounts.id.renderButton(
+    document.getElementById("g_id_signin"),
+    { theme: "outline", size: "large" }
+  );
+
+  // ❌ KHÔNG auto redirect nữa
+};
+
+// ================= GOOGLE CALLBACK =================
+function handleCredentialResponse(response){
+
+  // Hủy auto select để tránh tự login lần sau
+  google.accounts.id.disableAutoSelect();
+
+  fetch("/api/google-login",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({token:response.credential})
   })
-  .then(res => res.json())
-  .then(data => {
+  .then(res=>res.json())
+  .then(data=>{
     if(data.success){
-      const user = {
-        username: data.email,
-        email: data.email,
-        role: "consumer"
+      const user={
+        username:data.email,
+        email:data.email,
+        role:"consumer"
       };
-      localStorage.setItem("currentUser", JSON.stringify(user));
+      saveSession(user);
       redirectByRole("consumer");
-    } else {
+    }else{
       alert("Google login thất bại");
     }
   })
-  .catch(err => console.error(err));
+  .catch(err=>console.error(err));
+}
+
+// ================= SESSION =================
+function saveSession(user){
+  sessionStorage.setItem("currentUser", JSON.stringify(user));
 }
 
 // ================= REDIRECT =================
 function redirectByRole(role){
-  if(role === "manufacturer"){
-    window.location.href = "manufacturer.html";
-  }
-  else if(role === "distributor"){
-    window.location.href = "distributor.html";
-  }
-  else{
-    window.location.href = "consumer.html";
-  }
+  if(role==="manufacturer") window.location="manufacturer.html";
+  else if(role==="distributor") window.location="distributor.html";
+  else window.location="consumer.html";
 }
 
-// ================= AUTO LOGIN =================
-window.onload = function(){
-  const current = localStorage.getItem("currentUser");
-  if(current){
-    const user = JSON.parse(current);
-    redirectByRole(user.role);
-  }
+// ================= LOGOUT (Gọi ở trang khác) =================
+function logout(){
+  sessionStorage.removeItem("currentUser");
+  google.accounts.id.disableAutoSelect();
+  window.location="index.html";
 }
 
 </script>
