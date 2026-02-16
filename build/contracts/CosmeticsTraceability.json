@@ -17320,10 +17320,16 @@
       "links": {},
       "address": "0x2A7aa0CBB0c66d5fF1248dBe8c6433a1bDA6d375",
       "transactionHash": "0xbedbcdae1b7a679dff6527e8ba3ab15ae36d88775d4ae8c163bbfa1d7d442453"
+    },
+    "11155111": {
+      "events": {},
+      "links": {},
+      "address": "0x8AF3c8aa5D9c63a40F4D9b6C7c30e2Fa3e5F8170",
+      "transactionHash": "0xd59f07e11a0a3dccca345d651717353b2bdd0d5f75385d6c172fab8abbef2c12"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-02-05T07:48:49.359Z",
+  "updatedAt": "2026-02-12T06:31:51.066Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
