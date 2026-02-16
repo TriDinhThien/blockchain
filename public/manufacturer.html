@@ -129,7 +129,7 @@
 /* =======================
    1. CONTRACT CONFIG
 ======================= */
-const contractAddress = "0x8AF3c8aa5D9c63a40F4D9b6C7c30e2Fa3e5F8170";
+const contractAddress = "0x2A7aa0CBB0c66d5fF1248dBe8c6433a1bDA6d375";
 
 const abi = [
   {
@@ -278,7 +278,7 @@ async function createProduct() {
 
     QRCode.toCanvas(
       document.getElementById("qrCode"),
-      `https://blockchain-rho-two.vercel.app/verify.html?id=${id}`, // ✅ Sửa thành URL đầy đủ
+      id.toString(), // ✅ ép về chuỗi
       err => err && console.error(err)
     );
   } catch (err) {
@@ -291,29 +291,20 @@ async function createProduct() {
    4. TRANSFER OWNERSHIP
 ======================= */
 async function transferOwnership() {
-  let idInput = document.getElementById("transferId").value.trim(); // Lấy giá trị và loại bỏ khoảng trắng
-  let id = Number(idInput); // Ép về Number
+  let id = document.getElementById("transferId").value;
+  id = Number(id); // ✅ ép về Number để tránh trộn BigInt/Number
 
-  if (idInput === "" || isNaN(id) || id <= 0 || !Number.isInteger(id)) {
-    alert("ID sản phẩm không hợp lệ! Vui lòng nhập số nguyên dương (ví dụ: 1, 2, ...).");
-    return; // Dừng hàm nếu lỗi
-  }
+  const newOwner = document.getElementById("newOwner").value;
 
-  const newOwner = document.getElementById("newOwner").value.trim();
-
-  if (!newOwner || !web3.utils.isAddress(newOwner)) {
-    alert("Địa chỉ ví mới không hợp lệ! Vui lòng nhập địa chỉ Ethereum hợp lệ (bắt đầu bằng 0x...).");
+  if (!web3.utils.isAddress(newOwner)) {
+    alert("Địa chỉ ví không hợp lệ!");
     return;
   }
 
   try {
-    const gas = await contract.methods
-      .transferOwnership(id, newOwner)
-      .estimateGas({ from: account });
-
     await contract.methods
       .transferOwnership(id, newOwner)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // Ép gas về Number an toàn
+      .send({ from: account, gas: 300000 });
 
     alert("Chuyển giao quyền sở hữu thành công!");
   } catch (err) {
