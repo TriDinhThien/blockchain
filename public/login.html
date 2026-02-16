@@ -179,11 +179,7 @@ function switchTab(type) {
    GOOGLE LOGIN CALLBACK
 ========================== */
 function handleCredentialResponse(response) {
-  console.log("Google Token:", response.credential);
-
-  // Gửi token về backend để xác thực
-function handleCredentialResponse(response) {
-  fetch("google-login", {
+  fetch("/api/google-login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -203,6 +199,7 @@ function handleCredentialResponse(response) {
   })
   .catch(err => console.error(err));
 }
+
 
 </script>
 
