@@ -97,6 +97,37 @@ button:hover{
   opacity:0.6;
   pointer-events:none;
 }
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+.table th, .table td{
+  border:1px solid #ddd;
+  padding:8px;
+  text-align:left;
+}
+
+.table th{
+  background:#0077b6;
+  color:white;
+}
+
+.confirm-btn{
+  background:#28a745;
+  color:white;
+  border:none;
+  padding:5px 10px;
+  border-radius:4px;
+  cursor:pointer;
+  width:auto;
+}
+
+.confirm-btn:hover{
+  background:#218838;
+}
 </style>
 </head>
 
@@ -108,19 +139,26 @@ button:hover{
 <div class="user-info" id="userInfo"></div>
 
 <div class="section">
-  <h2>Xác Nhận Lô Hàng Nhập</h2>
-  <input id="receiveId" placeholder="ID sản phẩm (từ nhà sản xuất)">
-  <input id="receiveQuantity" placeholder="Số lượng nhận (ví dụ: 100)">
-  <button onclick="receiveShipment()">Xác Nhận Nhận Hàng</button>
+  <h2>1. Xem Và Xác Nhận Giao Dịch Chuyển Giao Từ Manufacturer</h2>
+  <button onclick="fetchTransfers()">Tải Danh Sách Giao Dịch</button>
+  <table class="table" id="transfersTable">
+    <thead>
+      <tr>
+        <th>ID Sản Phẩm</th>
+        <th>Từ Address</th>
+        <th>Timestamp</th>
+        <th>Hành Động</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <div class="section">
-  <h2>Cập Nhật Thông Tin Phân Phối</h2>
-  <input id="distributeId" placeholder="ID sản phẩm">
-  <input id="nextLocation" placeholder="Nơi phân phối tiếp theo (ví dụ: Cửa hàng ABC)">
-  <input id="distributionLocation" placeholder="Địa điểm phân phối (ví dụ: TP.HCM)">
-  <input id="distributeQuantity" placeholder="Số lượng phân phối (ví dụ: 50)">
-  <button onclick="updateDistribution()">Cập Nhật Phân Phối</button>
+  <h2>2. Chuyển Giao Quyền Sở Hữu Cho Distributor Khác</h2>
+  <input id="distTransferId" placeholder="ID sản phẩm">
+  <input id="distBuyerAddress" placeholder="Địa chỉ MetaMask distributor khác (0x...)">
+  <button onclick="transferToDistributor()">Chuyển Giao</button>
 </div>
 
 <div class="section">
@@ -128,13 +166,6 @@ button:hover{
   <input id="updateId" placeholder="ID sản phẩm">
   <input id="newStatus" placeholder="Trạng thái mới (Đang vận chuyển, Đã giao...)">
   <button onclick="updateStatus()">Cập Nhật</button>
-</div>
-
-<div class="section">
-  <h2>Chuyển Giao Quyền Sở Hữu</h2>
-  <input id="transferId" placeholder="ID sản phẩm">
-  <input id="buyerAddress" placeholder="Địa chỉ MetaMask người mua (0x...)">
-  <button onclick="transferOwnership()">Chuyển Giao</button>
 </div>
 
 <div class="status-box" id="statusBox"></div>
@@ -159,14 +190,17 @@ document.getElementById("userInfo").innerHTML =
 // ================= WEB3 INIT =================
 let web3;
 let contract;
-const contractAddress = "0xb4D1159D9A955D7004c0431f57Df7FB067a53d23";
-const abi = [...]; // ⚠ Giữ nguyên ABI của bạn ở đây
+let account;
+const contractAddress = "0x8AF3c8aa5D9c63a40F4D9b6C7c30e2Fa3e5F8170"; // Address mới nhất
+const abi = [/* Paste ABI đầy đủ của bạn ở đây, giống trước */]; // Giữ nguyên ABI
 
 window.addEventListener("load", async () => {
   if(window.ethereum){
     web3 = new Web3(window.ethereum);
-    await window.ethereum.request({ method: "eth_requestAccounts" });
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    account = accounts[0];
     contract = new web3.eth.Contract(abi, contractAddress);
+    console.log("Connected account:", account);
   } else {
     alert("Vui lòng cài MetaMask!");
   }
@@ -181,29 +215,44 @@ function showStatus(message, success=true){
   box.innerText = message;
 }
 
-// ================= RECEIVE SHIPMENT =================
-async function receiveShipment(){
+// ================= FETCH TRANSFERS (Chức Năng 1: Xem Giao Dịch) =================
+async function fetchTransfers(){
   try{
-    const id = parseInt(receiveId.value);
-    const quantity = receiveQuantity.value;
+    document.body.classList.add("loading");
 
-    if(!id || !quantity){
-      showStatus("Vui lòng nhập đầy đủ thông tin!", false);
+    // Fetch all OwnershipTransferred events
+    const events = await contract.getPastEvents('OwnershipTransferred', {
+      fromBlock: 0,
+      toBlock: 'latest'
+    });
+
+    // Lọc event nơi newOwner là address distributor hiện tại
+    const filteredEvents = events.filter(event => event.returnValues.newOwner.toLowerCase() === account.toLowerCase());
+
+    // Hiển thị trong table
+    const tbody = document.querySelector("#transfersTable tbody");
+    tbody.innerHTML = ''; // Clear old data
+
+    if(filteredEvents.length === 0){
+      showStatus("Không có giao dịch chuyển giao nào!", false);
       return;
     }
 
-    const timestamp = new Date().toLocaleString('vi-VN');
-    const newStatus = `Đã nhận lô hàng từ nhà sản xuất lúc ${timestamp}, số lượng: ${quantity}`;
+    for(const event of filteredEvents){
+      const tr = document.createElement('tr');
+      const block = await web3.eth.getBlock(event.blockNumber);
+      const timestamp = new Date(block.timestamp * 1000).toLocaleString('vi-VN');
 
-    document.body.classList.add("loading");
+      tr.innerHTML = `
+        <td>${event.returnValues.id}</td>
+        <td>${event.returnValues.newOwner}</td> <!-- From address is previous owner, but event has newOwner -->
+        <td>${timestamp}</td>
+        <td><button class="confirm-btn" onclick="confirmTransfer(${event.returnValues.id})">Xác Nhận</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
 
-    const accounts = await web3.eth.getAccounts();
-
-    await contract.methods
-      .updateStatus(id, newStatus)
-      .send({ from: accounts[0] });
-
-    showStatus("Xác nhận nhận hàng thành công!");
+    showStatus("Danh sách giao dịch đã tải thành công!");
 
   } catch(err){
     showStatus("Lỗi: " + err.message, false);
@@ -212,31 +261,19 @@ async function receiveShipment(){
   document.body.classList.remove("loading");
 }
 
-// ================= UPDATE DISTRIBUTION =================
-async function updateDistribution(){
+// ================= CONFIRM TRANSFER (Xác Nhận Giao Dịch) =================
+async function confirmTransfer(id){
   try{
-    const id = parseInt(distributeId.value);
-    const nextLoc = nextLocation.value;
-    const loc = distributionLocation.value;
-    const quantity = distributeQuantity.value;
-
-    if(!id || !nextLoc || !loc || !quantity){
-      showStatus("Vui lòng nhập đầy đủ thông tin!", false);
-      return;
-    }
-
-    const timestamp = new Date().toLocaleString('vi-VN');
-    const newStatus = `Phân phối đến ${nextLoc} lúc ${timestamp}, địa điểm: ${loc}, số lượng: ${quantity}`;
-
     document.body.classList.add("loading");
 
     const accounts = await web3.eth.getAccounts();
+    const confirmStatus = "Đã xác nhận nhận hàng từ manufacturer";
 
     await contract.methods
-      .updateStatus(id, newStatus)
+      .updateStatus(id, confirmStatus)
       .send({ from: accounts[0] });
 
-    showStatus("Cập nhật phân phối thành công!");
+    showStatus("Xác nhận giao dịch thành công cho ID " + id);
 
   } catch(err){
     showStatus("Lỗi: " + err.message, false);
@@ -245,7 +282,35 @@ async function updateDistribution(){
   document.body.classList.remove("loading");
 }
 
-// ================= UPDATE STATUS =================
+// ================= TRANSFER TO OTHER DISTRIBUTOR (Chức Năng 2) =================
+async function transferToDistributor(){
+  try{
+    const id = parseInt(distTransferId.value);
+    const otherDistAddress = distBuyerAddress.value;
+
+    if(!id || !web3.utils.isAddress(otherDistAddress)){
+      showStatus("Thông tin không hợp lệ!", false);
+      return;
+    }
+
+    document.body.classList.add("loading");
+
+    const accounts = await web3.eth.getAccounts();
+
+    await contract.methods
+      .transferOwnership(id, otherDistAddress)
+      .send({ from: accounts[0] });
+
+    showStatus("Chuyển giao cho distributor khác thành công!");
+
+  } catch(err){
+    showStatus("Lỗi: " + err.message, false);
+  }
+
+  document.body.classList.remove("loading");
+}
+
+// ================= UPDATE STATUS (Giữ Nguyên) =================
 async function updateStatus(){
   try{
     const id = parseInt(updateId.value);
@@ -265,34 +330,6 @@ async function updateStatus(){
       .send({ from: accounts[0] });
 
     showStatus("Cập nhật trạng thái thành công!");
-
-  } catch(err){
-    showStatus("Lỗi: " + err.message, false);
-  }
-
-  document.body.classList.remove("loading");
-}
-
-// ================= TRANSFER =================
-async function transferOwnership(){
-  try{
-    const id = parseInt(transferId.value);
-    const buyer = buyerAddress.value;
-
-    if(!web3.utils.isAddress(buyer)){
-      showStatus("Địa chỉ ví không hợp lệ!", false);
-      return;
-    }
-
-    document.body.classList.add("loading");
-
-    const accounts = await web3.eth.getAccounts();
-
-    await contract.methods
-      .transferOwnership(id, buyer)
-      .send({ from: accounts[0] });
-
-    showStatus("Chuyển giao thành công!");
 
   } catch(err){
     showStatus("Lỗi: " + err.message, false);
