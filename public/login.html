@@ -3,50 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nhà Sản Xuất - Truy Xuất Mỹ Phẩm Blockchain</title>
+  <title>Đăng Nhập - Hệ Thống Truy Xuất Blockchain</title>
 
-  <!-- Web3 -->
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- QR Code -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
-
-  <!-- CSS Styles -->
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #f0f8ff; /* Light sea blue background */
-      color: #333;
-      margin: 0;
-      padding: 0;
+      background-color: #f0f8ff;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      margin: 0;
     }
 
     .container {
-      background-color: #ffffff;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0, 119, 182, 0.2); /* Sea blue shadow */
+      background: #ffffff;
       padding: 40px;
-      max-width: 600px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,119,182,0.2);
       width: 100%;
+      max-width: 420px;
     }
 
     h1 {
       text-align: center;
-      color: #0077b6; /* Sea blue */
+      color: #0077b6;
       margin-bottom: 30px;
-      font-size: 28px;
     }
 
-    h2 {
-      color: #00a8e8; /* Brighter sea blue */
-      margin-top: 40px;
-      font-size: 22px;
-      border-bottom: 2px solid #0077b6;
-      padding-bottom: 10px;
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: #e6f7ff;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 8px;
+      margin: 0 5px;
+      transition: 0.3s;
+    }
+
+    .tabs button.active {
+      background: #0077b6;
+      color: white;
     }
 
     input {
@@ -55,262 +63,138 @@
       margin: 10px 0;
       border: 1px solid #00a8e8;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px;
       box-sizing: border-box;
     }
 
-    button {
+    button.submit-btn {
       width: 100%;
       padding: 12px;
-      background-color: #0077b6; /* Sea blue button */
+      background-color: #0077b6;
       color: white;
       border: none;
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      margin-top: 10px;
+      transition: 0.3s;
     }
 
-    button:hover {
-      background-color: #005f8f; /* Darker sea blue */
+    button.submit-btn:hover {
+      background-color: #005f8f;
     }
 
-    canvas {
-      display: block;
-      margin: 20px auto;
-      border: 1px solid #00a8e8;
-      border-radius: 8px;
+    .google-btn {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
     }
 
-    hr {
-      border: 0;
-      height: 1px;
-      background-color: #00a8e8;
-      margin: 30px 0;
+    .hidden {
+      display: none;
     }
 
-    /* Responsive design */
-    @media (max-width: 600px) {
-      .container {
-        padding: 20px;
-      }
-      h1 { font-size: 24px; }
-      h2 { font-size: 20px; }
+    .footer-text {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    @media(max-width:500px){
+      .container { padding:20px; }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <h1>Nhà Sản Xuất – Tạo Sản Phẩm</h1>
+  <h1>Hệ Thống Truy Xuất</h1>
 
-    <input id="name" placeholder="Tên sản phẩm"><br>
-    <input id="batchID" placeholder="Mã lô"><br>
-    <input id="manufactureDate" placeholder="Ngày sản xuất (timestamp)"><br>
-    <input id="origin" placeholder="Nguồn gốc"><br>
-    <button onclick="createProduct()">Tạo sản phẩm</button>
-
-    <br><br>
-    <canvas id="qrCode"></canvas>
-
-    <hr>
-
-    <h2>Chuyển giao quyền sở hữu</h2>
-
-    <input id="transferId" placeholder="ID sản phẩm"><br>
-    <input id="newOwner" placeholder="Địa chỉ ví mới (0x...)"><br>
-    <button onclick="transferOwnership()">Chuyển giao</button>
-
+  <div class="tabs">
+    <button id="loginTab" class="active" onclick="switchTab('login')">Đăng Nhập</button>
+    <button id="registerTab" onclick="switchTab('register')">Tạo Tài Khoản</button>
   </div>
 
+  <!-- LOGIN FORM -->
+  <form id="loginForm">
+    <input type="text" placeholder="Username" required>
+    <input type="password" placeholder="Password" required>
+    <button type="submit" class="submit-btn">Đăng Nhập</button>
+  </form>
+
+  <!-- REGISTER FORM -->
+  <form id="registerForm" class="hidden">
+    <input type="text" placeholder="Username" required>
+    <input type="email" placeholder="Email" required>
+    <input type="password" placeholder="Password" required>
+    <button type="submit" class="submit-btn">Tạo Tài Khoản</button>
+  </form>
+
+  <!-- GOOGLE LOGIN -->
+  <div class="google-btn">
+    <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+         data-callback="handleCredentialResponse">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="signin_with"
+         data-shape="rectangular">
+    </div>
+  </div>
+
+  <div class="footer-text">
+    © 2026 Blockchain Traceability System
+  </div>
+
+</div>
+
 <script>
-/* =======================
-   1. CONTRACT CONFIG
-======================= */
-const contractAddress = "0xFe1EBE50ce798030be1bF991205799f24BCEbd11";
+function switchTab(type) {
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const loginTab = document.getElementById("loginTab");
+  const registerTab = document.getElementById("registerTab");
 
-const abi = [
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "indexed": false, "internalType": "address", "name": "newOwner", "type": "address" }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "indexed": false, "internalType": "string", "name": "name", "type": "string" }
-    ],
-    "name": "ProductCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "indexed": false, "internalType": "string", "name": "newStatus", "type": "string" }
-    ],
-    "name": "StatusUpdated",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "productCount",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "name": "products",
-    "outputs": [
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "batchID", "type": "string" },
-      { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
-      { "internalType": "string", "name": "origin", "type": "string" },
-      { "internalType": "bool", "name": "isAuthentic", "type": "bool" },
-      { "internalType": "address", "name": "owner", "type": "address" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_batchID", "type": "string" },
-      { "internalType": "uint256", "name": "_manufactureDate", "type": "uint256" },
-      { "internalType": "string", "name": "_origin", "type": "string" }
-    ],
-    "name": "createProduct",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "_id", "type": "uint256" },
-      { "internalType": "string", "name": "_newStatus", "type": "string" }
-    ],
-    "name": "updateStatus",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "_id", "type": "uint256" },
-      { "internalType": "address", "name": "_newOwner", "type": "address" }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }],
-    "name": "verifyProduct",
-    "outputs": [
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "batchID", "type": "string" },
-      { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
-      { "internalType": "string", "name": "origin", "type": "string" },
-      { "internalType": "bool", "name": "isAuthentic", "type": "bool" },
-      { "internalType": "string[]", "name": "history", "type": "string[]" },
-      { "internalType": "address", "name": "owner", "type": "address" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
-
-let web3;
-let contract;
-let account;
-
-/* =======================
-   2. INIT WEB3
-======================= */
-window.addEventListener("load", async () => {
-  if (window.ethereum) {
-    web3 = new Web3(window.ethereum);
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    account = accounts[0];
-    contract = new web3.eth.Contract(abi, contractAddress);
-    console.log("Connected account:", account);
+  if(type === "login"){
+    loginForm.classList.remove("hidden");
+    registerForm.classList.add("hidden");
+    loginTab.classList.add("active");
+    registerTab.classList.remove("active");
   } else {
-    alert("Vui lòng cài MetaMask!");
-  }
-});
-
-/* =======================
-   3. CREATE PRODUCT
-======================= */
-async function createProduct() {
-  const name = document.getElementById("name").value;
-  const batchID = document.getElementById("batchID").value;
-  const manufactureDate = Number(document.getElementById("manufactureDate").value); // ✅ ép về Number
-  const origin = document.getElementById("origin").value;
-
-  if (!name || !batchID || !manufactureDate || !origin) {
-    alert("Vui lòng nhập đầy đủ thông tin!");
-    return;
-  }
-
-  try {
-    const gas = await contract.methods
-      .createProduct(name, batchID, manufactureDate, origin)
-      .estimateGas({ from: account });
-
-    await contract.methods
-      .createProduct(name, batchID, manufactureDate, origin)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // ✅ ép gas về Number
-
-    let id = await contract.methods.productCount().call();
-    id = Number(id); // ✅ ép BigInt về Number
-
-    alert("Tạo sản phẩm thành công! ID: " + id);
-
-    QRCode.toCanvas(
-      document.getElementById("qrCode"),
-      id.toString(), // ✅ ép về chuỗi
-      err => err && console.error(err)
-    );
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
+    registerForm.classList.remove("hidden");
+    loginForm.classList.add("hidden");
+    registerTab.classList.add("active");
+    loginTab.classList.remove("active");
   }
 }
 
-/* =======================
-   4. TRANSFER OWNERSHIP
-======================= */
-async function transferOwnership() {
-  let id = document.getElementById("transferId").value;
-  id = Number(id); // ✅ ép về Number để tránh trộn BigInt/Number
+/* ==========================
+   GOOGLE LOGIN CALLBACK
+========================== */
+function handleCredentialResponse(response) {
+  console.log("Google Token:", response.credential);
 
-  const newOwner = document.getElementById("newOwner").value;
-
-  if (!web3.utils.isAddress(newOwner)) {
-    alert("Địa chỉ ví không hợp lệ!");
-    return;
-  }
-
-  try {
-    await contract.methods
-      .transferOwnership(id, newOwner)
-      .send({ from: account, gas: 300000 });
-
-    alert("Chuyển giao quyền sở hữu thành công!");
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
-  }
+  // Gửi token về backend để xác thực
+  fetch("/google-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: response.credential })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.success){
+      alert("Đăng nhập Google thành công!");
+      window.location.href = "/dashboard";
+    }
+  })
+  .catch(err => console.error(err));
 }
 </script>
 
