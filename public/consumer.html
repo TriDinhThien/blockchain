@@ -1,151 +1,33 @@
+```html
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nhà Sản Xuất - Truy Xuất Mỹ Phẩm Blockchain</title>
-
-  <!-- Web3 -->
+  <title>Người Tiêu Dùng</title>
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-
-  <!-- QR Code -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
-
-  <!-- CSS Styles -->
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f0f8ff; /* Light sea blue background */
-      color: #333;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      background-color: #ffffff;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0, 119, 182, 0.2); /* Sea blue shadow */
-      padding: 40px;
-      max-width: 600px;
-      width: 100%;
-    }
-
-    h1 {
-      text-align: center;
-      color: #0077b6; /* Sea blue */
-      margin-bottom: 30px;
-      font-size: 28px;
-    }
-
-    h2 {
-      color: #00a8e8; /* Brighter sea blue */
-      margin-top: 40px;
-      font-size: 22px;
-      border-bottom: 2px solid #0077b6;
-      padding-bottom: 10px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #00a8e8;
-      border-radius: 8px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #0077b6; /* Sea blue button */
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #005f8f; /* Darker sea blue */
-    }
-
-    canvas {
-      display: block;
-      margin: 20px auto;
-      border: 1px solid #00a8e8;
-      border-radius: 8px;
-    }
-
-    hr {
-      border: 0;
-      height: 1px;
-      background-color: #00a8e8;
-      margin: 30px 0;
-    }
-
-    /* Responsive design */
-    @media (max-width: 600px) {
-      .container {
-        padding: 20px;
-      }
-      h1 { font-size: 24px; }
-      h2 { font-size: 20px; }
-    }
-  </style>
 </head>
-
 <body>
-
-  <div class="container">
-
-    <h1>Nhà Sản Xuất – Tạo Sản Phẩm</h1>
-
-    <input id="name" placeholder="Tên sản phẩm"><br>
-    <input id="batchID" placeholder="Mã lô"><br>
-    <input id="manufactureDate" placeholder="Ngày sản xuất (timestamp)"><br>
-    <input id="origin" placeholder="Nguồn gốc"><br>
-    <button onclick="createProduct()">Tạo sản phẩm</button>
-
-    <br><br>
-    <canvas id="qrCode"></canvas>
-
-    <hr>
-
-    <h2>Chuyển giao quyền sở hữu</h2>
-
-    <input id="transferId" placeholder="ID sản phẩm"><br>
-    <input id="newOwner" placeholder="Địa chỉ ví mới (0x...)"><br>
-    <button onclick="transferOwnership()">Chuyển giao</button>
-
-  </div>
-
-<script>
-/* =======================
-   1. CONTRACT CONFIG
-======================= */
-const contractAddress = "0x2A7aa0CBB0c66d5fF1248dBe8c6433a1bDA6d375";
-
-const abi = [
+  <h1>Người Tiêu Dùng: Xác Thực Sản Phẩm</h1>
+  <input id="verifyId" placeholder="ID sản phẩm (từ QR)"><br>
+  <button onclick="verifyProduct()">Xác Thực</button>
+  <div id="result"></div>
+  <script>
+    const contractAddress = '0xFe1EBE50ce798030be1bF991205799f24BCEbd11'; // Address mới từ migrate gần nhất
+    const abi = [
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "indexed": false, "internalType": "address", "name": "newOwner", "type": "address" }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "indexed": false, "internalType": "string", "name": "name", "type": "string" }
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
     ],
     "name": "ProductCreated",
     "type": "event"
@@ -153,39 +35,63 @@ const abi = [
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "indexed": false, "internalType": "string", "name": "newStatus", "type": "string" }
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newStatus",
+        "type": "string"
+      }
     ],
     "name": "StatusUpdated",
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "productCount",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "name": "products",
-    "outputs": [
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "batchID", "type": "string" },
-      { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
-      { "internalType": "string", "name": "origin", "type": "string" },
-      { "internalType": "bool", "name": "isAuthentic", "type": "bool" },
-      { "internalType": "address", "name": "owner", "type": "address" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
-      { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_batchID", "type": "string" },
-      { "internalType": "uint256", "name": "_manufactureDate", "type": "uint256" },
-      { "internalType": "string", "name": "_origin", "type": "string" }
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_batchID",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_manufactureDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_origin",
+        "type": "string"
+      }
     ],
     "name": "createProduct",
     "outputs": [],
@@ -193,9 +99,92 @@ const abi = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "productCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
-      { "internalType": "uint256", "name": "_id", "type": "uint256" },
-      { "internalType": "string", "name": "_newStatus", "type": "string" }
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "products",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "batchID",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "manufactureDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "origin",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAuthentic",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_newStatus",
+        "type": "string"
+      }
     ],
     "name": "updateStatus",
     "outputs": [],
@@ -204,124 +193,70 @@ const abi = [
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_id", "type": "uint256" },
-      { "internalType": "address", "name": "_newOwner", "type": "address" }
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
     ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }],
     "name": "verifyProduct",
     "outputs": [
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "batchID", "type": "string" },
-      { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
-      { "internalType": "string", "name": "origin", "type": "string" },
-      { "internalType": "bool", "name": "isAuthentic", "type": "bool" },
-      { "internalType": "string[]", "name": "history", "type": "string[]" },
-      { "internalType": "address", "name": "owner", "type": "address" }
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "batchID",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "manufactureDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "origin",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAuthentic",
+        "type": "bool"
+      },
+      {
+        "internalType": "string[]",
+        "name": "history",
+        "type": "string[]"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   }
 ];
-
-let web3;
-let contract;
-let account;
-
-/* =======================
-   2. INIT WEB3
-======================= */
-window.addEventListener("load", async () => {
-  if (window.ethereum) {
-    web3 = new Web3(window.ethereum);
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    account = accounts[0];
-    contract = new web3.eth.Contract(abi, contractAddress);
-    console.log("Connected account:", account);
-  } else {
-    alert("Vui lòng cài MetaMask!");
-  }
-});
-
-/* =======================
-   3. CREATE PRODUCT
-======================= */
-async function createProduct() {
-  const name = document.getElementById("name").value;
-  const batchID = document.getElementById("batchID").value;
-  const manufactureDate = Number(document.getElementById("manufactureDate").value); // ✅ ép về Number
-  const origin = document.getElementById("origin").value;
-
-  if (!name || !batchID || !manufactureDate || !origin) {
-    alert("Vui lòng nhập đầy đủ thông tin!");
-    return;
-  }
-
-  try {
-    const gas = await contract.methods
-      .createProduct(name, batchID, manufactureDate, origin)
-      .estimateGas({ from: account });
-
-    await contract.methods
-      .createProduct(name, batchID, manufactureDate, origin)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // ✅ ép gas về Number
-
-    let id = await contract.methods.productCount().call();
-    id = Number(id); // ✅ ép BigInt về Number
-
-    alert("Tạo sản phẩm thành công! ID: " + id);
-
-    QRCode.toCanvas(
-      document.getElementById("qrCode"),
-      `http://localhost:3000/verify.html?id=${id}`, // ✅ Sửa thành URL đầy đủ
-      err => err && console.error(err)
-    );
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
-  }
-}
-
-/* =======================
-   4. TRANSFER OWNERSHIP
-======================= */
-async function transferOwnership() {
-  let idInput = document.getElementById("transferId").value.trim(); // Lấy giá trị và loại bỏ khoảng trắng
-  let id = Number(idInput); // Ép về Number
-
-  if (idInput === "" || isNaN(id) || id <= 0 || !Number.isInteger(id)) {
-    alert("ID sản phẩm không hợp lệ! Vui lòng nhập số nguyên dương (ví dụ: 1, 2, ...).");
-    return; // Dừng hàm nếu lỗi
-  }
-
-  const newOwner = document.getElementById("newOwner").value.trim();
-
-  if (!newOwner || !web3.utils.isAddress(newOwner)) {
-    alert("Địa chỉ ví mới không hợp lệ! Vui lòng nhập địa chỉ Ethereum hợp lệ (bắt đầu bằng 0x...).");
-    return;
-  }
-
-  try {
-    const gas = await contract.methods
-      .transferOwnership(id, newOwner)
-      .estimateGas({ from: account });
-
-    await contract.methods
-      .transferOwnership(id, newOwner)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // Ép gas về Number an toàn
-
-    alert("Chuyển giao quyền sở hữu thành công!");
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
-  }
-}
-</script>
-
+    const web3 = new Web3('http://127.0.0.1:7545');
+    const contract = new web3.eth.Contract(abi, contractAddress);
+    async function verifyProduct() {
+      const id = parseInt(document.getElementById('verifyId').value);
+      const result = await contract.methods.verifyProduct(id).call();
+      document.getElementById('result').innerHTML = `
+        Tên: ${result[0]}<br>
+        Mã lô: ${result[1]}<br>
+        Ngày sản xuất: ${result[2]}<br>
+        Nguồn gốc: ${result[3]}<br>
+        Chính hãng: ${result[4] ? 'Có' : 'Không'}<br>
+        Lịch sử: ${result[5].join('<br>')}<br>
+        Owner hiện tại: ${result[6]}
+      `;
+    }
+  </script>
 </body>
 </html>
+```
