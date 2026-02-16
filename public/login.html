@@ -179,23 +179,28 @@ function switchTab(type) {
    GOOGLE LOGIN CALLBACK
 ========================== */
 function handleCredentialResponse(response) {
-  console.log("Google Token:", response.credential);
-
-  // Gửi token về backend để xác thực
-  fetch("/google-login", {
+  fetch("/api/google-login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token: response.credential })
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      token: response.credential
+    })
   })
   .then(res => res.json())
   .then(data => {
-    if(data.success){
-      alert("Đăng nhập Google thành công!");
-      window.location.href = "/dashboard";
+    if (data.success) {
+      alert("Đăng nhập thành công: " + data.email);
+      console.log(data);
+    } else {
+      alert("Token không hợp lệ");
     }
   })
   .catch(err => console.error(err));
 }
+
+
 </script>
 
 </body>
