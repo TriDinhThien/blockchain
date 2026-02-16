@@ -1,278 +1,233 @@
-```html
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <title>Nhà Phân Phối</title>
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributor - Blockchain Traceability</title>
+
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f0f8ff;
+  margin:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.container{
+  background:#fff;
+  width:95%;
+  max-width:600px;
+  padding:40px;
+  border-radius:15px;
+  box-shadow:0 4px 20px rgba(0,119,182,0.2);
+}
+
+h1{
+  text-align:center;
+  color:#0077b6;
+  margin-bottom:10px;
+}
+
+.user-info{
+  text-align:center;
+  margin-bottom:20px;
+  font-size:14px;
+  color:#555;
+}
+
+.section{
+  margin-top:30px;
+}
+
+h2{
+  color:#0077b6;
+  font-size:18px;
+  margin-bottom:10px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #00a8e8;
+  font-size:14px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#0077b6;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  margin-top:10px;
+  font-size:15px;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#005f8f;
+}
+
+.logout{
+  background:#e63946;
+}
+
+.logout:hover{
+  background:#c1121f;
+}
+
+.status-box{
+  margin-top:15px;
+  padding:10px;
+  border-radius:6px;
+  background:#e6f7ff;
+  font-size:14px;
+  display:none;
+}
+
+.loading{
+  opacity:0.6;
+  pointer-events:none;
+}
+</style>
 </head>
+
 <body>
-  <h1>Nhà Phân Phối: Cập Nhật Trạng Thái</h1>
-  <input id="updateId" placeholder="ID sản phẩm"><br>
-  <input id="newStatus" placeholder="Trạng thái mới"><br>
+
+<div class="container">
+
+<h1>Nhà Phân Phối</h1>
+<div class="user-info" id="userInfo"></div>
+
+<div class="section">
+  <h2>Cập Nhật Trạng Thái</h2>
+  <input id="updateId" placeholder="ID sản phẩm">
+  <input id="newStatus" placeholder="Trạng thái mới (Đang vận chuyển, Đã giao...)">
   <button onclick="updateStatus()">Cập Nhật</button>
+</div>
 
-  <h2>Chuyển Giao Quyền Sở Hữu Cho Người Mua</h2>
-  <input id="transferId" placeholder="ID sản phẩm"><br>
-  <input id="buyerAddress" placeholder="Địa chỉ MetaMask của người mua (0x...)"><br>
-  <button onclick="transferOwnership()">Chuyển Giao Cho Người Mua</button>
+<div class="section">
+  <h2>Chuyển Giao Quyền Sở Hữu</h2>
+  <input id="transferId" placeholder="ID sản phẩm">
+  <input id="buyerAddress" placeholder="Địa chỉ MetaMask người mua (0x...)">
+  <button onclick="transferOwnership()">Chuyển Giao</button>
+</div>
 
-  <script>
-    const contractAddress = '0xb4D1159D9A955D7004c0431f57Df7FB067a53d23'; // Address mới từ migrate gần nhất
-    const abi = [
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "ProductCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "newStatus",
-        "type": "string"
-      }
-    ],
-    "name": "StatusUpdated",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_batchID",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_manufactureDate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_origin",
-        "type": "string"
-      }
-    ],
-    "name": "createProduct",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "productCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "products",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "batchID",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "manufactureDate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "origin",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "isAuthentic",
-        "type": "bool"
-      },
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_newStatus",
-        "type": "string"
-      }
-    ],
-    "name": "updateStatus",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "verifyProduct",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "batchID",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "manufactureDate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "origin",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "isAuthentic",
-        "type": "bool"
-      },
-      {
-        "internalType": "string[]",
-        "name": "history",
-        "type": "string[]"
-      },
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
+<div class="status-box" id="statusBox"></div>
+
+<button class="logout" onclick="logout()">Đăng Xuất</button>
+
+</div>
+
+<script>
+
+// ================= AUTH CHECK =================
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if(!currentUser || currentUser.role !== "distributor"){
+  alert("Bạn không có quyền truy cập!");
+  window.location.href = "login.html";
+}
+
+document.getElementById("userInfo").innerHTML =
+  "Đăng nhập với: <b>" + currentUser.username + "</b>";
+
+// ================= WEB3 INIT =================
+let web3;
+let contract;
+const contractAddress = "0xb4D1159D9A955D7004c0431f57Df7FB067a53d23";
+const abi = [...]; // ⚠ Giữ nguyên ABI của bạn ở đây
+
+window.addEventListener("load", async () => {
+  if(window.ethereum){
+    web3 = new Web3(window.ethereum);
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    contract = new web3.eth.Contract(abi, contractAddress);
+  } else {
+    alert("Vui lòng cài MetaMask!");
   }
-];
-    const web3 = new Web3('http://127.0.0.1:7545');
-    const contract = new web3.eth.Contract(abi, contractAddress);
-    async function updateStatus() {
-      const accounts = await web3.eth.getAccounts();
-      const id = parseInt(document.getElementById('updateId').value);
-      const newStatus = document.getElementById('newStatus').value;
-      await contract.methods.updateStatus(id, newStatus).send({from: accounts[0]});
-      alert('Cập nhật thành công');
+});
+
+// ================= HELPER =================
+function showStatus(message, success=true){
+  const box = document.getElementById("statusBox");
+  box.style.display = "block";
+  box.style.background = success ? "#d4edda" : "#f8d7da";
+  box.style.color = success ? "#155724" : "#721c24";
+  box.innerText = message;
+}
+
+// ================= UPDATE STATUS =================
+async function updateStatus(){
+  try{
+    const id = parseInt(updateId.value);
+    const newStatus = newStatus.value;
+
+    if(!id || !newStatus){
+      showStatus("Vui lòng nhập đầy đủ thông tin!", false);
+      return;
     }
 
-    async function transferOwnership() {
-      const accounts = await web3.eth.getAccounts();
-      const id = parseInt(document.getElementById('transferId').value);
-      const buyerAddress = document.getElementById('buyerAddress').value;
-      if (!buyerAddress.startsWith('0x') || buyerAddress.length !== 42) {
-        alert('Địa chỉ không hợp lệ! Phải bắt đầu bằng 0x và dài 42 ký tự.');
-        return;
-      }
-      try {
-        await contract.methods.transferOwnership(id, buyerAddress).send({from: accounts[0]});
-        alert('Chuyển giao quyền sở hữu thành công cho người mua!');
-      } catch (error) {
-        alert('Lỗi: ' + error.message);
-      }
+    document.body.classList.add("loading");
+
+    const accounts = await web3.eth.getAccounts();
+
+    await contract.methods
+      .updateStatus(id, newStatus)
+      .send({ from: accounts[0] });
+
+    showStatus("Cập nhật trạng thái thành công!");
+
+  } catch(err){
+    showStatus("Lỗi: " + err.message, false);
+  }
+
+  document.body.classList.remove("loading");
+}
+
+// ================= TRANSFER =================
+async function transferOwnership(){
+  try{
+    const id = parseInt(transferId.value);
+    const buyer = buyerAddress.value;
+
+    if(!web3.utils.isAddress(buyer)){
+      showStatus("Địa chỉ ví không hợp lệ!", false);
+      return;
     }
-  </script>
+
+    document.body.classList.add("loading");
+
+    const accounts = await web3.eth.getAccounts();
+
+    await contract.methods
+      .transferOwnership(id, buyer)
+      .send({ from: accounts[0] });
+
+    showStatus("Chuyển giao thành công!");
+
+  } catch(err){
+    showStatus("Lỗi: " + err.message, false);
+  }
+
+  document.body.classList.remove("loading");
+}
+
+// ================= LOGOUT =================
+function logout(){
+  localStorage.removeItem("currentUser");
+  window.location.href = "login.html";
+}
+
+</script>
+
 </body>
 </html>
-```
