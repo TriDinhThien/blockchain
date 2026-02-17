@@ -231,19 +231,14 @@
 ];
     const web3 = new Web3('http://127.0.0.1:7545');
     const contract = new web3.eth.Contract(abi, contractAddress);
-
-    // Hàm validate ID tồn tại trước khi transfer/update (thêm mới)
+    
+    // Hàm validate ID tồn tại trước khi transfer/update
     async function validateProductExists(id) {
       if (id <= 0) return false;
-      try {
-        const count = await contract.methods.productCount().call();
-        if (id > Number(count)) return false;
-        const product = await contract.methods.products(id).call();
-        return product.name !== ''; // Sản phẩm tồn tại nếu name không rỗng
-      } catch (err) {
-        console.error(err);
-        return false;
-      }
+      const count = await contract.methods.productCount().call();
+      if (id > Number(count)) return false;
+      const product = await contract.methods.products(id).call();
+      return product.name !== ''; // Sản phẩm tồn tại nếu name không rỗng
     }
 
     async function updateStatus() {
@@ -255,7 +250,7 @@
         return;
       }
       if (!(await validateProductExists(id))) {
-        alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID (ID từ 1 đến ' + await contract.methods.productCount().call() + ').');
+        alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID.');
         return;
       }
       try {
@@ -280,7 +275,7 @@
         return;
       }
       if (!(await validateProductExists(id))) {
-        alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID (ID từ 1 đến ' + await contract.methods.productCount().call() + ').');
+        alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID.');
         return;
       }
       try {
