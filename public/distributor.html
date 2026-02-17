@@ -247,21 +247,19 @@
     "type": "function"
   }
 ];
-let web3;
-let contract;
-let account;
+let web3, contract, account;
 
-window.addEventListener("load", async () => {
-  if (window.ethereum) {
-    web3 = new Web3(window.ethereum);
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    account = accounts[0];
-    contract = new web3.eth.Contract(abi, contractAddress);
-    console.log("Connected account:", account);
-  } else {
-    alert("Vui lòng cài MetaMask!");
-  }
-});
+    window.addEventListener("load", async () => {
+        if (window.ethereum) {
+            web3 = new Web3(window.ethereum);
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            account = accounts[0];
+            contract = new web3.eth.Contract(abi, contractAddress);
+            console.log("✅ Connected:", account);
+        } else {
+            alert("Vui lòng cài MetaMask!");
+        }
+    });
 
 async function updateStatus() {
   let id = document.getElementById("updateId").value;
@@ -287,29 +285,25 @@ async function updateStatus() {
 }
 
 async function transferOwnership() {
-  let id = document.getElementById("transferId").value;
-  id = Number(id);
+        const idStr = document.getElementById("transferId").value.trim();
+        const newOwner = document.getElementById("buyerAddress").value.trim();
 
-  const newOwner = document.getElementById("buyerAddress").value; // ✅ ĐÚNG ID
+        if (!idStr) { alert("Vui lòng nhập ID sản phẩm!"); return; }
+        const id = Number(idStr);
 
-  if (!web3.utils.isAddress(newOwner)) {
-    alert("Địa chỉ ví không hợp lệ!");
-    return;
-  }
+        if (!web3.utils.isAddress(newOwner)) {
+            alert("Địa chỉ ví không hợp lệ!");
+            return;
+        }
 
-  try {
-    await contract.methods
-      .transferOwnership(id, newOwner)
-      .send({ from: account, gas: 300000 });
+        try {
+            await contract.methods.transferOwnership(id, newOwner)
+                .send({ from: account, gas: 300000 });
 
-    alert("Chuyển giao quyền sở hữu thành công!");
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
-  }
-}
+            alert("✅ Chuyển giao thành công!");
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi: " + (err.reason || err.message || err));
+        }
+    }
 </script>
-  </script>
-</body>
-</html>
-```
