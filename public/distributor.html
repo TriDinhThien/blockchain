@@ -1,241 +1,278 @@
+```html
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nhà Phân Phối - Truy Xuất Mỹ Phẩm Blockchain</title>
-
-  <!-- Web3 -->
+  <title>Nhà Phân Phối</title>
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-
-  <!-- CSS giống Manufacturer -->
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f0f8ff;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      background-color: #ffffff;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0, 119, 182, 0.2);
-      padding: 40px;
-      max-width: 600px;
-      width: 100%;
-    }
-
-    h1 {
-      text-align: center;
-      color: #0077b6;
-      margin-bottom: 30px;
-      font-size: 28px;
-    }
-
-    h2 {
-      color: #00a8e8;
-      margin-top: 40px;
-      font-size: 22px;
-      border-bottom: 2px solid #0077b6;
-      padding-bottom: 10px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #00a8e8;
-      border-radius: 8px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #0077b6;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #005f8f;
-    }
-
-    hr {
-      border: 0;
-      height: 1px;
-      background-color: #00a8e8;
-      margin: 30px 0;
-    }
-
-    @media (max-width: 600px) {
-      .container { padding: 20px; }
-      h1 { font-size: 24px; }
-      h2 { font-size: 20px; }
-    }
-  </style>
 </head>
-
 <body>
+  <h1>Nhà Phân Phối: Cập Nhật Trạng Thái</h1>
+  <input id="updateId" placeholder="ID sản phẩm"><br>
+  <input id="newStatus" placeholder="Trạng thái mới"><br>
+  <button onclick="updateStatus()">Cập Nhật</button>
 
-<div class="container">
+  <h2>Chuyển Giao Quyền Sở Hữu Cho Người Mua</h2>
+  <input id="transferId" placeholder="ID sản phẩm"><br>
+  <input id="buyerAddress" placeholder="Địa chỉ MetaMask của người mua (0x...)"><br>
+  <button onclick="transferOwnership()">Chuyển Giao Cho Người Mua</button>
 
-  <h1>Nhà Phân Phối</h1>
-
-  <!-- UPDATE STATUS -->
-  <h2>Cập Nhật Trạng Thái</h2>
-
-  <input id="updateId" placeholder="ID sản phẩm">
-  <input id="newStatus" placeholder="Trạng thái mới">
-  <button onclick="updateStatus()">Cập nhật trạng thái</button>
-
-  <hr>
-
-  <!-- TRANSFER -->
-  <h2>Chuyển giao quyền sở hữu</h2>
-
-  <input id="transferId" placeholder="ID sản phẩm">
-  <input id="newOwner" placeholder="Địa chỉ ví mới (0x...)">
-  <button onclick="transferOwnership()">Chuyển giao</button>
-
-</div>
-
-<script>
-
-/* =======================
-   1. CONTRACT CONFIG
-======================= */
-
-const contractAddress = "0xFe1EBE50ce798030be1bF991205799f24BCEbd11";
-
-const abi = [ /* DÁN FULL ABI GIỐNG TRANG MANUFACTURER */
+  <script>
+    const contractAddress = '0xFe1EBE50ce798030be1bF991205799f24BCEbd11'; // Address mới từ migrate gần nhất
+    const abi = [
   {
-    "inputs":[{"internalType":"uint256","name":"_id","type":"uint256"},{"internalType":"string","name":"_newStatus","type":"string"}],
-    "name":"updateStatus",
-    "outputs":[],
-    "stateMutability":"nonpayable",
-    "type":"function"
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "ProductCreated",
+    "type": "event"
   },
   {
-    "inputs":[{"internalType":"uint256","name":"_id","type":"uint256"},{"internalType":"address","name":"_newOwner","type":"address"}],
-    "name":"transferOwnership",
-    "outputs":[],
-    "stateMutability":"nonpayable",
-    "type":"function"
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newStatus",
+        "type": "string"
+      }
+    ],
+    "name": "StatusUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_batchID",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_manufactureDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_origin",
+        "type": "string"
+      }
+    ],
+    "name": "createProduct",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "productCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "products",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "batchID",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "manufactureDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "origin",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAuthentic",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_newStatus",
+        "type": "string"
+      }
+    ],
+    "name": "updateStatus",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "verifyProduct",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "batchID",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "manufactureDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "origin",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAuthentic",
+        "type": "bool"
+      },
+      {
+        "internalType": "string[]",
+        "name": "history",
+        "type": "string[]"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ];
+    const web3 = new Web3('http://127.0.0.1:7545');
+    const contract = new web3.eth.Contract(abi, contractAddress);
+    async function updateStatus() {
+      const accounts = await web3.eth.getAccounts();
+      const id = parseInt(document.getElementById('updateId').value);
+      const newStatus = document.getElementById('newStatus').value;
+      await contract.methods.updateStatus(id, newStatus).send({from: accounts[0]});
+      alert('Cập nhật thành công');
+    }
 
-/* =======================
-   2. INIT WEB3 (GIỐNG MANU)
-======================= */
-
-let web3;
-let contract;
-let account;
-
-window.addEventListener("load", async () => {
-  if (window.ethereum) {
-    web3 = new Web3(window.ethereum);
-
-    const accounts = await window.ethereum.request({
-      method: "eth_requestAccounts"
-    });
-
-    account = accounts[0];
-
-    contract = new web3.eth.Contract(abi, contractAddress);
-
-    console.log("Connected account:", account);
-
-  } else {
-    alert("Vui lòng cài MetaMask!");
-  }
-});
-
-
-/* =======================
-   3. UPDATE STATUS
-======================= */
-
-async function updateStatus() {
-
-  let id = Number(document.getElementById("updateId").value);
-  const newStatus = document.getElementById("newStatus").value;
-
-  if (!id || !newStatus) {
-    alert("Vui lòng nhập đầy đủ thông tin!");
-    return;
-  }
-
-  try {
-
-    const gas = await contract.methods
-      .updateStatus(id, newStatus)
-      .estimateGas({ from: account });
-
-    await contract.methods
-      .updateStatus(id, newStatus)
-      .send({
-        from: account,
-        gas: Math.floor(Number(gas) * 1.3)
-      });
-
-    alert("Cập nhật thành công!");
-
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
-  }
-}
-
-
-/* =======================
-   4. TRANSFER OWNERSHIP
-======================= */
-
-async function transferOwnership() {
-
-  let id = Number(document.getElementById("transferId").value);
-  const newOwner = document.getElementById("newOwner").value;
-
-  if (!web3.utils.isAddress(newOwner)) {
-    alert("Địa chỉ ví không hợp lệ!");
-    return;
-  }
-
-  try {
-
-    const gas = await contract.methods
-      .transferOwnership(id, newOwner)
-      .estimateGas({ from: account });
-
-    await contract.methods
-      .transferOwnership(id, newOwner)
-      .send({
-        from: account,
-        gas: Math.floor(Number(gas) * 1.3)
-      });
-
-    alert("Chuyển giao quyền sở hữu thành công!");
-
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
-  }
-}
-
-</script>
-
+    async function transferOwnership() {
+      const accounts = await web3.eth.getAccounts();
+      const id = parseInt(document.getElementById('transferId').value);
+      const buyerAddress = document.getElementById('buyerAddress').value;
+      if (!buyerAddress.startsWith('0x') || buyerAddress.length !== 42) {
+        alert('Địa chỉ không hợp lệ! Phải bắt đầu bằng 0x và dài 42 ký tự.');
+        return;
+      }
+      try {
+        await contract.methods.transferOwnership(id, buyerAddress).send({from: accounts[0]});
+        alert('Chuyển giao quyền sở hữu thành công cho người mua!');
+      } catch (error) {
+        alert('Lỗi: ' + error.message);
+      }
+    }
+  </script>
 </body>
 </html>
+```
