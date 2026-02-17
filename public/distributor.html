@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Nhà Phân Phối</title>
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-</head>
-<body>
-  <h1>Nhà Phân Phối: Cập Nhật Trạng Thái</h1>
-  <input id="updateId" placeholder="ID sản phẩm"><br>
-  <input id="newStatus" placeholder="Trạng thái mới"><br>
-  <button onclick="updateStatus()">Cập Nhật</button>
-
-  <h2>Chuyển Giao Quyền Sở Hữu Cho Người Mua</h2>
-  <input id="transferId" placeholder="ID sản phẩm"><br>
-  <input id="buyerAddress" placeholder="Địa chỉ MetaMask của người mua (0x...)"><br>
-  <button onclick="transferOwnership()">Chuyển Giao Cho Người Mua</button>
-
-  <script>
+<script>
     const contractAddress = '0xFe1EBE50ce798030be1bF991205799f24BCEbd11'; // Address mới từ migrate gần nhất
     const abi = [
   {
@@ -248,55 +231,64 @@
 ];
     const web3 = new Web3('http://127.0.0.1:7545');
     const contract = new web3.eth.Contract(abi, contractAddress);
+
+    // Hàm validate ID tồn tại trước khi transfer/update (thêm mới)
+    async function validateProductExists(id) {
+      if (id <= 0) return false;
+      try {
+        const count = await contract.methods.productCount().call();
+        if (id > Number(count)) return false;
+        const product = await contract.methods.products(id).call();
+        return product.name !== ''; // Sản phẩm tồn tại nếu name không rỗng
+      } catch (err) {
+        console.error(err);
+        return false;
+      }
+    }
+
     async function updateStatus() {
       const accounts = await web3.eth.getAccounts();
       const id = parseInt(document.getElementById('updateId').value);
       const newStatus = document.getElementById('newStatus').value;
-      if (isNaN(id) || id <= 0) {
-        alert('ID sản phẩm không hợp lệ! Phải là số nguyên dương.');
+      if (!id || !newStatus) {
+        alert('Vui lòng nhập đầy đủ thông tin!');
         return;
       }
-      await contract.methods.updateStatus(id, newStatus).send({from: accounts[0]});
-      alert('Cập nhật thành công');
+      if (!(await validateProductExists(id))) {
+        alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID (ID từ 1 đến ' + await contract.methods.productCount().call() + ').');
+        return;
+      }
+      try {
+        await contract.methods.updateStatus(id, newStatus).send({from: accounts[0]});
+        alert('Cập nhật thành công');
+      } catch (error) {
+        console.error(error);
+        alert('Lỗi: ' + error.message);
+      }
     }
 
     async function transferOwnership() {
       const accounts = await web3.eth.getAccounts();
-      const idInput = document.getElementById('transferId').value.trim();
-      const id = parseInt(idInput);
-      const buyerAddress = document.getElementById('buyerAddress').value.trim();
+      const id = parseInt(document.getElementById('transferId').value);
+      const buyerAddress = document.getElementById('buyerAddress').value;
       if (!buyerAddress.startsWith('0x') || buyerAddress.length !== 42) {
         alert('Địa chỉ không hợp lệ! Phải bắt đầu bằng 0x và dài 42 ký tự.');
         return;
       }
-      if (idInput === "" || isNaN(id) || id <= 0) {
-        alert('ID sản phẩm không hợp lệ! Phải là số nguyên dương.');
+      if (!id) {
+        alert('Vui lòng nhập ID sản phẩm!');
+        return;
+      }
+      if (!(await validateProductExists(id))) {
+        alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID (ID từ 1 đến ' + await contract.methods.productCount().call() + ').');
         return;
       }
       try {
-        // Check if product exists (check productCount)
-        const productCount = await contract.methods.productCount().call();
-        if (id > productCount) {
-          alert('Sản phẩm không tồn tại! ID phải <= ' + productCount);
-          return;
-        }
-        // Check if current user is owner
-        const product = await contract.methods.products(id).call();
-        if (product.owner.toLowerCase() !== accounts[0].toLowerCase()) {
-          alert('Bạn không phải chủ sở hữu sản phẩm này!');
-          return;
-        }
         await contract.methods.transferOwnership(id, buyerAddress).send({from: accounts[0]});
         alert('Chuyển giao quyền sở hữu thành công cho người mua!');
       } catch (error) {
         console.error(error);
-        if (error.message.includes('Product does not exist')) {
-          alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID.');
-        } else if (error.message.includes('You are not the owner')) {
-          alert('Bạn không phải chủ sở hữu sản phẩm này!');
-        } else {
-          alert('Lỗi: ' + error.message);
-        }
+        alert('Lỗi: ' + error.message);
       }
     }
   </script>
