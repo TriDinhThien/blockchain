@@ -247,21 +247,50 @@
     "type": "function"
   }
 ];
-    const web3 = new Web3('http://127.0.0.1:7545');
-    const contract = new web3.eth.Contract(abi, contractAddress);
-    async function updateStatus() {
-      const accounts = await web3.eth.getAccounts();
-      const id = parseInt(document.getElementById('updateId').value);
-      const newStatus = document.getElementById('newStatus').value;
-      await contract.methods.updateStatus(id, newStatus).send({from: accounts[0]});
-      alert('Cập nhật thành công');
-    }
+let web3;
+let contract;
+let account;
+
+window.addEventListener("load", async () => {
+  if (window.ethereum) {
+    web3 = new Web3(window.ethereum);
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    account = accounts[0];
+    contract = new web3.eth.Contract(abi, contractAddress);
+    console.log("Connected account:", account);
+  } else {
+    alert("Vui lòng cài MetaMask!");
+  }
+});
+
+async function updateStatus() {
+  let id = document.getElementById("updateId").value;
+  id = Number(id);
+
+  const newStatus = document.getElementById("newStatus").value;
+
+  if (!newStatus) {
+    alert("Vui lòng nhập trạng thái!");
+    return;
+  }
+
+  try {
+    await contract.methods
+      .updateStatus(id, newStatus)
+      .send({ from: account, gas: 300000 });
+
+    alert("Cập nhật trạng thái thành công!");
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi: " + (err.message || err));
+  }
+}
 
 async function transferOwnership() {
   let id = document.getElementById("transferId").value;
-  id = Number(id); // ✅ ép về Number để tránh trộn BigInt/Number
+  id = Number(id);
 
-  const newOwner = document.getElementById("newOwner").value;
+  const newOwner = document.getElementById("buyerAddress").value; // ✅ ĐÚNG ID
 
   if (!web3.utils.isAddress(newOwner)) {
     alert("Địa chỉ ví không hợp lệ!");
@@ -279,6 +308,7 @@ async function transferOwnership() {
     alert("Lỗi: " + (err.message || err));
   }
 }
+</script>
   </script>
 </body>
 </html>
