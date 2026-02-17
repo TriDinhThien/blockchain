@@ -252,24 +252,51 @@
       const accounts = await web3.eth.getAccounts();
       const id = parseInt(document.getElementById('updateId').value);
       const newStatus = document.getElementById('newStatus').value;
+      if (isNaN(id) || id <= 0) {
+        alert('ID sản phẩm không hợp lệ! Phải là số nguyên dương.');
+        return;
+      }
       await contract.methods.updateStatus(id, newStatus).send({from: accounts[0]});
       alert('Cập nhật thành công');
     }
 
     async function transferOwnership() {
-      const accounts = await web3.eth.getAccounts(); // Thêm dòng này để lấy accounts
-      const id = parseInt(document.getElementById('transferId').value);
-      const buyerAddress = document.getElementById('buyerAddress').value;
+      const accounts = await web3.eth.getAccounts();
+      const idInput = document.getElementById('transferId').value.trim();
+      const id = parseInt(idInput);
+      const buyerAddress = document.getElementById('buyerAddress').value.trim();
       if (!buyerAddress.startsWith('0x') || buyerAddress.length !== 42) {
         alert('Địa chỉ không hợp lệ! Phải bắt đầu bằng 0x và dài 42 ký tự.');
         return;
       }
+      if (idInput === "" || isNaN(id) || id <= 0) {
+        alert('ID sản phẩm không hợp lệ! Phải là số nguyên dương.');
+        return;
+      }
       try {
+        // Check if product exists (check productCount)
+        const productCount = await contract.methods.productCount().call();
+        if (id > productCount) {
+          alert('Sản phẩm không tồn tại! ID phải <= ' + productCount);
+          return;
+        }
+        // Check if current user is owner
+        const product = await contract.methods.products(id).call();
+        if (product.owner.toLowerCase() !== accounts[0].toLowerCase()) {
+          alert('Bạn không phải chủ sở hữu sản phẩm này!');
+          return;
+        }
         await contract.methods.transferOwnership(id, buyerAddress).send({from: accounts[0]});
         alert('Chuyển giao quyền sở hữu thành công cho người mua!');
       } catch (error) {
-        console.error(error); // Thêm log để debug
-        alert('Lỗi: ' + error.message);
+        console.error(error);
+        if (error.message.includes('Product does not exist')) {
+          alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID.');
+        } else if (error.message.includes('You are not the owner')) {
+          alert('Bạn không phải chủ sở hữu sản phẩm này!');
+        } else {
+          alert('Lỗi: ' + error.message);
+        }
       }
     }
   </script>
