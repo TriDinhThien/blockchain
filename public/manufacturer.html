@@ -129,7 +129,7 @@
 /* =======================
    1. CONTRACT CONFIG
 ======================= */
-const contractAddress = "0xFe1EBE50ce798030be1bF991205799f24BCEbd11";
+const contractAddress = "0xBBb8c6498A715866C804D762c664c5577B7987AE";
 
 const abi = [
   {
@@ -249,28 +249,12 @@ window.addEventListener("load", async () => {
 });
 
 /* =======================
-   Hàm Validate ID (thêm mới để tương ứng distributor)
-======================= */
-async function validateProductExists(id) {
-  if (id <= 0) return false;
-  try {
-    const count = await contract.methods.productCount().call();
-    if (id > Number(count)) return false;
-    const product = await contract.methods.products(id).call();
-    return product.name !== ''; // Sản phẩm tồn tại nếu name không rỗng
-  } catch (err) {
-    console.error(err);
-    return false;
-  }
-}
-
-/* =======================
-   3. CREATE PRODUCT (giữ nguyên)
+   3. CREATE PRODUCT
 ======================= */
 async function createProduct() {
   const name = document.getElementById("name").value;
   const batchID = document.getElementById("batchID").value;
-  const manufactureDate = Number(document.getElementById("manufactureDate").value);
+  const manufactureDate = Number(document.getElementById("manufactureDate").value); // ✅ ép về Number
   const origin = document.getElementById("origin").value;
 
   if (!name || !batchID || !manufactureDate || !origin) {
@@ -285,16 +269,16 @@ async function createProduct() {
 
     await contract.methods
       .createProduct(name, batchID, manufactureDate, origin)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) });
+      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) }); // ✅ ép gas về Number
 
     let id = await contract.methods.productCount().call();
-    id = Number(id);
+    id = Number(id); // ✅ ép BigInt về Number
 
     alert("Tạo sản phẩm thành công! ID: " + id);
 
     QRCode.toCanvas(
       document.getElementById("qrCode"),
-      id.toString(),
+      id.toString(), // ✅ ép về chuỗi
       err => err && console.error(err)
     );
   } catch (err) {
@@ -304,38 +288,23 @@ async function createProduct() {
 }
 
 /* =======================
-   4. TRANSFER OWNERSHIP (sửa để thêm validation)
+   4. TRANSFER OWNERSHIP
 ======================= */
 async function transferOwnership() {
-  let idInput = document.getElementById("transferId").value.trim();
-  let id = Number(idInput);
+  let id = document.getElementById("transferId").value;
+  id = Number(id); // ✅ ép về Number để tránh trộn BigInt/Number
 
-  if (idInput === "" || isNaN(id) || id <= 0 || !Number.isInteger(id)) {
-    alert("ID sản phẩm không hợp lệ! Vui lòng nhập số nguyên dương (ví dụ: 1, 2, ...).");
-    return;
-  }
+  const newOwner = document.getElementById("newOwner").value;
 
-  const newOwner = document.getElementById("newOwner").value.trim();
-
-  if (!newOwner || !web3.utils.isAddress(newOwner)) {
-    alert("Địa chỉ ví mới không hợp lệ! Vui lòng nhập địa chỉ Ethereum hợp lệ (bắt đầu bằng 0x...).");
-    return;
-  }
-
-  // Thêm validation ID tồn tại
-  if (!(await validateProductExists(id))) {
-    alert('Sản phẩm không tồn tại! Vui lòng kiểm tra ID (ID từ 1 đến ' + await contract.methods.productCount().call() + ').');
+  if (!web3.utils.isAddress(newOwner)) {
+    alert("Địa chỉ ví không hợp lệ!");
     return;
   }
 
   try {
-    const gas = await contract.methods
-      .transferOwnership(id, newOwner)
-      .estimateGas({ from: account });
-
     await contract.methods
       .transferOwnership(id, newOwner)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) });
+      .send({ from: account, gas: 300000 });
 
     alert("Chuyển giao quyền sở hữu thành công!");
   } catch (err) {
@@ -344,3 +313,6 @@ async function transferOwnership() {
   }
 }
 </script>
+
+</body>
+</html>
