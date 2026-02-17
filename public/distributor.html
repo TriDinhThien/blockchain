@@ -257,21 +257,28 @@
       alert('Cập nhật thành công');
     }
 
-    async function transferOwnership() {
-      const accounts = await web3.eth.getAccounts();
-      const id = parseInt(document.getElementById('transferId').value);
-      const buyerAddress = document.getElementById('buyerAddress').value;
-      if (!buyerAddress.startsWith('0x') || buyerAddress.length !== 42) {
-        alert('Địa chỉ không hợp lệ! Phải bắt đầu bằng 0x và dài 42 ký tự.');
-        return;
-      }
-      try {
-        await contract.methods.transferOwnership(id, buyerAddress).send({from: accounts[0]});
-        alert('Chuyển giao quyền sở hữu thành công cho người mua!');
-      } catch (error) {
-        alert('Lỗi: ' + error.message);
-      }
-    }
+async function transferOwnership() {
+  let id = document.getElementById("transferId").value;
+  id = Number(id); // ✅ ép về Number để tránh trộn BigInt/Number
+
+  const newOwner = document.getElementById("newOwner").value;
+
+  if (!web3.utils.isAddress(newOwner)) {
+    alert("Địa chỉ ví không hợp lệ!");
+    return;
+  }
+
+  try {
+    await contract.methods
+      .transferOwnership(id, newOwner)
+      .send({ from: account, gas: 300000 });
+
+    alert("Chuyển giao quyền sở hữu thành công!");
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi: " + (err.message || err));
+  }
+}
   </script>
 </body>
 </html>
