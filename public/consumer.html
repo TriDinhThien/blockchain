@@ -1,9 +1,93 @@
-```html
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <title>Người Tiêu Dùng</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Người Tiêu Dùng - Truy Xuất Mỹ Phẩm Blockchain</title>
+
+  <!-- Web3 -->
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<<<<<<< HEAD
+
+  <!-- CSS tương tự verify.html -->
+  <style>
+    /* Giống verify.html, copy style từ đó */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f8ff;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 119, 182, 0.2);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0077b6;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #00a8e8;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #0077b6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005f8f;
+    }
+
+    #result {
+      background-color: #e6f7ff;
+      border: 1px solid #00a8e8;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    #result p {
+      margin: 10px 0;
+    }
+
+    #result strong {
+      color: #0077b6;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+=======
 </head>
 <body>
   <h1>Người Tiêu Dùng: Xác Thực Sản Phẩm</h1>
@@ -27,11 +111,26 @@
         "internalType": "string",
         "name": "name",
         "type": "string"
+>>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
       }
-    ],
-    "name": "ProductCreated",
-    "type": "event"
-  },
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Người Tiêu Dùng: Xác Thực Sản Phẩm</h1>
+    <input id="verifyId" placeholder="ID sản phẩm (từ QR)"><br>
+    <button onclick="verifyProduct()">Xác Thực</button>
+    <div id="result"></div>
+  </div>
+
+<script>
+const contractAddress = "0xd77c42fb32A79E4789F516961c928FD36C5dF9Fc"; // Thay bằng address mới sau khi deploy
+
+const abi = [
   {
     "anonymous": false,
     "inputs": [
@@ -49,6 +148,25 @@
       }
     ],
     "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "ProductCreated",
     "type": "event"
   },
   {
@@ -90,6 +208,21 @@
       {
         "internalType": "string",
         "name": "_origin",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_ingredients",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string",
+        "name": "_productImageUrl",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_certificationUrl",
         "type": "string"
       }
     ],
@@ -150,6 +283,16 @@
         "internalType": "address",
         "name": "owner",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "productImageUrl",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "certificationUrl",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -235,12 +378,67 @@
         "internalType": "address",
         "name": "owner",
         "type": "address"
+      },
+      {
+        "internalType": "string[]",
+        "name": "ingredients",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string",
+        "name": "productImageUrl",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "certificationUrl",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   }
 ];
+<<<<<<< HEAD
+
+const web3 = new Web3('https://eth-sepolia.g.alchemy.com/v2/vAbZjsKMrBm36nuUECfKk');
+const contract = new web3.eth.Contract(abi, contractAddress);
+
+async function verifyProduct() {
+  const id = Number(document.getElementById('verifyId').value);
+
+  if (!id || id <= 0) {
+    document.getElementById('result').innerHTML = '<p style="color: red;">ID sản phẩm không hợp lệ!</p>';
+    return;
+  }
+
+  try {
+    const result = await contract.methods.verifyProduct(id).call();
+
+    const manufactureDateStr = new Date(Number(result[2]) * 1000).toLocaleDateString('vi-VN');
+    const productImageHash = result[8].replace('ipfs://', '');
+    const certificationHash = result[9].replace('ipfs://', '');
+
+    document.getElementById('result').innerHTML = `
+      <p><strong>Tên sản phẩm:</strong> ${result[0]}</p>
+      <p><strong>Mã lô:</strong> ${result[1]}</p>
+      <p><strong>Ngày sản xuất:</strong> ${manufactureDateStr}</p>
+      <p><strong>Nguồn gốc:</strong> ${result[3]}</p>
+      <p><strong>Chính hãng:</strong> ${result[4] ? 'Có' : 'Không'}</p>
+      <p><strong>Lịch sử:</strong> <br>${result[5].join('<br>')}</p>
+      <p><strong>Chủ sở hữu hiện tại:</strong> ${result[6]}</p>
+      <p><strong>Thành phần:</strong> ${result[7].join(', ')}</p>
+      <p><strong>Ảnh sản phẩm:</strong> <br><img src="https://ipfs.io/ipfs/${productImageHash}" alt="Ảnh sản phẩm" width="200"></p>
+      <p><strong>Chứng nhận sản xuất:</strong> <br><img src="https://ipfs.io/ipfs/${certificationHash}" alt="Chứng nhận" width="200"></p>
+    `;
+  } catch (err) {
+    console.error(err);
+    document.getElementById('result').innerHTML = '<p style="color: red;">Lỗi: ' + (err.message || err) + '</p>';
+  }
+}
+</script>
+
+=======
     const web3 = new Web3('http://127.0.0.1:7545');
     const contract = new web3.eth.Contract(abi, contractAddress);
     async function verifyProduct() {
@@ -257,6 +455,6 @@
       `;
     }
   </script>
+>>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
 </body>
 </html>
-```
