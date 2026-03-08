@@ -10,6 +10,9 @@ contract CosmeticsTraceability {
         bool isAuthentic;         // Xác thực (true nếu chính hãng)
         string[] history;         // Lịch sử trạng thái (mảng string)
         address owner;            // Quyền sở hữu (address ETH của owner hiện tại)
+        string[] ingredients;     // Thành phần (mảng string)
+        string productImageUrl;   // URL ảnh sản phẩm (IPFS)
+        string certificationUrl;  // URL chứng nhận sản xuất (IPFS)
     }
 
     mapping(uint => Product) public products; // Map ID sản phẩm -> chi tiết
@@ -24,7 +27,10 @@ contract CosmeticsTraceability {
         string memory _name,
         string memory _batchID,
         uint _manufactureDate,
-        string memory _origin
+        string memory _origin,
+        string[] memory _ingredients,
+        string memory _productImageUrl,
+        string memory _certificationUrl
     ) public {
         productCount++;
         products[productCount] = Product(
@@ -34,7 +40,10 @@ contract CosmeticsTraceability {
             _origin,
             true,
             new string[](0), // Khởi tạo mảng rỗng đúng cú pháp
-            msg.sender       // Owner ban đầu là người gọi hàm (nhà sản xuất)
+            msg.sender,      // Owner ban đầu là người gọi hàm (nhà sản xuất)
+            _ingredients,
+            _productImageUrl,
+            _certificationUrl
         );
         products[productCount].history.push("Created by Manufacturer");
         emit ProductCreated(productCount, _name);
@@ -58,7 +67,7 @@ contract CosmeticsTraceability {
         emit OwnershipTransferred(_id, _newOwner);
     }
 
-    // Hàm xác thực (người dùng quét QR, trả về thêm owner)
+    // Hàm xác thực (người dùng quét QR, trả về thêm owner và fields mới)
     function verifyProduct(uint _id)
         public
         view
@@ -69,7 +78,10 @@ contract CosmeticsTraceability {
             string memory origin,
             bool isAuthentic,
             string[] memory history,
-            address owner  // Trả về owner
+            address owner,
+            string[] memory ingredients,
+            string memory productImageUrl,
+            string memory certificationUrl
         )
     {
         require(_id <= productCount && _id > 0, "Invalid product ID");
@@ -81,7 +93,10 @@ contract CosmeticsTraceability {
             p.origin,
             p.isAuthentic,
             p.history,
-            p.owner  // Mới
+            p.owner,
+            p.ingredients,
+            p.productImageUrl,
+            p.certificationUrl
         );
     }
 
