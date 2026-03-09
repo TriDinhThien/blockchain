@@ -135,70 +135,9 @@
 /* =======================
    1. CONTRACT CONFIG
 ======================= */
-<<<<<<< HEAD
-const contractAddress = "0xd77c42fb32A79E4789F516961c928FD36C5dF9Fc"; // Thay bằng address mới sau khi deploy
-=======
-const contractAddress = "0x4B180846fE4a4f554d386bc12111900955959cfC";
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
+const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a"; // Thay bằng address mới sau khi deploy
 
 const abi = [
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "ProductCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "newStatus",
-        "type": "string"
-      }
-    ],
-    "name": "StatusUpdated",
-    "type": "event"
-  },
   {
     "inputs": [
       {
@@ -408,6 +347,63 @@ const abi = [
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "ProductCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newStatus",
+        "type": "string"
+      }
+    ],
+    "name": "StatusUpdated",
+    "type": "event"
   }
 ];
 
@@ -415,11 +411,42 @@ let web3;
 let contract;
 let account;
 
+async function ensureSepoliaNetwork() {
+  const sepoliaChainId = "0xaa36a7";
+  const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+
+  if (currentChainId !== sepoliaChainId) {
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: sepoliaChainId }]
+      });
+    } catch (switchError) {
+      // If Sepolia is missing in wallet, ask wallet to add it.
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: sepoliaChainId,
+            chainName: "Sepolia",
+            nativeCurrency: { name: "Sepolia ETH", symbol: "SEP", decimals: 18 },
+            rpcUrls: ["https://rpc.sepolia.org"],
+            blockExplorerUrls: ["https://sepolia.etherscan.io"]
+          }]
+        });
+      } else {
+        throw switchError;
+      }
+    }
+  }
+}
+
 /* =======================
    2. INIT WEB3
 ======================= */
 window.addEventListener("load", async () => {
   if (window.ethereum) {
+    await ensureSepoliaNetwork();
     web3 = new Web3(window.ethereum);
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     account = accounts[0];
@@ -467,13 +494,9 @@ async function createProduct() {
   }
 
   try {
-    const gas = await contract.methods
-      .createProduct(name, batchID, manufactureDate, origin, ingredients, productImageUrl, certificationUrl)
-      .estimateGas({ from: account });
-
     await contract.methods
       .createProduct(name, batchID, manufactureDate, origin, ingredients, productImageUrl, certificationUrl)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) });
+      .send({ from: account });
 
     let id = await contract.methods.productCount().call();
     id = Number(id);
@@ -482,11 +505,7 @@ async function createProduct() {
 
     QRCode.toCanvas(
       document.getElementById("qrCode"),
-<<<<<<< HEAD
-      `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`,
-=======
-      `http://localhost:3000/verify.html?id=${id}`, // ✅ Sửa thành URL đầy đủ
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
+      `http://localhost:3000/verify.html?id=${id}`,
       err => err && console.error(err)
     );
   } catch (err) {
@@ -515,13 +534,9 @@ async function transferOwnership() {
   }
 
   try {
-    const gas = await contract.methods
-      .transferOwnership(id, newOwner)
-      .estimateGas({ from: account });
-
     await contract.methods
       .transferOwnership(id, newOwner)
-      .send({ from: account, gas: Math.floor(Number(gas) * 1.3) });
+      .send({ from: account });
 
     alert("Chuyển giao quyền sở hữu thành công!");
   } catch (err) {
