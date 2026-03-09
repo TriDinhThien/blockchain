@@ -74,76 +74,13 @@
   </div>
 
 <script>
-<<<<<<< HEAD
 /* =======================
    1. CONTRACT CONFIG
 ======================= */
-const contractAddress = "0xd77c42fb32A79E4789F516961c928FD36C5dF9Fc"; // Thay bằng address mới sau khi deploy
-=======
-  /* =======================
-     1. CONTRACT CONFIG (giống manufacturer)
-  ======================= */
-  const contractAddress = "0x4B180846fE4a4f554d386bc12111900955959cfC";
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
+const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a"; // Thay bằng address mới
 
 const abi = [
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "ProductCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "newStatus",
-        "type": "string"
-      }
-    ],
-    "name": "StatusUpdated",
-    "type": "event"
-  },
+  // ABI giống ở manufacturer.html (đã cập nhật với fields mới)
   {
     "inputs": [
       {
@@ -353,6 +290,63 @@ const abi = [
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "ProductCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newStatus",
+        "type": "string"
+      }
+    ],
+    "name": "StatusUpdated",
+    "type": "event"
   }
 ];
 
@@ -371,13 +365,8 @@ window.addEventListener("load", async () => {
     return;
   }
 
-<<<<<<< HEAD
   web3 = new Web3('https://eth-sepolia.g.alchemy.com/v2/vAbZjsKMrBm36nuUECfKk'); // Ganache RPC
   contract = new web3.eth.Contract(abi, contractAddress);
-=======
-    web3 = new Web3('http://127.0.0.1:7545'); // Ganache RPC (không cần MetaMask vì chỉ đọc)
-    contract = new web3.eth.Contract(abi, contractAddress);
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
 
   try {
     const result = await contract.methods.verifyProduct(id).call();
