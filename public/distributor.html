@@ -22,7 +22,6 @@
     <input id="newStatus" placeholder="Trạng thái mới"><br>
     <button onclick="updateStatus()">Cập Nhật</button>
 
-<<<<<<< HEAD
     <h2>Chuyển Giao Quyền Sở Hữu Cho Người Mua</h2>
     <input id="transferId" placeholder="ID sản phẩm"><br>
     <input id="buyerAddress" placeholder="Địa chỉ MetaMask của người mua (0x...)"><br>
@@ -33,90 +32,9 @@
 /* =======================
    1. CONTRACT CONFIG
 ======================= */
-const contractAddress = "0xd77c42fb32A79E4789F516961c928FD36C5dF9Fc"; // Thay bằng address mới sau khi deploy
+const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a"; // Thay bằng address mới sau khi deploy
 
 const abi = [
-=======
-  <script>
-    const contractAddress = '0x4B180846fE4a4f554d386bc12111900955959cfC'; // Address mới từ migrate gần nhất
-    const abi = [
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "ProductCreated",
-    "type": "event"
-  },
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "ProductCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "newStatus",
-        "type": "string"
-      }
-    ],
-    "name": "StatusUpdated",
-    "type": "event"
-  },
   {
     "inputs": [
       {
@@ -326,22 +244,103 @@ const abi = [
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "ProductCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newStatus",
+        "type": "string"
+      }
+    ],
+    "name": "StatusUpdated",
+    "type": "event"
   }
 ];
-<<<<<<< HEAD
 
 let web3;
 let contract;
 let account;
 
-=======
-let web3;
-let contract;
-let account;
+async function ensureSepoliaNetwork() {
+  const sepoliaChainId = "0xaa36a7";
+  const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
 
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
+  if (currentChainId !== sepoliaChainId) {
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: sepoliaChainId }]
+      });
+    } catch (switchError) {
+      // If Sepolia is missing in wallet, ask wallet to add it.
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: sepoliaChainId,
+            chainName: "Sepolia",
+            nativeCurrency: { name: "Sepolia ETH", symbol: "SEP", decimals: 18 },
+            rpcUrls: ["https://rpc.sepolia.org"],
+            blockExplorerUrls: ["https://sepolia.etherscan.io"]
+          }]
+        });
+      } else {
+        throw switchError;
+      }
+    }
+  }
+}
+
 window.addEventListener("load", async () => {
   if (window.ethereum) {
+    await ensureSepoliaNetwork();
     web3 = new Web3(window.ethereum);
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     account = accounts[0];
@@ -353,13 +352,7 @@ window.addEventListener("load", async () => {
 });
 
 async function updateStatus() {
-<<<<<<< HEAD
   let id = Number(document.getElementById("updateId").value);
-=======
-  let id = document.getElementById("updateId").value;
-  id = Number(id);
-
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
   const newStatus = document.getElementById("newStatus").value;
 
   if (!newStatus) {
@@ -368,15 +361,7 @@ async function updateStatus() {
   }
 
   try {
-<<<<<<< HEAD
-    const gas = await contract.methods.updateStatus(id, newStatus).estimateGas({ from: account });
-    await contract.methods.updateStatus(id, newStatus).send({ from: account, gas: Math.floor(Number(gas) * 1.3) });
-=======
-    await contract.methods
-      .updateStatus(id, newStatus)
-      .send({ from: account, gas: 300000 });
-
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
+    await contract.methods.updateStatus(id, newStatus).send({ from: account });
     alert("Cập nhật trạng thái thành công!");
   } catch (err) {
     console.error(err);
@@ -385,15 +370,8 @@ async function updateStatus() {
 }
 
 async function transferOwnership() {
-<<<<<<< HEAD
   let id = Number(document.getElementById("transferId").value);
   const newOwner = document.getElementById("buyerAddress").value;
-=======
-  let id = document.getElementById("transferId").value;
-  id = Number(id);
-
-  const newOwner = document.getElementById("buyerAddress").value; // ✅ ĐÚNG ID
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
 
   if (!web3.utils.isAddress(newOwner)) {
     alert("Địa chỉ ví không hợp lệ!");
@@ -401,15 +379,7 @@ async function transferOwnership() {
   }
 
   try {
-<<<<<<< HEAD
-    const gas = await contract.methods.transferOwnership(id, newOwner).estimateGas({ from: account });
-    await contract.methods.transferOwnership(id, newOwner).send({ from: account, gas: Math.floor(Number(gas) * 1.3) });
-=======
-    await contract.methods
-      .transferOwnership(id, newOwner)
-      .send({ from: account, gas: 300000 });
-
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
+    await contract.methods.transferOwnership(id, newOwner).send({ from: account });
     alert("Chuyển giao quyền sở hữu thành công!");
   } catch (err) {
     console.error(err);
@@ -417,12 +387,6 @@ async function transferOwnership() {
   }
 }
 </script>
-<<<<<<< HEAD
 
 </body>
 </html>
-=======
-  </script>
-</body>
-</html>
->>>>>>> bf2c3b3d13b16364424398814f748754a0789ec0
