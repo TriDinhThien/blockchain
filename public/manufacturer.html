@@ -503,9 +503,10 @@ async function createProduct() {
 
     alert("Tạo sản phẩm thành công! ID: " + id);
 
+    const verifyUrl = `${window.location.origin}/verify.html?id=${id}`;
     QRCode.toCanvas(
       document.getElementById("qrCode"),
-      `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`,
+      verifyUrl,
       err => err && console.error(err)
     );
   } catch (err) {
