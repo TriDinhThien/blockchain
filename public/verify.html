@@ -72,17 +72,17 @@
 
         <div id="resultContent" class="hidden space-y-4">
             
-            <div class="glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-sky-200/50 text-center border-t-4 border-green-500">
-                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl status-badge">
+            <div id="statusCard" class="glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-sky-200/50 text-center border-t-4 border-red-500">
+                <div id="statusIcon" class="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
                     <i class="fa-solid fa-check-double"></i>
                 </div>
-                <h2 class="text-xl font-bold text-slate-800 mb-1">Sản Phẩm Chính Hãng</h2>
-                <p class="text-slate-400 text-sm mb-6">Đã xác minh bởi mạng lưới VeriGlow Blockchain</p>
+                <h2 id="statusTitle" class="text-xl font-bold text-slate-800 mb-1">Sản phẩm chưa xác thực</h2>
+                <p id="statusDesc" class="text-slate-400 text-sm mb-6">Vui lòng nhập mã BATCH để xác minh.</p>
                 
                 <div class="bg-slate-50 rounded-2xl p-4 overflow-hidden">
                     <img id="productImg" src="" alt="Ảnh sản phẩm" class="w-full h-48 object-cover rounded-xl mb-4 shadow-sm border border-white">
                     <h3 id="pName" class="text-lg font-bold text-slate-800">---</h3>
-                    <p id="pBatch" class="text-sky-600 font-mono text-xs font-bold tracking-widest">BATCH ID: ---</p>
+                    <p id="pBatch" class="text-sky-600 font-mono text-xs font-bold tracking-widest hidden">BATCH ID: ---</p>
                 </div>
             </div>
 
@@ -91,7 +91,7 @@
                     <i class="fa-solid fa-circle-info"></i> Thông số chi tiết
                 </h4>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="p-3 bg-slate-50 rounded-xl">
+                    <div id="pDateBlock" class="p-3 bg-slate-50 rounded-xl hidden">
                         <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Ngày sản xuất</span>
                         <span id="pDate" class="text-sm font-bold text-slate-700">--/--/----</span>
                     </div>
@@ -114,7 +114,7 @@
                     </div>
             </div>
 
-            <a id="certBtn" href="#" target="_blank" class="flex items-center justify-between w-full p-5 bg-slate-900 text-white rounded-3xl hover:bg-black transition-all group shadow-xl">
+            <a id="certBtn" href="#" target="_blank" class="hidden flex items-center justify-between w-full p-5 bg-slate-900 text-white rounded-3xl hover:bg-black transition-all group shadow-xl">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-file-contract"></i>
@@ -263,25 +263,54 @@ window.addEventListener("load", async () => {
         });
         historyContainer.innerHTML = historyHtml;
 
-        // Show batch input gate
         const expectedBatch = (batchID || '').trim().toLowerCase();
         const batchGate = document.getElementById('batchGate');
         const batchInput = document.getElementById('batchInput');
         const batchError = document.getElementById('batchError');
         const btnVerifyBatch = document.getElementById('btnVerifyBatch');
 
+        const statusCard = document.getElementById('statusCard');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusDesc = document.getElementById('statusDesc');
+        const pBatch = document.getElementById('pBatch');
+        const pDateBlock = document.getElementById('pDateBlock');
+        const certBtn = document.getElementById('certBtn');
+
+        function setVerified(isValid) {
+            if (isValid) {
+                statusCard.classList.remove('border-red-500');
+                statusCard.classList.add('border-green-500');
+                statusIcon.classList.remove('bg-red-100', 'text-red-600');
+                statusIcon.classList.add('bg-green-100', 'text-green-600', 'status-badge');
+                statusTitle.innerText = 'Sản phẩm chính hãng';
+                statusDesc.innerText = 'Đã xác minh bởi mạng lưới VeriGlow Blockchain';
+                pBatch.classList.remove('hidden');
+                pDateBlock.classList.remove('hidden');
+                certBtn.classList.remove('hidden');
+            } else {
+                statusCard.classList.remove('border-green-500');
+                statusCard.classList.add('border-red-500');
+                statusIcon.classList.remove('bg-green-100', 'text-green-600', 'status-badge');
+                statusIcon.classList.add('bg-red-100', 'text-red-600');
+                statusTitle.innerText = 'Sản phẩm có dấu hiệu làm giả';
+                statusDesc.innerText = 'Mã BATCH không khớp với dữ liệu Blockchain.';
+                pBatch.classList.add('hidden');
+                pDateBlock.classList.add('hidden');
+                certBtn.classList.add('hidden');
+            }
+        }
+
         document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('resultContent').classList.remove('hidden');
         batchGate.classList.remove('hidden');
+        setVerified(false);
 
         btnVerifyBatch.onclick = () => {
             const input = (batchInput.value || '').trim().toLowerCase();
-            if (!input || input !== expectedBatch) {
-                batchError.classList.remove('hidden');
-                return;
-            }
-            batchError.classList.add('hidden');
-            batchGate.classList.add('hidden');
-            document.getElementById('resultContent').classList.remove('hidden');
+            const isValid = !!input && input === expectedBatch;
+            batchError.classList.toggle('hidden', isValid);
+            setVerified(isValid);
         };
 
     } catch (err) {
