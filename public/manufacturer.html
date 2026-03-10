@@ -268,9 +268,6 @@ const abi = [
 
 let web3, contract, account;
 
-// IPFS Configuration
-const ipfs = window.IpfsHttpClient.create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
-
 /* =======================
    2. CORE LOGIC
 ======================= */
@@ -360,6 +357,27 @@ async function loadMyProducts() {
     }
 }
 
+async function uploadFileToIPFS(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Upload failed');
+    }
+
+    const data = await res.json();
+    if (!data.cid) {
+        throw new Error('Missing CID from server');
+    }
+    return `ipfs://${data.cid}`;
+}
+
 async function createProduct() {
     const btn = document.getElementById('btnCreate');
     const name = document.getElementById("name").value;
@@ -381,11 +399,17 @@ async function createProduct() {
         const manufactureDate = Math.floor(new Date(dateInput).getTime() / 1000);
 
         // Upload IPFS (Nếu có file)
-        let productImageUrl = 'ipfs://default-product';
-        let certificationUrl = 'ipfs://default-cert';
-        
-        // Ghi chú: Logic IPFS cần cấu hình Auth token Infura để chạy thực tế
-        // Ở đây giữ nguyên cấu trúc hàm của bạn
+        const productImageFile = document.getElementById("productImage").files[0];
+        const certificationFile = document.getElementById("certification").files[0];
+        let productImageUrl = '';
+        let certificationUrl = '';
+
+        if (productImageFile) {
+            productImageUrl = await uploadFileToIPFS(productImageFile);
+        }
+        if (certificationFile) {
+            certificationUrl = await uploadFileToIPFS(certificationFile);
+        }
 
         await contract.methods
             .createProduct(name, batchID, manufactureDate, origin, ingredients, productImageUrl, certificationUrl)
