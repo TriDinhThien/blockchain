@@ -302,15 +302,14 @@ window.addEventListener("load", async () => {
         }
 
         document.getElementById('loadingState').classList.add('hidden');
-        document.getElementById('resultContent').classList.remove('hidden');
         batchGate.classList.remove('hidden');
-        setVerified(false);
 
         btnVerifyBatch.onclick = () => {
             const input = (batchInput.value || '').trim().toLowerCase();
             const isValid = !!input && input === expectedBatch;
             batchError.classList.toggle('hidden', isValid);
             setVerified(isValid);
+            document.getElementById('resultContent').classList.remove('hidden');
         };
 
     } catch (err) {
