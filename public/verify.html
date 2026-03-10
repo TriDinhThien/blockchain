@@ -44,7 +44,7 @@
 
     <div class="mb-8 text-center">
         <div class="flex items-center justify-center gap-3 mb-2">
-            <img src="2.png" alt="VeriGlow" class="w-12 h-12 object-cover rounded-2xl shadow-xl" onerror="this.src='https://ui-avatars.com/api/?name=VG&background=0ea5e9&color=fff'">
+            <img src="/2.png" alt="VeriGlow" class="w-12 h-12 object-cover rounded-2xl shadow-xl" onerror="this.src='https://ui-avatars.com/api/?name=VG&background=0ea5e9&color=fff'">
             <span class="font-bold text-2xl tracking-tight text-slate-800">VeriGlow</span>
         </div>
         <div class="px-4 py-1 bg-sky-500/10 text-sky-600 rounded-full text-[10px] font-bold uppercase tracking-widest inline-block border border-sky-100">
@@ -135,7 +135,48 @@
 
 <script>
 const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a";
-const abi = [ /* Giữ nguyên ABI cũ của bạn */ ];
+const abi = [
+  {
+    "inputs": [
+      {"internalType": "string","name": "_name","type": "string"},
+      {"internalType": "string","name": "_batchID","type": "string"},
+      {"internalType": "uint256","name": "_manufactureDate","type": "uint256"},
+      {"internalType": "string","name": "_origin","type": "string"},
+      {"internalType": "string[]","name": "_ingredients","type": "string[]"},
+      {"internalType": "string","name": "_productImageUrl","type": "string"},
+      {"internalType": "string","name": "_certificationUrl","type": "string"}
+    ],
+    "name": "createProduct",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "productCount",
+    "outputs": [{"internalType": "uint256","name": "","type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256","name": "_id","type": "uint256"}],
+    "name": "verifyProduct",
+    "outputs": [
+      {"internalType": "string","name": "name","type": "string"},
+      {"internalType": "string","name": "batchID","type": "string"},
+      {"internalType": "uint256","name": "manufactureDate","type": "uint256"},
+      {"internalType": "string","name": "origin","type": "string"},
+      {"internalType": "bool","name": "isAuthentic","type": "bool"},
+      {"internalType": "string[]","name": "history","type": "string[]"},
+      {"internalType": "address","name": "owner","type": "address"},
+      {"internalType": "string[]","name": "ingredients","type": "string[]"},
+      {"internalType": "string","name": "productImageUrl","type": "string"},
+      {"internalType": "string","name": "certificationUrl","type": "string"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
 
 window.addEventListener("load", async () => {
     document.getElementById('contractAddr').innerText = contractAddress.substring(0,6) + '...' + contractAddress.substring(38);
@@ -152,6 +193,63 @@ window.addEventListener("load", async () => {
         const web3 = new Web3('https://eth-sepolia.g.alchemy.com/v2/vAbZjsKMrBm36nuUECfKk');
         const contract = new web3.eth.Contract(abi, contractAddress);
         const result = await contract.methods.verifyProduct(id).call();
+
+        // Support both array and named return formats
+        const name = result.name ?? result[0];
+        const batchID = result.batchID ?? result[1];
+        const manufactureDate = result.manufactureDate ?? result[2];
+        const origin = result.origin ?? result[3];
+        const history = result.history ?? result[5] ?? [];
+        const ingredients = result.ingredients ?? result[7] ?? [];
+        const productImageUrl = result.productImageUrl ?? result[8] ?? '';
+        const certificationUrl = result.certificationUrl ?? result[9] ?? '';
+
+        // Cap nhat giao dien
+        document.getElementById('pName').innerText = name || '---';
+        document.getElementById('pBatch').innerText = `BATCH ID: ${batchID || '---'}`;
+        document.getElementById('pDate').innerText = manufactureDate
+            ? new Date(Number(manufactureDate) * 1000).toLocaleDateString('vi-VN')
+            : '--/--/----';
+        document.getElementById('pOrigin').innerText = origin || '---';
+        document.getElementById('pIngredients').innerText = ingredients.length ? ingredients.join(', ') : '---';
+
+        // Xu ly anh
+        if (productImageUrl && productImageUrl.startsWith('ipfs://')) {
+            const imgHash = productImageUrl.replace('ipfs://', '');
+            document.getElementById('productImg').src = `https://ipfs.io/ipfs/${imgHash}`;
+        } else {
+            document.getElementById('productImg').src = 'https://ui-avatars.com/api/?name=No+Image&background=e2e8f0&color=64748b';
+        }
+
+        // Chung nhan
+        if (certificationUrl && certificationUrl.startsWith('ipfs://')) {
+            const certHash = certificationUrl.replace('ipfs://', '');
+            document.getElementById('certBtn').href = `https://ipfs.io/ipfs/${certHash}`;
+        } else {
+            document.getElementById('certBtn').href = '#';
+        }
+
+        // Lich su
+        const historyContainer = document.getElementById('pHistory');
+        let historyHtml = '';
+        history.forEach((status, index) => {
+            historyHtml += `
+                <div class="flex gap-4 relative z-10">
+                    <div class="w-6 h-6 rounded-full bg-white border-2 border-sky-500 flex-shrink-0 flex items-center justify-center shadow-sm">
+                        <div class="w-2 h-2 rounded-full bg-sky-500"></div>
+                    </div>
+                    <div class="pb-2">
+                        <p class="text-xs font-bold text-slate-700">${status}</p>
+                        <p class="text-[10px] text-slate-400 tracking-tighter">Ghi nhan vao so cai luc #${index + 1}</p>
+                    </div>
+                </div>`;
+        });
+        historyContainer.innerHTML = historyHtml;
+
+        // Chuyen doi trang thai hien thi
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('resultContent').classList.remove('hidden');
+        return;
 
         // Cập nhật giao diện
         document.getElementById('pName').innerText = result.name;
