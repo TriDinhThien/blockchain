@@ -86,6 +86,11 @@
         <div class="p-10 overflow-y-auto">
             
             <div id="list-products" class="tab-content active">
+                <div id="qrListSection" class="hidden mb-8 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 text-center">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Mã QR sản phẩm</div>
+                    <div id="qrListLabel" class="text-sm font-semibold text-slate-700 mb-4">---</div>
+                    <canvas id="qrCodeList" class="mx-auto rounded-xl shadow-lg"></canvas>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                     <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden group">
                         <div class="absolute right-[-20px] top-[-20px] text-slate-50 text-8xl transition-transform group-hover:scale-110"><i class="fa-solid fa-box"></i></div>
@@ -323,7 +328,7 @@ async function loadMyProducts() {
             if (p[6].toLowerCase() === account.toLowerCase()) {
                 const date = new Date(Number(p[2]) * 1000).toLocaleDateString('vi-VN');
                 html += `
-                    <tr class="hover:bg-slate-50 transition-all group">
+                    <tr class="hover:bg-slate-50 transition-all group cursor-pointer" onclick="showProductQr(${i})">
                         <td class="px-8 py-6 font-mono text-xs text-slate-400">#${String(i).padStart(3, '0')}</td>
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
@@ -355,6 +360,14 @@ async function loadMyProducts() {
     } catch (err) {
         tbody.innerHTML = '<tr><td colspan="5" class="px-8 py-20 text-center text-red-400">Lỗi kết nối mạng Sepolia.</td></tr>';
     }
+}
+
+function showProductQr(id) {
+    const displayId = `PRD-${String(id).padStart(8, '0')}`;
+    const verifyUrl = `${window.location.origin}/verify.html?code=${encodeURIComponent(displayId)}`;
+    document.getElementById('qrListLabel').innerText = displayId;
+    document.getElementById('qrListSection').classList.remove('hidden');
+    QRCode.toCanvas(document.getElementById("qrCodeList"), verifyUrl, { width: 180, margin: 2 });
 }
 
 async function uploadFileToIPFS(file) {
