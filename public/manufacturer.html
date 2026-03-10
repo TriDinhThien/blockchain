@@ -415,11 +415,12 @@ async function createProduct() {
             .createProduct(name, batchID, manufactureDate, origin, ingredients, productImageUrl, certificationUrl)
             .send({ from: account });
 
-        const id = await contract.methods.productCount().call();
+        const id = Number(await contract.methods.productCount().call());
+        const displayId = `PRD-${String(id).padStart(8, '0')}`;
         
         // Hiện QR
         document.getElementById('qrSection').classList.remove('hidden');
-        const verifyUrl = `${window.location.origin}/verify.html?id=${id}`;
+        const verifyUrl = `${window.location.origin}/verify.html?code=${encodeURIComponent(displayId)}`;
         QRCode.toCanvas(document.getElementById("qrCode"), verifyUrl, { width: 180, margin: 2 });
 
         alert("Chúc mừng! Sản phẩm đã được đúc thành công trên Blockchain.");
