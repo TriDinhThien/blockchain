@@ -505,7 +505,7 @@ async function createProduct() {
 
     QRCode.toCanvas(
       document.getElementById("qrCode"),
-      `http://localhost:3000/verify.html?id=${id}`,
+      `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`,
       err => err && console.error(err)
     );
   } catch (err) {
