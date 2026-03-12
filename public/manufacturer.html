@@ -446,17 +446,54 @@ async function createProduct() {
     }
 }
 
-async function transferOwnership() {
-    const id = document.getElementById("transferId").value;
-    const newOwner = document.getElementById("newOwner").value;
+function getInputValue(id) {
+    const el = document.getElementById(id);
+    return el && typeof el.value === 'string' ? el.value.trim() : '';
+}
 
-    if (!id || !newOwner) {
+async function transferOwnership() {
+    const id = getInputValue("transferId");
+    const newOwnerRaw = getInputValue("newOwner");
+
+    if (!contract || !web3 || !account) {
+        alert("Chưa kết nối ví hoặc hợp đồng.");
+        return;
+    }
+    if (!id || !newOwnerRaw) {
         alert("Vui lòng nhập ID và địa chỉ ví!");
+        return;
+    }
+    if (!/^\d+$/.test(id)) {
+        alert("ID không hợp lệ!");
+        return;
+    }
+
+    let newOwner;
+    try {
+        newOwner = web3.utils.toChecksumAddress(newOwnerRaw);
+    } catch (err) {
+        alert("Địa chỉ ví không hợp lệ!");
         return;
     }
 
     try {
-        await contract.methods.transferOwnership(id, newOwner).send({ from: account });
+        let gasLimit = 200000;
+        try {
+            const estimate = await contract.methods.transferOwnership(id, newOwner).estimateGas({ from: account });
+            const estNumber = typeof estimate === 'bigint' ? Number(estimate) : Number(estimate);
+            const block = await web3.eth.getBlock("latest");
+            const blockLimit = block && block.gasLimit ? (typeof block.gasLimit === 'bigint' ? Number(block.gasLimit) : Number(block.gasLimit)) : 0;
+            const padded = Math.ceil(estNumber * 1.2);
+            if (blockLimit && padded > blockLimit) {
+                gasLimit = Math.max(21000, blockLimit - 10000);
+            } else if (padded > 0) {
+                gasLimit = padded;
+            }
+        } catch (_) {
+            gasLimit = 200000;
+        }
+
+        await contract.methods.transferOwnership(id, newOwner).send({ from: account, gas: gasLimit });
         alert("Chuyển quyền sở hữu thành công!");
         showTab('list-products');
     } catch (err) {
