@@ -1,392 +1,336 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nhà Phân Phối - Truy Xuất Mỹ Phẩm Blockchain</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributor Dashboard | VeriGlow Blockchain</title>
 
-  <!-- Web3 -->
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.13/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 
-  <!-- CSS tương tự manufacturer -->
-  <style>
-    /* Copy style từ manufacturer.html */
-  </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+        .text-2xs { font-size: 10px; line-height: 1.2; }
+        .text-11px { font-size: 11px; line-height: 1.2; }
+        .rounded-4xl { border-radius: 2.5rem; }
+        .w-600 { width: 600px; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .sidebar-item.active { background: #0ea5e9; color: white; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); }
+        
+        /* Side Panel Animation */
+        #sidePanel {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%);
+        }
+        #sidePanel.open { transform: translateX(0); }
+        .overlay {
+            display: none;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+        }
+        .overlay.active { display: block; }
+        
+        .filter-btn.active { background-color: #0ea5e9; color: white; border-color: #0ea5e9; }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0ea5e9; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 
-<body>
+<body class="bg-slate-50 min-h-screen flex text-slate-900">
 
-  <div class="container">
-    <h1>Nhà Phân Phối: Cập Nhật Trạng Thái</h1>
-    <input id="updateId" placeholder="ID sản phẩm"><br>
-    <input id="newStatus" placeholder="Trạng thái mới"><br>
-    <button onclick="updateStatus()">Cập Nhật</button>
+    <div id="overlay" class="overlay fixed inset-0 z-40" onclick="closeSidePanel()"></div>
 
-    <h2>Chuyển Giao Quyền Sở Hữu Cho Người Mua</h2>
-    <input id="transferId" placeholder="ID sản phẩm"><br>
-    <input id="buyerAddress" placeholder="Địa chỉ MetaMask của người mua (0x...)"><br>
-    <button onclick="transferOwnership()">Chuyển Giao Cho Người Mua</button>
-  </div>
+    <aside class="w-72 bg-white border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen z-20">
+        <div class="p-8">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                    <img src="2.png" alt="Logo" class="w-full h-full object-cover">
+                </div>
+                <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-sky-600 to-indigo-600 bg-clip-text text-transparent">VeriGlow</span>
+            </div>
+        </div>
+        
+        <nav class="mt-4 flex-1 px-6 space-y-2">
+            <button onclick="showTab('list-products')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-slate-600 font-medium">
+                <i class="fa-solid fa-box"></i> <span>Kho sản phẩm</span>
+            </button>
+            <button onclick="showTab('update-status')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-slate-600 font-medium">
+                <i class="fa-solid fa-pen-to-square"></i> <span>Cập nhật trạng thái</span>
+            </button>
+            <button onclick="showTab('transfer-ownership')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-slate-600 font-medium">
+                <i class="fa-solid fa-truck-fast"></i> <span>Chuyển giao cho khách</span>
+            </button>
+        </nav>
+
+        <div class="p-6 mt-auto border-t border-slate-100">
+            <div id="accountDisplay" class="text-2xs font-mono text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200 truncate">
+                Đang kết nối ví...
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30">
+            <h2 id="pageTitle" class="text-2xl font-bold text-slate-800">Kho sản phẩm</h2>
+            <button onclick="loadMyProducts()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50">
+                <i class="fa-solid fa-arrows-rotate"></i> Làm mới
+            </button>
+        </header>
+
+        <div class="p-10">
+            <div id="list-products" class="tab-content active">
+                <div class="flex gap-4 mb-8">
+                    <button onclick="filterProducts('in_stock')" id="filterStock" class="filter-btn active px-6 py-2.5 rounded-full border bg-white text-sm font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-warehouse"></i> Đang trong kho
+                    </button>
+                    <button onclick="filterProducts('sold')" id="filterSold" class="filter-btn px-6 py-2.5 rounded-full border bg-white text-sm font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i> Đã chuyển giao
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100">
+                                <th class="px-8 py-5 text-11px font-bold text-slate-400 uppercase tracking-widest">ID</th>
+                                <th class="px-8 py-5 text-11px font-bold text-slate-400 uppercase tracking-widest">Sản phẩm</th>
+                                <th class="px-8 py-5 text-11px font-bold text-slate-400 uppercase tracking-widest">Mã lô</th>
+                                <th class="px-8 py-5 text-11px font-bold text-slate-400 uppercase tracking-widest">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productListBody" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="update-status" class="tab-content max-w-2xl mx-auto mt-10">
+                <div class="bg-white p-10 rounded-4xl border border-slate-200 shadow-xl">
+                    <h3 class="text-2xl font-black mb-6 text-slate-800">Cập nhật trạng thái</h3>
+                    <div class="space-y-6">
+                        <input id="updateId" type="number" placeholder="Nhập ID sản phẩm" class="w-full px-6 py-4 rounded-2xl border bg-slate-50 outline-none">
+                        <input id="newStatus" type="text" placeholder="Trạng thái (VD: Đang đóng gói)" class="w-full px-6 py-4 rounded-2xl border bg-slate-50 outline-none">
+                        <button onclick="updateStatus()" class="w-full bg-emerald-600 text-white font-bold py-5 rounded-2xl hover:bg-emerald-700 transition-all">Ghi lên Blockchain</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="transfer-ownership" class="tab-content max-w-2xl mx-auto mt-10">
+                <div class="bg-white p-10 rounded-4xl border border-slate-200 shadow-xl">
+                    <h3 class="text-2xl font-black mb-6 text-slate-800">Chuyển quyền sở hữu</h3>
+                    <div class="space-y-6">
+                        <input id="transferId" type="number" placeholder="Nhập ID sản phẩm" class="w-full px-6 py-4 rounded-2xl border bg-slate-50 outline-none">
+                        <input id="buyerAddress" type="text" placeholder="Địa chỉ ví người mua (0x...)" class="w-full px-6 py-4 rounded-2xl border bg-slate-50 outline-none">
+                        <button onclick="transferOwnership()" class="w-full bg-slate-900 text-white font-bold py-5 rounded-2xl hover:bg-black transition-all">Xác nhận chuyển giao</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="sidePanel" class="fixed right-0 top-0 h-screen w-600 bg-white shadow-2xl z-50 overflow-y-auto">
+        <div class="p-8">
+            <div class="flex justify-between items-center mb-10">
+                <h3 class="text-xl font-bold text-slate-800">Chi tiết sản phẩm</h3>
+                <button onclick="closeSidePanel()" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="panelContent" class="flex gap-8">
+                <div class="w-1/2">
+                    <img id="panelImage" src="" alt="Product" class="w-full rounded-3xl shadow-lg border border-slate-100 object-cover aspect-square">
+                    <div class="mt-6 bg-slate-50 p-4 rounded-2xl">
+                        <canvas id="panelQR" class="mx-auto"></canvas>
+                        <p class="text-center text-2xs font-bold text-slate-400 mt-2 uppercase tracking-widest">Mã QR truy xuất</p>
+                    </div>
+                </div>
+
+                <div class="w-1/2 space-y-6">
+                    <div>
+                        <label class="text-2xs font-black text-slate-400 uppercase tracking-widest">Tên sản phẩm</label>
+                        <p id="panelName" class="text-xl font-extrabold text-slate-800 leading-tight mt-1"></p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-2xs font-black text-slate-400 uppercase tracking-widest">Mã lô</label>
+                            <p id="panelBatch" class="font-bold text-slate-700"></p>
+                        </div>
+                        <div>
+                            <label class="text-2xs font-black text-slate-400 uppercase tracking-widest">Ngày SX</label>
+                            <p id="panelDate" class="font-bold text-slate-700"></p>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-2xs font-black text-slate-400 uppercase tracking-widest block mb-2">Thành phần</label>
+                        <div id="panelIngredients" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <hr class="border-slate-100">
+                    <a id="panelCertLink" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full py-4 bg-sky-50 text-sky-600 font-bold rounded-2xl border border-sky-100 hover:bg-sky-100 transition-all">
+                        <i class="fa-solid fa-file-shield"></i> Xem giấy kiểm định
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script>
-/* =======================
-   1. CONTRACT CONFIG
-======================= */
-const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a"; // Thay bằng address mới sau khi deploy
-
+/* --- CONFIG --- */
+const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a";
 const abi = [
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_batchID",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_manufactureDate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_origin",
-        "type": "string"
-      },
-      {
-        "internalType": "string[]",
-        "name": "_ingredients",
-        "type": "string[]"
-      },
-      {
-        "internalType": "string",
-        "name": "_productImageUrl",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_certificationUrl",
-        "type": "string"
-      }
-    ],
-    "name": "createProduct",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "productCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "products",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "batchID",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "manufactureDate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "origin",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "isAuthentic",
-        "type": "bool"
-      },
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "productImageUrl",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "certificationUrl",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_newStatus",
-        "type": "string"
-      }
-    ],
-    "name": "updateStatus",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "verifyProduct",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "batchID",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "manufactureDate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "origin",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "isAuthentic",
-        "type": "bool"
-      },
-      {
-        "internalType": "string[]",
-        "name": "history",
-        "type": "string[]"
-      },
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "string[]",
-        "name": "ingredients",
-        "type": "string[]"
-      },
-      {
-        "internalType": "string",
-        "name": "productImageUrl",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "certificationUrl",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
-    ],
-    "name": "ProductCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "newStatus",
-        "type": "string"
-      }
-    ],
-    "name": "StatusUpdated",
-    "type": "event"
-  }
+    { "inputs": [], "name": "productCount", "outputs": [{"type": "uint256"}], "stateMutability": "view", "type": "function" },
+    { "inputs": [{"type": "uint256","name": "_id"}], "name": "verifyProduct", "outputs": [
+        {"name": "name","type": "string"},{"name": "batchID","type": "string"},{"name": "manufactureDate","type": "uint256"},
+        {"name": "origin","type": "string"},{"name": "isAuthentic","type": "bool"},{"name": "history","type": "string[]"},
+        {"name": "owner","type": "address"},{"name": "ingredients","type": "string[]"},{"name": "productImageUrl","type": "string"},
+        {"name": "certificationUrl","type": "string"}
+    ], "stateMutability": "view", "type": "function" },
+    { "inputs": [{"type": "uint256"},{"type": "address"}], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [{"type": "uint256"},{"type": "string"}], "name": "updateStatus", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
 ];
 
-let web3;
-let contract;
-let account;
-
-async function ensureSepoliaNetwork() {
-  const sepoliaChainId = "0xaa36a7";
-  const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
-
-  if (currentChainId !== sepoliaChainId) {
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: sepoliaChainId }]
-      });
-    } catch (switchError) {
-      // If Sepolia is missing in wallet, ask wallet to add it.
-      if (switchError.code === 4902) {
-        await window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [{
-            chainId: sepoliaChainId,
-            chainName: "Sepolia",
-            nativeCurrency: { name: "Sepolia ETH", symbol: "SEP", decimals: 18 },
-            rpcUrls: ["https://rpc.sepolia.org"],
-            blockExplorerUrls: ["https://sepolia.etherscan.io"]
-          }]
-        });
-      } else {
-        throw switchError;
-      }
-    }
-  }
-}
+let web3, contract, account;
+let allProducts = [];
+let currentFilter = 'in_stock';
 
 window.addEventListener("load", async () => {
-  if (window.ethereum) {
-    await ensureSepoliaNetwork();
-    web3 = new Web3(window.ethereum);
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    account = accounts[0];
-    contract = new web3.eth.Contract(abi, contractAddress);
-    console.log("Connected account:", account);
-  } else {
-    alert("Vui lòng cài MetaMask!");
-  }
+    if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0].toLowerCase();
+        document.getElementById('accountDisplay').innerText = account;
+        contract = new web3.eth.Contract(abi, contractAddress);
+        loadMyProducts();
+    }
 });
 
+/* --- FUNCTIONS --- */
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    const titles = {'list-products': 'Kho sản phẩm', 'update-status': 'Cập nhật trạng thái', 'transfer-ownership': 'Chuyển giao cho người mua'};
+    document.getElementById('pageTitle').innerText = titles[tabId];
+    if (tabId === 'list-products') loadMyProducts();
+}
+
+async function loadMyProducts() {
+    const tbody = document.getElementById('productListBody');
+    tbody.innerHTML = '<tr><td colspan="4" class="py-20 text-center"><div class="loading-spinner mx-auto"></div></td></tr>';
+    
+    try {
+        const count = Number(await contract.methods.productCount().call());
+        allProducts = [];
+        for (let i = 1; i <= count; i++) {
+            const p = await contract.methods.verifyProduct(i).call();
+            const historyStr = p.history.join("").toLowerCase();
+            if (p.owner.toLowerCase() === account) {
+                allProducts.push({ id: i, data: p, type: 'in_stock' });
+            } else if (historyStr.includes(account)) {
+                allProducts.push({ id: i, data: p, type: 'sold' });
+            }
+        }
+        renderTable();
+    } catch (e) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-red-400">Lỗi Blockchain</td></tr>'; }
+}
+
+function filterProducts(type) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    const btnId = type === 'in_stock' ? 'filterStock' : 'filterSold';
+    document.getElementById(btnId).classList.add('active');
+    renderTable();
+}
+
+function renderTable() {
+    const tbody = document.getElementById('productListBody');
+    const filtered = allProducts.filter(p => p.type === currentFilter);
+    if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-400">Không có dữ liệu</td></tr>'; return; }
+
+    tbody.innerHTML = filtered.map(item => `
+        <tr class="hover:bg-slate-50 transition-all cursor-pointer group" onclick="openSidePanel(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+            <td class="px-8 py-6 font-mono text-xs text-slate-400">#${String(item.id).padStart(3, '0')}</td>
+            <td class="px-8 py-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-sky-100 group-hover:text-sky-600 transition-colors">
+                        <i class="fa-solid fa-flask-vial text-sm"></i>
+                    </div>
+                    <span class="font-bold text-slate-700">${item.data.name}</span>
+                </div>
+            </td>
+            <td class="px-8 py-6 text-slate-500 font-medium">${item.data.batchID}</td>
+            <td class="px-8 py-6">
+                <span class="px-3 py-1 rounded-full text-2xs font-black uppercase tracking-widest ${item.type === 'in_stock' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}">
+                    ${item.type === 'in_stock' ? 'Trong kho' : 'Đã bán'}
+                </span>
+            </td>
+        </tr>
+    `).join('');
+}
+
+/* --- SIDE PANEL LOGIC --- */
+function openSidePanel(item) {
+    const p = item.data;
+    const ipfsGateway = "https://ipfs.io/ipfs/";
+    
+    document.getElementById('panelName').innerText = p.name;
+    document.getElementById('panelBatch').innerText = p.batchID;
+    document.getElementById('panelDate').innerText = new Date(Number(p.manufactureDate) * 1000).toLocaleDateString('vi-VN');
+    
+    // Image
+    const imgHash = p.productImageUrl.replace("ipfs://", "");
+    document.getElementById('panelImage').src = ipfsGateway + imgHash;
+    
+    // Ingredients
+    const ingContainer = document.getElementById('panelIngredients');
+    ingContainer.innerHTML = p.ingredients.map(i => `<span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs rounded-lg font-medium">${i}</span>`).join('');
+    
+    // Cert Link
+    const certHash = p.certificationUrl.replace("ipfs://", "");
+    document.getElementById('panelCertLink').href = ipfsGateway + certHash;
+
+    // QR Code
+    const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${item.id}`;
+    QRCode.toCanvas(document.getElementById("panelQR"), verifyUrl, { width: 120, margin: 1 });
+
+    // UI Effects
+    document.getElementById('sidePanel').classList.add('open');
+    document.getElementById('overlay').classList.add('active');
+}
+
+function closeSidePanel() {
+    document.getElementById('sidePanel').classList.remove('open');
+    document.getElementById('overlay').classList.remove('active');
+}
+
+/* --- BLOCKCHAIN WRITE ACTIONS --- */
 async function updateStatus() {
-  let id = Number(document.getElementById("updateId").value);
-  const newStatus = document.getElementById("newStatus").value;
-
-  if (!newStatus) {
-    alert("Vui lòng nhập trạng thái!");
-    return;
-  }
-
-  try {
-    await contract.methods.updateStatus(id, newStatus).send({ from: account });
-    alert("Cập nhật trạng thái thành công!");
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
-  }
+    const id = document.getElementById('updateId').value;
+    const st = document.getElementById('newStatus').value;
+    if(!id || !st) return alert("Vui lòng điền đủ");
+    try {
+        await contract.methods.updateStatus(id, st).send({ from: account });
+        alert("Thành công!");
+        loadMyProducts();
+    } catch (e) { alert("Lỗi: " + e.message); }
 }
 
 async function transferOwnership() {
-  let id = Number(document.getElementById("transferId").value);
-  const newOwner = document.getElementById("buyerAddress").value;
-
-  if (!web3.utils.isAddress(newOwner)) {
-    alert("Địa chỉ ví không hợp lệ!");
-    return;
-  }
-
-  try {
-    await contract.methods.transferOwnership(id, newOwner).send({ from: account });
-    alert("Chuyển giao quyền sở hữu thành công!");
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi: " + (err.message || err));
-  }
+    const id = document.getElementById('transferId').value;
+    const addr = document.getElementById('buyerAddress').value;
+    if(!id || !web3.utils.isAddress(addr)) return alert("Địa chỉ ví không hợp lệ");
+    try {
+        await contract.methods.transferOwnership(id, addr).send({ from: account });
+        alert("Chuyển giao thành công!");
+        showTab('list-products');
+    } catch (e) { alert("Lỗi: " + e.message); }
 }
 </script>
-
 </body>
 </html>
