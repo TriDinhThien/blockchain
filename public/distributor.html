@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Distributor Dashboard | VeriGlow Blockchain</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.13/dist/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
@@ -24,6 +24,12 @@
             background-color: var(--bg-main);
             overflow-x: hidden; 
         }
+
+        .text-2xs { font-size: 10px; line-height: 1.2; }
+        .text-11px { font-size: 11px; line-height: 1.2; }
+        .rounded-4xl { border-radius: 2.5rem; }
+        .rounded-5xl { border-radius: 3rem; }
+        .tracking-2em { letter-spacing: 0.2em; }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
@@ -108,14 +114,14 @@
 
         <div class="p-6">
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Ví đang kết nối</p>
+                <p class="text-2xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Ví đang kết nối</p>
                 <div id="accountDisplay" class="text-xs font-mono text-sky-600 truncate underline">Kết nối MetaMask...</div>
             </div>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col min-w-0">
-        <header class="h-24 px-10 flex items-center justify-between sticky top-0 z-30 bg-slate-50/80 backdrop-blur-md">
+        <header class="h-24 px-10 flex items-center justify-between sticky top-0 z-30 bg-slate-50 bg-opacity-80 backdrop-blur-md">
             <div>
                 <h2 id="pageTitle" class="text-2xl font-extrabold text-slate-800 tracking-tight">Tổng quan kho</h2>
                 <p class="text-slate-400 text-sm font-medium">Quản lý và theo dõi dòng vòng đời sản phẩm</p>
@@ -136,14 +142,14 @@
                     </button>
                 </div>
 
-                <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+                <div class="bg-white rounded-4xl border border-slate-100 shadow-xl overflow-hidden">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50/50 border-b border-slate-50">
-                                <th class="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Mã số</th>
-                                <th class="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Thông tin sản phẩm</th>
-                                <th class="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Số lô sản xuất</th>
-                                <th class="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Trạng thái kho</th>
+                            <tr class="bg-slate-50 bg-opacity-50 border-b border-slate-50">
+                                <th class="px-8 py-6 text-11px font-black text-slate-400 uppercase tracking-2em">Mã số</th>
+                                <th class="px-8 py-6 text-11px font-black text-slate-400 uppercase tracking-2em">Thông tin sản phẩm</th>
+                                <th class="px-8 py-6 text-11px font-black text-slate-400 uppercase tracking-2em">Số lô sản xuất</th>
+                                <th class="px-8 py-6 text-11px font-black text-slate-400 uppercase tracking-2em">Trạng thái kho</th>
                             </tr>
                         </thead>
                         <tbody id="productListBody" class="divide-y divide-slate-50">
@@ -153,7 +159,7 @@
             </div>
 
             <div id="update-status" class="tab-content max-w-xl mx-auto mt-10">
-                <div class="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-2xl">
+                <div class="bg-white p-12 rounded-5xl border border-slate-100 shadow-2xl">
                     <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 text-2xl">
                         <i class="fa-solid fa-pen-nib"></i>
                     </div>
@@ -177,7 +183,7 @@
             </div>
 
             <div id="transfer-ownership" class="tab-content max-w-xl mx-auto mt-10">
-                <div class="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-2xl text-center">
+                <div class="bg-white p-12 rounded-5xl border border-slate-100 shadow-2xl text-center">
                     <div class="w-20 h-20 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-8 text-3xl">
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
@@ -198,7 +204,7 @@
 
     <div id="sidePanel" class="fixed right-0 top-0 h-screen bg-white z-50 flex flex-col">
         <div class="p-8 flex justify-between items-center border-b border-slate-50">
-            <span class="px-4 py-1.5 bg-slate-900 text-white text-[10px] font-black rounded-full uppercase tracking-tighter">Thông tin chi tiết</span>
+            <span class="px-4 py-1.5 bg-slate-900 text-white text-2xs font-black rounded-full uppercase tracking-tighter">Thông tin chi tiết</span>
             <button onclick="closeSidePanel()" class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all group">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -209,8 +215,8 @@
                 <div class="flex gap-10">
                     <div class="w-48 shrink-0">
                         <div class="relative group">
-                            <img id="panelImage" src="" alt="Product" class="w-48 h-48 rounded-[2.5rem] object-cover shadow-2xl border-4 border-white">
-                            <div class="absolute inset-0 rounded-[2.5rem] bg-black/10 group-hover:bg-transparent transition-all"></div>
+                            <img id="panelImage" src="" alt="Product" class="w-48 h-48 rounded-4xl object-cover shadow-2xl border-4 border-white">
+                            <div class="absolute inset-0 rounded-4xl bg-black bg-opacity-10 group-hover:bg-transparent transition-all"></div>
                         </div>
                     </div>
                     <div class="flex flex-col justify-center space-y-4">
@@ -224,26 +230,26 @@
 
                 <div class="grid grid-cols-2 gap-6">
                     <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                        <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Mã lô sản xuất</p>
+                        <p class="text-2xs font-black text-slate-400 uppercase mb-2 tracking-widest">Mã lô sản xuất</p>
                         <p id="panelBatch" class="text-lg font-bold text-slate-700">--</p>
                     </div>
                     <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                        <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Ngày xuất xưởng</p>
+                        <p class="text-2xs font-black text-slate-400 uppercase mb-2 tracking-widest">Ngày xuất xưởng</p>
                         <p id="panelDate" class="text-lg font-bold text-slate-700">--</p>
                     </div>
                 </div>
 
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest ml-1">Thành phần cấu tạo</p>
+                    <p class="text-2xs font-black text-slate-400 uppercase mb-4 tracking-widest ml-1">Thành phần cấu tạo</p>
                     <div id="panelIngredients" class="flex flex-wrap gap-2">
                         </div>
                 </div>
 
-                <div class="bg-sky-50 p-8 rounded-[2.5rem] border border-sky-100 space-y-6">
+                <div class="bg-sky-50 p-8 rounded-4xl border border-sky-100 space-y-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <h5 class="font-black text-sky-900">Giấy kiểm định</h5>
-                            <p class="text-sky-600/70 text-xs font-medium">Bảo chứng chất lượng Blockchain</p>
+                            <p class="text-sky-600 text-opacity-70 text-xs font-medium">Bảo chứng chất lượng Blockchain</p>
                         </div>
                         <a id="panelCertLink" href="#" target="_blank" class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-sky-600 shadow-sm hover:scale-110 transition-transform">
                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -251,7 +257,7 @@
                     </div>
                     <div class="bg-white p-4 rounded-3xl">
                         <canvas id="panelQR" class="mx-auto"></canvas>
-                        <p class="text-center text-[10px] font-black text-slate-300 mt-3 uppercase">Quét QR để xác minh nhanh</p>
+                        <p class="text-center text-2xs font-black text-slate-300 mt-3 uppercase">Quét QR để xác minh nhanh</p>
                     </div>
                 </div>
             </div>
@@ -341,7 +347,7 @@ function renderTable() {
     }
 
     tbody.innerHTML = filtered.map(item => `
-        <tr class="hover:bg-slate-50/80 transition-all cursor-pointer group" onclick="openSidePanelById(${item.id})">
+        <tr class="hover:bg-slate-50 hover:bg-opacity-80 transition-all cursor-pointer group" onclick="openSidePanelById(${item.id})">
             <td class="px-8 py-7 font-mono text-xs text-slate-400 font-bold group-hover:text-sky-600 transition-colors">#${String(item.id).padStart(3, '0')}</td>
             <td class="px-8 py-7">
                 <div class="flex items-center gap-4">
@@ -350,13 +356,13 @@ function renderTable() {
                     </div>
                     <div>
                         <span class="block font-black text-slate-700">${item.data.name}</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${item.data.origin}</span>
+                        <span class="text-2xs font-bold text-slate-400 uppercase tracking-tighter">${item.data.origin}</span>
                     </div>
                 </div>
             </td>
             <td class="px-8 py-7 text-slate-500 font-bold text-sm">${item.data.batchID}</td>
             <td class="px-8 py-7">
-                <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${item.type === 'in_stock' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
+                <span class="px-4 py-1.5 rounded-full text-2xs font-black uppercase tracking-widest ${item.type === 'in_stock' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
                     ${item.type === 'in_stock' ? 'Hiện diện' : 'Đã xuất kho'}
                 </span>
             </td>
@@ -381,7 +387,7 @@ function openSidePanelById(id) {
     document.getElementById('panelImage').src = ipfsGateway + imgHash;
     
     const ingContainer = document.getElementById('panelIngredients');
-    ingContainer.innerHTML = p.ingredients.map(i => `<span class="px-4 py-2 bg-slate-50 text-slate-600 text-[11px] rounded-xl font-bold border border-slate-100">${i}</span>`).join('');
+    ingContainer.innerHTML = p.ingredients.map(i => `<span class="px-4 py-2 bg-slate-50 text-slate-600 text-11px rounded-xl font-bold border border-slate-100">${i}</span>`).join('');
     
     const certHash = p.certificationUrl.replace("ipfs://", "");
     document.getElementById('panelCertLink').href = ipfsGateway + certHash;
