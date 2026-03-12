@@ -477,6 +477,17 @@ async function transferOwnership() {
     }
 
     try {
+        const product = await contract.methods.verifyProduct(id).call();
+        const currentOwner = (product && (product.owner || product[6]) ? (product.owner || product[6]) : "").toLowerCase();
+        if (!currentOwner) {
+            alert("Không thể xác định chủ sở hữu hiện tại của sản phẩm.");
+            return;
+        }
+        if (currentOwner !== account.toLowerCase()) {
+            alert("Chỉ chủ sở hữu hiện tại mới có thể chuyển giao. Vui lòng dùng đúng ví.");
+            return;
+        }
+
         let gasLimit = 200000;
         try {
             const estimate = await contract.methods.transferOwnership(id, newOwner).estimateGas({ from: account });
@@ -497,7 +508,8 @@ async function transferOwnership() {
         alert("Chuyển quyền sở hữu thành công!");
         showTab('list-products');
     } catch (err) {
-        alert("Lỗi: " + err.message);
+        const msg = (err && err.data && err.data.message) ? err.data.message : err.message;
+        alert("Lỗi: " + msg);
     }
 }
 </script>
