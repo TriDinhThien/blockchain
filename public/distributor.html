@@ -404,11 +404,18 @@ function closeSidePanel() {
     document.getElementById('overlay').classList.remove('active');
 }
 
+/* --- HELPERS --- */
+function getInputValue(id) {
+    const el = document.getElementById(id);
+    return el && typeof el.value === 'string' ? el.value.trim() : '';
+}
+
 /* --- WRITE ACTIONS --- */
 async function updateStatus() {
-    const id = document.getElementById('updateId').value;
-    const st = document.getElementById('newStatus').value;
+    const id = getInputValue('updateId');
+    const st = getInputValue('newStatus');
     if(!id || !st) return alert("Vui lòng điền đủ thông tin!");
+    if (!contract || !web3 || !account) return alert("Chưa kết nối ví hoặc hợp đồng.");
     try {
         await contract.methods.updateStatus(id, st).send({ from: account });
         alert("Cập nhật Blockchain thành công!");
@@ -417,9 +424,18 @@ async function updateStatus() {
 }
 
 async function transferOwnership() {
-    const id = document.getElementById('transferId').value;
-    const addr = document.getElementById('buyerAddress').value;
-    if(!id || !web3.utils.isAddress(addr)) return alert("Dữ liệu không hợp lệ!");
+    const id = getInputValue('transferId');
+    const addrRaw = getInputValue('buyerAddress');
+    if (!contract || !web3 || !account) return alert("Chưa kết nối ví hoặc hợp đồng.");
+    if (!id || !addrRaw) return alert("Vui lòng nhập đầy đủ ID và địa chỉ ví!");
+    if (!/^\d+$/.test(id)) return alert("ID không hợp lệ!");
+
+    let addr;
+    try {
+        addr = web3.utils.toChecksumAddress(addrRaw);
+    } catch (err) {
+        return alert("Địa chỉ ví không hợp lệ!");
+    }
     try {
         await contract.methods.transferOwnership(id, addr).send({ from: account });
         alert("Bàn giao quyền sở hữu thành công!");
