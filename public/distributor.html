@@ -50,9 +50,9 @@
             <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                 <div class="flex items-center gap-2 mb-2">
                     <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sepolia Online</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Blockchain Online</span>
                 </div>
-                <div id="accountDisplay" class="text-[10px] font-mono text-slate-400 truncate bg-white p-2 rounded-lg border border-slate-200">Đang kết nối ví...</div>
+                <div id="accountDisplay" class="text-[10px] font-mono text-slate-400 truncate bg-white p-2 rounded-lg border border-slate-200">Đang kết nối...</div>
             </div>
         </div>
     </aside>
@@ -81,7 +81,6 @@
         <div class="flex-1 overflow-y-auto p-8 lg:p-12">
             
             <div id="list-products" class="tab-content active">
-                
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div class="flex p-1.5 bg-slate-200/60 rounded-[1.25rem] gap-1 backdrop-blur-sm shadow-inner overflow-hidden">
                         <button onclick="filterProducts('owned')" id="btnFilterOwned" class="filter-btn active px-8 py-3 rounded-[1rem] text-xs font-black transition-all flex items-center gap-2 uppercase tracking-wider">
@@ -120,8 +119,7 @@
                                 <th class="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody id="productListBody" class="divide-y divide-slate-50">
-                            </tbody>
+                        <tbody id="productListBody" class="divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
             </div>
@@ -181,20 +179,21 @@ window.addEventListener("load", async () => {
         try {
             web3 = new Web3(window.ethereum);
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            account = accounts[0];
+            
+            // QUAN TRỌNG: Chuyển địa chỉ về viết thường ngay từ đầu
+            account = accounts[0].toLowerCase(); 
             document.getElementById('accountDisplay').innerText = account;
             contract = new web3.eth.Contract(abi, contractAddress);
             
-            // Lắng nghe sự kiện đổi ví
             window.ethereum.on('accountsChanged', (accs) => {
-                account = accs[0];
+                account = accs[0].toLowerCase();
                 document.getElementById('accountDisplay').innerText = account;
                 loadMyProducts();
             });
 
             loadMyProducts();
         } catch (e) {
-            console.error("User denied account access");
+            console.error("Truy cập ví bị từ chối");
         }
     } else {
         alert("MetaMask chưa được cài đặt!");
@@ -202,7 +201,7 @@ window.addEventListener("load", async () => {
 });
 
 /* ============================================================
-   CORE LOGIC: FETCH & FILTER
+   CORE LOGIC: FETCH & FILTER (ĐÃ SỬA)
    ============================================================ */
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
@@ -218,19 +217,25 @@ async function loadMyProducts() {
         allProducts = [];
         let ownedCount = 0;
         let transferredCount = 0;
+        const myWallet = account.toLowerCase();
 
         for (let i = 1; i <= count; i++) {
             const p = await contract.methods.verifyProduct(i).call();
             const currentOwner = p.owner.toLowerCase();
-            const myWallet = account.toLowerCase();
             
-            // Kiểm tra xem ví hiện tại có nằm trong history của sản phẩm không
+            // Logic lọc chuẩn xác:
+            // 1. Kiểm tra xem mình có phải chủ hiện tại không
+            const isCurrentlyMine = (currentOwner === myWallet);
+            
+            // 2. Kiểm tra xem mình có trong lịch sử (History) của sản phẩm này không
             const wasInHistory = p.history.some(h => h.toLowerCase().includes(myWallet));
 
-            if (currentOwner === myWallet) {
+            if (isCurrentlyMine) {
+                // Nếu là chủ hiện tại -> Nằm trong kho
                 ownedCount++;
                 allProducts.push({...p, id: i, type: 'owned'});
             } else if (wasInHistory) {
+                // Nếu KHÔNG phải chủ hiện tại NHƯNG có trong lịch sử -> Đã xuất kho
                 transferredCount++;
                 allProducts.push({...p, id: i, type: 'transferred'});
             }
@@ -238,7 +243,6 @@ async function loadMyProducts() {
 
         document.getElementById('countOwned').innerText = ownedCount;
         document.getElementById('countTransferred').innerText = transferredCount;
-        
         renderTable();
     } catch (err) {
         console.error(err);
@@ -267,7 +271,7 @@ function renderTable() {
         tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-32 text-center">
             <div class="flex flex-col items-center gap-3">
                 <i class="fa-solid fa-inbox text-slate-200 text-5xl"></i>
-                <span class="text-slate-400 font-bold italic">Không có dữ liệu trong mục này</span>
+                <span class="text-slate-400 font-bold italic">Không có dữ liệu</span>
             </div>
         </td></tr>`;
         return;
@@ -283,17 +287,17 @@ function renderTable() {
                     </div>
                     <div>
                         <div class="font-black text-slate-800 tracking-tight text-base leading-tight">${p.name}</div>
-                        <div class="text-[10px] text-slate-400 font-black uppercase tracking-tighter mt-1">Cosmetic Identity Service</div>
+                        <div class="text-[10px] text-slate-400 font-black uppercase tracking-tighter mt-1">Sản phẩm chính hãng</div>
                     </div>
                 </div>
             </td>
             <td class="px-8 py-8">
                 <div class="inline-flex flex-col gap-1.5">
                     <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full ${p.type === 'owned' ? 'bg-sky-500' : 'bg-emerald-500 animate-pulse'}"></span>
+                        <span class="w-2 h-2 rounded-full ${p.type === 'owned' ? 'bg-sky-500' : 'bg-emerald-500'}"></span>
                         <span class="text-xs font-black text-slate-700 uppercase tracking-tight">${p.batchID}</span>
                     </div>
-                    <div class="text-[10px] text-slate-400 font-medium italic"><i class="fa-solid fa-location-arrow mr-1"></i>Origin: ${p.origin}</div>
+                    <div class="text-[10px] text-slate-400 font-medium italic">Xuất xứ: ${p.origin}</div>
                 </div>
             </td>
             <td class="px-8 py-8">
@@ -301,7 +305,7 @@ function renderTable() {
                     ? `<button onclick="prepareTransfer(${p.id})" class="px-6 py-3 bg-sky-600 text-white text-[11px] font-black rounded-xl hover:bg-black transition-all shadow-lg shadow-sky-100 uppercase tracking-widest">Xuất kho ngay</button>`
                     : `<div class="flex flex-col">
                         <div class="text-[11px] text-emerald-600 font-black uppercase flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Đã bàn giao</div>
-                        <div class="text-[9px] text-slate-300 font-mono mt-1">${p.owner}</div>
+                        <div class="text-[9px] text-slate-400 font-mono mt-1">Chủ mới: ${p.owner.substring(0,15)}...</div>
                        </div>`
                 }
             </td>
@@ -310,7 +314,7 @@ function renderTable() {
 }
 
 /* ============================================================
-   TRANSACTION LOGIC
+   UI & TRANSACTION LOGIC
    ============================================================ */
 function prepareTransfer(id) {
     document.getElementById('transferId').value = id;
@@ -324,7 +328,7 @@ function showTab(tabId) {
     document.getElementById(tabId).classList.add('active');
     document.getElementById('pageTitle').innerText = tabId === 'list-products' ? 'Quản lý kho hàng' : 'Xuất kho bàn giao';
 
-    const sideId = tabId === 'list-products' ? 'side-list' : 'side-transfer';
+    const sideId = (tabId === 'list-products') ? 'side-list' : 'side-transfer';
     document.getElementById(sideId).classList.add('active');
 }
 
@@ -333,22 +337,19 @@ async function transferOwnership() {
     const newOwner = document.getElementById("newOwner").value.trim();
     const btn = document.getElementById("btnTransfer");
 
-    if (!id || !newOwner) return alert("Vui lòng điền đầy đủ!");
-    if (!web3.utils.isAddress(newOwner)) return alert("Địa chỉ ví không hợp lệ!");
+    if (!id || !newOwner) return alert("Vui lòng nhập đầy đủ ID và Địa chỉ ví!");
+    if (!web3.utils.isAddress(newOwner)) return alert("Địa chỉ ví nhận không hợp lệ!");
 
     btn.disabled = true;
-    btn.innerHTML = '<div class="loading-spinner"></div> <span>Đang ký giao dịch...</span>';
+    btn.innerHTML = '<div class="loading-spinner"></div> <span>Đang xác nhận...</span>';
 
     try {
-        // Gửi giao dịch lên mạng
         await contract.methods.transferOwnership(id, newOwner).send({ from: account });
+        alert("Thành công! Sản phẩm #" + id + " đã được xuất kho.");
         
-        alert("🎉 Chúc mừng! Sản phẩm #" + id + " đã được chuyển giao thành công.");
-        
-        // REFRESH: Tải lại dữ liệu ngay sau khi giao dịch thành công
+        // Cập nhật lại danh sách ngay lập tức
         await loadMyProducts(); 
         
-        // RESET FORM & TAB
         document.getElementById("transferId").value = "";
         document.getElementById("newOwner").value = "";
         showTab('list-products');
