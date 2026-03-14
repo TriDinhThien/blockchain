@@ -50,9 +50,9 @@
             <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                 <div class="flex items-center gap-2 mb-2">
                     <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sepolia Online</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Blockchain Online</span>
                 </div>
-                <div id="accountDisplay" class="text-[10px] font-mono text-slate-400 truncate bg-white p-2 rounded-lg border border-slate-200">Đang kết nối ví...</div>
+                <div id="accountDisplay" class="text-[10px] font-mono text-slate-400 truncate bg-white p-2 rounded-lg border border-slate-200">Đang kết nối...</div>
             </div>
         </div>
     </aside>
@@ -81,7 +81,6 @@
         <div class="flex-1 overflow-y-auto p-8 lg:p-12">
             
             <div id="list-products" class="tab-content active">
-                
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div class="flex p-1.5 bg-slate-200/60 rounded-[1.25rem] gap-1 backdrop-blur-sm shadow-inner overflow-hidden">
                         <button onclick="filterProducts('owned')" id="btnFilterOwned" class="filter-btn active px-8 py-3 rounded-[1rem] text-xs font-black transition-all flex items-center gap-2 uppercase tracking-wider">
@@ -120,8 +119,7 @@
                                 <th class="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody id="productListBody" class="divide-y divide-slate-50">
-                            </tbody>
+                        <tbody id="productListBody" class="divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
             </div>
@@ -181,13 +179,12 @@ window.addEventListener("load", async () => {
         try {
             web3 = new Web3(window.ethereum);
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            account = accounts[0];
+            account = accounts[0].toLowerCase(); // Chuẩn hóa về chữ thường
             document.getElementById('accountDisplay').innerText = account;
             contract = new web3.eth.Contract(abi, contractAddress);
             
-            // Lắng nghe sự kiện đổi ví
             window.ethereum.on('accountsChanged', (accs) => {
-                account = accs[0];
+                account = accs[0].toLowerCase();
                 document.getElementById('accountDisplay').innerText = account;
                 loadMyProducts();
             });
@@ -202,7 +199,7 @@ window.addEventListener("load", async () => {
 });
 
 /* ============================================================
-   CORE LOGIC: FETCH & FILTER
+   CORE LOGIC: FETCH & FILTER (FIXED)
    ============================================================ */
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
@@ -218,19 +215,25 @@ async function loadMyProducts() {
         allProducts = [];
         let ownedCount = 0;
         let transferredCount = 0;
+        const myWallet = account.toLowerCase();
 
         for (let i = 1; i <= count; i++) {
             const p = await contract.methods.verifyProduct(i).call();
             const currentOwner = p.owner.toLowerCase();
-            const myWallet = account.toLowerCase();
             
-            // Kiểm tra xem ví hiện tại có nằm trong history của sản phẩm không
+            // Logic quan trọng:
+            // 1. Kiểm tra sở hữu hiện tại
+            const isCurrentlyMine = (currentOwner === myWallet);
+            
+            // 2. Kiểm tra lịch sử (xem mình đã từng chạm vào sp này chưa)
+            // Lọc qua mảng history từ Smart Contract
             const wasInHistory = p.history.some(h => h.toLowerCase().includes(myWallet));
 
-            if (currentOwner === myWallet) {
+            if (isCurrentlyMine) {
                 ownedCount++;
                 allProducts.push({...p, id: i, type: 'owned'});
             } else if (wasInHistory) {
+                // Nếu không phải chủ hiện tại nhưng có trong history -> Đã xuất kho
                 transferredCount++;
                 allProducts.push({...p, id: i, type: 'transferred'});
             }
@@ -238,7 +241,6 @@ async function loadMyProducts() {
 
         document.getElementById('countOwned').innerText = ownedCount;
         document.getElementById('countTransferred').innerText = transferredCount;
-        
         renderTable();
     } catch (err) {
         console.error(err);
@@ -301,7 +303,7 @@ function renderTable() {
                     ? `<button onclick="prepareTransfer(${p.id})" class="px-6 py-3 bg-sky-600 text-white text-[11px] font-black rounded-xl hover:bg-black transition-all shadow-lg shadow-sky-100 uppercase tracking-widest">Xuất kho ngay</button>`
                     : `<div class="flex flex-col">
                         <div class="text-[11px] text-emerald-600 font-black uppercase flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Đã bàn giao</div>
-                        <div class="text-[9px] text-slate-300 font-mono mt-1">${p.owner}</div>
+                        <div class="text-[9px] text-slate-300 font-mono mt-1">${p.owner.substring(0,20)}...</div>
                        </div>`
                 }
             </td>
@@ -340,15 +342,12 @@ async function transferOwnership() {
     btn.innerHTML = '<div class="loading-spinner"></div> <span>Đang ký giao dịch...</span>';
 
     try {
-        // Gửi giao dịch lên mạng
         await contract.methods.transferOwnership(id, newOwner).send({ from: account });
+        alert("🎉 Chuyển giao thành công sản phẩm #" + id);
         
-        alert("🎉 Chúc mừng! Sản phẩm #" + id + " đã được chuyển giao thành công.");
-        
-        // REFRESH: Tải lại dữ liệu ngay sau khi giao dịch thành công
+        // Cập nhật lại danh sách ngay lập tức
         await loadMyProducts(); 
         
-        // RESET FORM & TAB
         document.getElementById("transferId").value = "";
         document.getElementById("newOwner").value = "";
         showTab('list-products');
