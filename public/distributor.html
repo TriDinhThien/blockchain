@@ -267,6 +267,10 @@
 /* --- CONFIG --- */
 const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a";
 const abi = [
+    { "anonymous": false, "inputs": [
+        { "indexed": false, "type": "uint256", "name": "id" },
+        { "indexed": false, "type": "address", "name": "newOwner" }
+    ], "name": "OwnershipTransferred", "type": "event" },
     { "inputs": [], "name": "productCount", "outputs": [{"type": "uint256"}], "stateMutability": "view", "type": "function" },
     { "inputs": [{"type": "uint256","name": "_id"}], "name": "verifyProduct", "outputs": [
         {"name": "name","type": "string"},{"name": "batchID","type": "string"},{"name": "manufactureDate","type": "uint256"},
