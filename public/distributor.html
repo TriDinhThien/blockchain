@@ -29,7 +29,6 @@
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
 
-<!-- HEADER - Ecommerce Style -->
 <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -41,7 +40,6 @@
                 <span class="text-xs text-zinc-500 block -mt-1">DISTRIBUTOR</span>
             </div>
         </div>
-        
         <div class="flex items-center gap-8">
             <button onclick="loadMyProducts()" class="flex items-center gap-2 text-sm font-medium hover:text-sky-400 transition-colors">
                 <i class="fa-solid fa-rotate"></i> Làm mới
@@ -55,24 +53,13 @@
 </header>
 
 <div class="max-w-7xl mx-auto px-6 py-8">
-    <!-- TABS -->
     <div class="flex gap-2 mb-10 border-b border-zinc-800 pb-1">
-        <button onclick="switchTab(0)" id="tab0" 
-                class="tab-btn px-8 py-3 rounded-3xl font-semibold text-lg transition-all active">
-            📦 Sản phẩm của bạn
-        </button>
-        <button onclick="switchTab(1)" id="tab1" 
-                class="tab-btn px-8 py-3 rounded-3xl font-semibold text-lg transition-all">
-            📤 Lịch sử chuyển giao
-        </button>
+        <button onclick="switchTab(0)" id="tab0" class="tab-btn px-8 py-3 rounded-3xl font-semibold text-lg transition-all bg-zinc-800 text-white">📦 Sản phẩm của bạn</button>
+        <button onclick="switchTab(1)" id="tab1" class="tab-btn px-8 py-3 rounded-3xl font-semibold text-lg transition-all">📤 Lịch sử chuyển giao</button>
     </div>
 
-    <!-- PRODUCT GRID -->
-    <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        <!-- Cards sẽ được render bằng JS -->
-    </div>
+    <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
 
-    <!-- EMPTY STATE -->
     <div id="emptyState" class="hidden text-center py-20">
         <i class="fa-solid fa-box-open text-6xl text-zinc-700 mb-6"></i>
         <p class="text-zinc-400 text-xl">Chưa có sản phẩm nào</p>
@@ -86,12 +73,11 @@
             <h3 class="text-2xl font-bold">Chuyển quyền sở hữu</h3>
             <button onclick="closeModal()" class="text-zinc-400 hover:text-white text-3xl leading-none">×</button>
         </div>
-        
         <div class="space-y-6">
             <div>
                 <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">ID sản phẩm</label>
-                <input id="modalProductId" type="number" 
-                       class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 text-lg focus:outline-none focus:border-sky-500">
+                <input id="modalProductId" type="number" readonly
+                       class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 text-lg">
             </div>
             <div>
                 <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Địa chỉ ví khách hàng</label>
@@ -99,16 +85,9 @@
                        class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 font-mono focus:outline-none focus:border-sky-500">
             </div>
         </div>
-
         <div class="mt-8 flex gap-3">
-            <button onclick="closeModal()" 
-                    class="flex-1 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl font-medium transition-colors">
-                Hủy
-            </button>
-            <button onclick="confirmTransfer()" 
-                    class="flex-1 py-4 bg-gradient-to-r from-sky-500 to-violet-500 hover:brightness-110 rounded-2xl font-semibold transition-all">
-                Xác nhận chuyển giao
-            </button>
+            <button onclick="closeModal()" class="flex-1 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl font-medium">Hủy</button>
+            <button onclick="confirmTransfer()" class="flex-1 py-4 bg-gradient-to-r from-sky-500 to-violet-500 hover:brightness-110 rounded-2xl font-semibold">XÁC NHẬN CHUYỂN GIAO</button>
         </div>
     </div>
 </div>
@@ -130,6 +109,7 @@ const abi = [
 let web3, contract, account;
 let allProducts = [];
 const SOLD_STORAGE_PREFIX = 'veriglow_distributor_sold_';
+let currentTab = 0;
 
 // ==================== INIT ====================
 window.addEventListener("load", async () => {
@@ -142,19 +122,17 @@ window.addEventListener("load", async () => {
     loadMyProducts();
 });
 
-// ==================== TAB SWITCH ====================
-let currentTab = 0;
+// ==================== TAB ====================
 function switchTab(tab) {
     currentTab = tab;
     document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-        btn.classList.toggle('active', i === tab);
         btn.classList.toggle('bg-zinc-800', i === tab);
         btn.classList.toggle('text-white', i === tab);
     });
     renderProducts();
 }
 
-// ==================== LOAD & CLASSIFY PRODUCTS ====================
+// ==================== LOAD PRODUCTS ====================
 async function loadMyProducts() {
     const grid = document.getElementById('productGrid');
     grid.innerHTML = `<div class="col-span-full flex justify-center py-20"><i class="fa-solid fa-spinner fa-spin text-4xl text-sky-500"></i></div>`;
@@ -181,7 +159,7 @@ async function loadMyProducts() {
     }
 }
 
-// ==================== RENDER ECOMMERCE CARDS ====================
+// ==================== RENDER (ĐÃ SỬA REPLACE) ====================
 function renderProducts() {
     const grid = document.getElementById('productGrid');
     const filtered = currentTab === 0 
@@ -190,24 +168,17 @@ function renderProducts() {
 
     document.getElementById('emptyState').classList.toggle('hidden', filtered.length > 0);
 
-    if (!filtered.length) {
-        grid.innerHTML = '';
-        return;
-    }
-
     let html = '';
     filtered.forEach(item => {
         const p = item.data;
-        const imgHash = p.productImageUrl ? p.productImageUrl.replace('ipfs://', '') : '';
-        const imageUrl = imgHash ? `https://ipfs.io/ipfs/${imgHash}` : 'https://picsum.photos/400/400?random=' + item.id;
-        
+        const imgUrl = (p.productImageUrl || '').replace('ipfs://', '');
+        const imageSrc = imgUrl ? `https://ipfs.io/ipfs/${imgUrl}` : `https://picsum.photos/400/400?random=${item.id}`;
+
         html += `
             <div class="product-card bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800">
                 <div class="relative">
-                    <img src="${imageUrl}" class="w-full h-64 object-cover" alt="${p.name}">
-                    <div class="absolute top-4 right-4 px-4 py-1 bg-black/70 text-xs font-bold rounded-2xl backdrop-blur">
-                        #${String(item.id).padStart(3,'0')}
-                    </div>
+                    <img src="${imageSrc}" class="w-full h-64 object-cover" alt="${p.name}">
+                    <div class="absolute top-4 right-4 px-4 py-1 bg-black/70 text-xs font-bold rounded-2xl">#${String(item.id).padStart(3,'0')}</div>
                 </div>
                 <div class="p-6">
                     <div class="font-bold text-xl line-clamp-1">${p.name}</div>
@@ -216,10 +187,9 @@ function renderProducts() {
                         <i class="fa-solid fa-calendar"></i>
                         ${new Date(Number(p.manufactureDate) * 1000).toLocaleDateString('vi-VN')}
                     </div>
-                    
                     ${item.type === 'owned' ? `
                     <button onclick="openTransferModal(${item.id})" 
-                            class="mt-6 w-full bg-gradient-to-r from-sky-500 to-violet-500 hover:brightness-110 py-4 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2">
+                            class="mt-6 w-full bg-gradient-to-r from-sky-500 to-violet-500 hover:brightness-110 py-4 rounded-2xl font-semibold flex items-center justify-center gap-2">
                         <i class="fa-solid fa-arrow-right-arrow-left"></i>
                         CHUYỂN QUYỀN CHO KHÁCH
                     </button>` : `
@@ -227,10 +197,10 @@ function renderProducts() {
                 </div>
             </div>`;
     });
-    grid.innerHTML = html;
+    grid.innerHTML = html || '';
 }
 
-// ==================== TRANSFER MODAL ====================
+// ==================== MODAL & TRANSFER ====================
 let currentTransferId = null;
 
 function openTransferModal(id) {
@@ -245,10 +215,10 @@ function closeModal() {
 }
 
 async function confirmTransfer() {
-    const id = currentTransferId;
+    const id = Number(currentTransferId);
     const addrRaw = document.getElementById('modalBuyerAddress').value.trim();
-    
-    if (!addrRaw) return alert("Vui lòng nhập địa chỉ ví khách hàng!");
+
+    if (!id || !addrRaw) return alert("Vui lòng nhập đầy đủ ID và địa chỉ ví!");
     
     let addr;
     try {
@@ -264,24 +234,21 @@ async function confirmTransfer() {
         closeModal();
         loadMyProducts();
     } catch (e) {
-        alert("Lỗi: " + (e.message || e));
+        alert("Lỗi chuyển giao: " + (e.message || e));
     }
 }
 
-// ==================== SOLD STORAGE (LocalStorage) ====================
+// ==================== SOLD STORAGE ====================
 function getSoldStorageKey() { return `${SOLD_STORAGE_PREFIX}${account}`; }
-
 function loadSoldIdsFromStorage() {
     try {
         const raw = localStorage.getItem(getSoldStorageKey());
         return raw ? new Set(JSON.parse(raw).map(Number).filter(n => n > 0)) : new Set();
     } catch (_) { return new Set(); }
 }
-
 function saveSoldIdsToStorage(set) {
     try { localStorage.setItem(getSoldStorageKey(), JSON.stringify(Array.from(set))); } catch (_) {}
 }
-
 function rememberSoldId(id) {
     const num = Number(id);
     if (!num || num <= 0) return;
