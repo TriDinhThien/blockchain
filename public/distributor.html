@@ -17,7 +17,6 @@ const abi = [
 let web3, contract, account;
 let allProducts = [];
 let currentFilter = 'in_stock';
-let soldIdsCache = null;
 const SOLD_STORAGE_PREFIX = 'veriglow_sold_ids_';
 
 /* ======================= INIT ======================= */
@@ -47,7 +46,7 @@ function filterProducts(type) {
     renderTable();
 }
 
-/* ======================= SOLD TRACKING (CHỈ DÙNG LOCALSTORAGE) ======================= */
+/* ======================= SOLD TRACKING ======================= */
 function getSoldStorageKey() { return `${SOLD_STORAGE_PREFIX}${account}`; }
 
 function loadSoldIdsFromStorage() {
@@ -67,10 +66,9 @@ function rememberSoldId(id) {
     const stored = loadSoldIdsFromStorage();
     stored.add(num);
     saveSoldIdsToStorage(stored);
-    soldIdsCache = stored;
 }
 
-/* ======================= LOAD PRODUCTS ======================= */
+/* ======================= LOAD & RENDER (ĐÃ SỬA) ======================= */
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
     tbody.innerHTML = '<tr><td colspan="4" class="py-20 text-center"><i class="fa-solid fa-circle-notch fa-spin text-sky-600 text-3xl"></i></td></tr>';
@@ -129,12 +127,15 @@ function renderTable() {
         : '<tr><td colspan="4" class="text-center py-20 text-slate-400 font-medium italic">Không có sản phẩm nào trong danh mục này</td></tr>';
 }
 
+/* ======================= UPDATE COUNTS (ĐÃ SỬA LỖI NULL) ======================= */
 function updateCounts() {
-    document.getElementById('countInStock').innerText = allProducts.filter(p => p.type === 'in_stock').length;
-    document.getElementById('countSold').innerText = allProducts.filter(p => p.type === 'sold').length;
+    const stockEl = document.getElementById('countInStock');
+    const soldEl  = document.getElementById('countSold');
+    if (stockEl) stockEl.innerText = allProducts.filter(p => p.type === 'in_stock').length;
+    if (soldEl)  soldEl.innerText  = allProducts.filter(p => p.type === 'sold').length;
 }
 
-/* ======================= SIDE PANEL & WRITE FUNCTIONS (giữ nguyên) ======================= */
+/* ======================= SIDE PANEL & WRITE (giữ nguyên) ======================= */
 function openSidePanelById(id) { /* giữ nguyên code cũ của bạn */ }
 function closeSidePanel() { /* giữ nguyên */ }
 
@@ -166,12 +167,10 @@ async function transferOwnership() {
 
     try {
         await contract.methods.transferOwnership(id, addr).send({ from: account });
-        
-        rememberSoldId(id);           // ← Lưu ngay vào LocalStorage
+        rememberSoldId(id);
         alert("✅ Chuyển quyền sở hữu thành công!");
-        
         showTab('list-products');
-        loadMyProducts();             // Cập nhật kho + lịch sử ngay
+        loadMyProducts();
     } catch (e) { 
         alert("Lỗi: " + e.message); 
     }
