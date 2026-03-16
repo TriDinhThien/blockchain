@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.13/dist/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
@@ -81,14 +82,6 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
         }
-
-        /* Stats Cards */
-        .stat-card {
-            background: white;
-            border-radius: 2rem;
-            padding: 1.5rem;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
-        }
     </style>
 </head>
 
@@ -138,27 +131,15 @@
         </header>
 
         <div class="px-10 pb-10">
-            <!-- ==================== TAB: TỔNG QUAN KHO ==================== -->
             <div id="list-products" class="tab-content active">
-                <!-- Stats -->
-                <div class="grid grid-cols-2 gap-6 mb-8">
-                    <div class="stat-card text-center">
-                        <div class="text-emerald-600 text-sm font-bold uppercase tracking-widest mb-1">SẢN PHẨM TRONG KHO</div>
-                        <div id="inStockCount" class="text-5xl font-black text-slate-800">0</div>
-                    </div>
-                    <div class="stat-card text-center">
-                        <div class="text-amber-600 text-sm font-bold uppercase tracking-widest mb-1">LỊCH SỬ ĐÃ XUẤT</div>
-                        <div id="soldCount" class="text-5xl font-black text-slate-800">0</div>
-                    </div>
-                </div>
-
-                <!-- Filter buttons -->
                 <div class="flex gap-3 mb-8">
                     <button onclick="filterProducts('in_stock')" id="filterStock" class="filter-btn active px-6 py-3 rounded-2xl border bg-white text-sm font-bold shadow-sm transition-all">
-                        📦 Sản phẩm tại kho
+                        📦 Sản phẩm trong kho
+                        <span id="countInStock" class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-600">0</span>
                     </button>
                     <button onclick="filterProducts('sold')" id="filterSold" class="filter-btn px-6 py-3 rounded-2xl border bg-white text-sm font-bold shadow-sm transition-all">
-                        🤝 Lịch sử đã xuất
+                        📤 Lịch sử đã xuất
+                        <span id="countSold" class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-600">0</span>
                     </button>
                 </div>
 
@@ -172,12 +153,12 @@
                                 <th class="px-8 py-6 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Trạng thái kho</th>
                             </tr>
                         </thead>
-                        <tbody id="productListBody" class="divide-y divide-slate-50"></tbody>
+                        <tbody id="productListBody" class="divide-y divide-slate-50">
+                            </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ==================== TAB: CẬP NHẬT VẬN CHUYỂN ==================== -->
             <div id="update-status" class="tab-content max-w-xl mx-auto mt-10">
                 <div class="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-2xl">
                     <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-8 text-2xl">
@@ -202,7 +183,6 @@
                 </div>
             </div>
 
-            <!-- ==================== TAB: CHUYỂN GIAO ==================== -->
             <div id="transfer-ownership" class="tab-content max-w-xl mx-auto mt-10">
                 <div class="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-2xl text-center">
                     <div class="w-20 h-20 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-8 text-3xl">
@@ -223,43 +203,93 @@
         </div>
     </main>
 
-    <!-- Side Panel (giữ nguyên như cũ, chỉ thêm hiển thị "Đã chuyển cho") -->
     <div id="sidePanel" class="fixed right-0 top-0 h-screen bg-white z-50 flex flex-col">
-        <!-- ... (giữ nguyên phần HTML sidePanel của bạn) ... -->
-        <!-- Tôi giữ nguyên để ngắn gọn, bạn chỉ cần copy từ code cũ của bạn -->
+        <div class="p-8 flex justify-between items-center border-b border-slate-50">
+            <span class="px-4 py-1.5 bg-slate-900 text-white text-[10px] font-black rounded-full uppercase tracking-tighter">Thông tin chi tiết</span>
+            <button onclick="closeSidePanel()" class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all group">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-10">
+            <div id="panelContent" class="space-y-10">
+                <div class="flex gap-10">
+                    <div class="w-48 shrink-0">
+                        <div class="relative group">
+                            <img id="panelImage" src="" alt="Product" class="w-48 h-48 rounded-[2.5rem] object-cover shadow-2xl border-4 border-white">
+                            <div class="absolute inset-0 rounded-[2.5rem] bg-black/10 group-hover:bg-transparent transition-all"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-center space-y-4">
+                        <h4 id="panelName" class="text-3xl font-black text-slate-800 leading-tight">Sản phẩm</h4>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span id="panelStatusBadge" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Đang kiểm tra</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Mã lô sản xuất</p>
+                        <p id="panelBatch" class="text-lg font-bold text-slate-700">--</p>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Ngày xuất xưởng</p>
+                        <p id="panelDate" class="text-lg font-bold text-slate-700">--</p>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest ml-1">Thành phần cấu tạo</p>
+                    <div id="panelIngredients" class="flex flex-wrap gap-2">
+                        </div>
+                </div>
+
+                <div class="bg-sky-50 p-8 rounded-[2.5rem] border border-sky-100 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h5 class="font-black text-sky-900">Giấy kiểm định</h5>
+                            <p class="text-sky-600/70 text-xs font-medium">Bảo chứng chất lượng Blockchain</p>
+                        </div>
+                        <a id="panelCertLink" href="#" target="_blank" class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-sky-600 shadow-sm hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                    <div class="bg-white p-4 rounded-3xl">
+                        <canvas id="panelQR" class="mx-auto"></canvas>
+                        <p class="text-center text-[10px] font-black text-slate-300 mt-3 uppercase">Quét QR để xác minh nhanh</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 <script>
 /* --- CONFIG --- */
 const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a";
-const abi = [ /* Giữ nguyên ABI của bạn */ ];
+const abi = [
+    { "anonymous": false, "inputs": [
+        { "indexed": false, "type": "uint256", "name": "id" },
+        { "indexed": false, "type": "address", "name": "newOwner" }
+    ], "name": "OwnershipTransferred", "type": "event" },
+    { "inputs": [], "name": "productCount", "outputs": [{"type": "uint256"}], "stateMutability": "view", "type": "function" },
+    { "inputs": [{"type": "uint256","name": "_id"}], "name": "verifyProduct", "outputs": [
+        {"name": "name","type": "string"},{"name": "batchID","type": "string"},{"name": "manufactureDate","type": "uint256"},
+        {"name": "origin","type": "string"},{"name": "isAuthentic","type": "bool"},{"name": "history","type": "string[]"},
+        {"name": "owner","type": "address"},{"name": "ingredients","type": "string[]"},{"name": "productImageUrl","type": "string"},
+        {"name": "certificationUrl","type": "string"}
+    ], "stateMutability": "view", "type": "function" },
+    { "inputs": [{"type": "uint256"},{"type": "address"}], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+    { "inputs": [{"type": "uint256"},{"type": "string"}], "name": "updateStatus", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
+];
 
 let web3, contract, account;
-let allProducts = [];           // Mảng toàn bộ sản phẩm
+let allProducts = [];
 let currentFilter = 'in_stock';
+let soldIdsCache = null;
+const SOLD_STORAGE_PREFIX = 'veriglow_sold_ids_';
 
-/* ======================= LOCAL STORAGE CHO LỊCH SỬ XUẤT ======================= */
-const SOLD_STORAGE_PREFIX = 'veriglow_sold_history_';
-
-function getSoldStorageKey() {
-    return `${SOLD_STORAGE_PREFIX}${account ? account.toLowerCase() : 'unknown'}`;
-}
-
-function loadSoldHistory() {
-    try {
-        const raw = localStorage.getItem(getSoldStorageKey());
-        if (!raw) return [];
-        return JSON.parse(raw);
-    } catch (_) { return []; }
-}
-
-function saveSoldHistory(history) {
-    try {
-        localStorage.setItem(getSoldStorageKey(), JSON.stringify(history));
-    } catch (_) {}
-}
-
-/* ======================= LOAD & RENDER ======================= */
 window.addEventListener("load", async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
@@ -267,114 +297,250 @@ window.addEventListener("load", async () => {
         account = accounts[0].toLowerCase();
         document.getElementById('accountDisplay').innerText = account;
         contract = new web3.eth.Contract(abi, contractAddress);
-        await loadMyProducts();
-    } else {
-        alert("Vui lòng cài MetaMask!");
+        loadMyProducts();
     }
 });
+
+/* --- FUNCTIONS --- */
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    
+    const titles = {
+        'list-products': 'Tổng quan kho', 
+        'update-status': 'Cập nhật lộ trình', 
+        'transfer-ownership': 'Bàn giao khách hàng'
+    };
+    document.getElementById('pageTitle').innerText = titles[tabId];
+}
 
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
     tbody.innerHTML = '<tr><td colspan="4" class="py-20 text-center"><i class="fa-solid fa-circle-notch fa-spin text-sky-600 text-3xl"></i></td></tr>';
-
+    
     try {
         const count = Number(await contract.methods.productCount().call());
-        const soldHistory = loadSoldHistory();   // [{id, toAddress, timestamp}]
-        const soldIds = new Set(soldHistory.map(h => h.id));
-
+        const soldIds = await getSoldIdsForAccount();
         allProducts = [];
-        let inStock = 0, sold = 0;
-
         for (let i = 1; i <= count; i++) {
             const p = await contract.methods.verifyProduct(i).call();
-            const owner = (p[6] || '').toLowerCase();
-
+            const owner = (p.owner || p[6] || '').toLowerCase();
             if (owner === account) {
                 allProducts.push({ id: i, data: p, type: 'in_stock' });
-                inStock++;
             } else if (soldIds.has(i)) {
                 allProducts.push({ id: i, data: p, type: 'sold' });
-                sold++;
             }
         }
-
-        // Cập nhật số lượng
-        document.getElementById('inStockCount').innerText = inStock;
-        document.getElementById('soldCount').innerText = sold;
-
+        updateCounts();
         renderTable();
-    } catch (e) {
-        console.error(e);
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-red-400 font-bold">Lỗi kết nối Blockchain</td></tr>';
+    } catch (e) { 
+        allProducts = [];
+        updateCounts();
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-red-400 font-bold">Lỗi kết nối Blockchain</td></tr>'; 
     }
+}
+
+function filterProducts(type) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(type === 'in_stock' ? 'filterStock' : 'filterSold').classList.add('active');
+    renderTable();
 }
 
 function renderTable() {
     const tbody = document.getElementById('productListBody');
     const filtered = allProducts.filter(p => p.type === currentFilter);
-
-    if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-20 text-slate-400">Không có sản phẩm nào</td></tr>`;
-        return;
+    
+    if (!filtered.length) { 
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-20 text-slate-400 font-medium italic">Không có sản phẩm nào trong danh mục này</td></tr>'; 
+        return; 
     }
 
-    tbody.innerHTML = filtered.map(item => {
-        const p = item.data;
-        const statusText = item.type === 'in_stock' 
-            ? `<span class="px-5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Trong kho</span>`
-            : `<span class="px-5 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">Đã xuất</span>`;
-
-        return `
-            <tr onclick="openSidePanelById(${item.id})" class="hover:bg-slate-50 cursor-pointer transition-all">
-                <td class="px-8 py-6 font-mono text-xs">#${String(item.id).padStart(3,'0')}</td>
-                <td class="px-8 py-6 font-semibold">${p[0]}</td>
-                <td class="px-8 py-6 text-slate-500">${p[1]}</td>
-                <td class="px-8 py-6">${statusText}</td>
-            </tr>
-        `;
-    }).join('');
+    tbody.innerHTML = filtered.map(item => `
+        <tr class="hover:bg-slate-50/80 transition-all cursor-pointer group" onclick="openSidePanelById(${item.id})">
+            <td class="px-8 py-7 font-mono text-xs text-slate-400 font-bold group-hover:text-sky-600 transition-colors">#${String(item.id).padStart(3, '0')}</td>
+            <td class="px-8 py-7">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-sky-600 group-hover:scale-110 transition-all">
+                        <i class="fa-solid fa-box-open text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="block font-black text-slate-700">${item.data.name}</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${item.data.origin}</span>
+                    </div>
+                </div>
+            </td>
+            <td class="px-8 py-7 text-slate-500 font-bold text-sm">${item.data.batchID}</td>
+            <td class="px-8 py-7">
+                <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${item.type === 'in_stock' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
+                    ${item.type === 'in_stock' ? 'Trong kho' : 'Đã xuất kho'}
+                </span>
+            </td>
+        </tr>
+    `).join('');
 }
 
-/* ======================= FILTER ======================= */
-function filterProducts(type) {
-    currentFilter = type;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.id === (type === 'in_stock' ? 'filterStock' : 'filterSold')));
-    renderTable();
+/* --- PANEL LOGIC --- */
+function openSidePanelById(id) {
+    const item = allProducts.find(p => p.id === Number(id));
+    if (!item) return;
+    
+    const p = item.data;
+    const ipfsGateway = "https://ipfs.io/ipfs/";
+    
+    document.getElementById('panelName').innerText = p.name;
+    document.getElementById('panelBatch').innerText = p.batchID;
+    document.getElementById('panelDate').innerText = new Date(Number(p.manufactureDate) * 1000).toLocaleDateString('vi-VN');
+    document.getElementById('panelStatusBadge').innerText = item.type === 'in_stock' ? 'Có sẵn trong kho' : 'Đã xuất kho';
+    
+    const imgHash = p.productImageUrl.replace("ipfs://", "");
+    document.getElementById('panelImage').src = ipfsGateway + imgHash;
+    
+    const ingContainer = document.getElementById('panelIngredients');
+    ingContainer.innerHTML = p.ingredients.map(i => `<span class="px-4 py-2 bg-slate-50 text-slate-600 text-[11px] rounded-xl font-bold border border-slate-100">${i}</span>`).join('');
+    
+    const certHash = p.certificationUrl.replace("ipfs://", "");
+    document.getElementById('panelCertLink').href = ipfsGateway + certHash;
+
+    const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${item.id}`;
+    QRCode.toCanvas(document.getElementById("panelQR"), verifyUrl, { width: 140, margin: 1, color: { dark: '#0ea5e9' } });
+
+    document.getElementById('sidePanel').classList.add('open');
+    document.getElementById('overlay').classList.add('active');
 }
 
-/* ======================= TRANSFER (CẬP NHẬT KHO + LỊCH SỬ) ======================= */
+function closeSidePanel() {
+    document.getElementById('sidePanel').classList.remove('open');
+    document.getElementById('overlay').classList.remove('active');
+}
+
+function updateCounts() {
+    const inStockCount = allProducts.filter(p => p.type === 'in_stock').length;
+    const soldCount = allProducts.filter(p => p.type === 'sold').length;
+    const stockEl = document.getElementById('countInStock');
+    const soldEl = document.getElementById('countSold');
+    if (stockEl) stockEl.innerText = inStockCount;
+    if (soldEl) soldEl.innerText = soldCount;
+}
+
+/* --- HELPERS --- */
+function getInputValue(id) {
+    const el = document.getElementById(id);
+    return el && typeof el.value === 'string' ? el.value.trim() : '';
+}
+
+function getSoldStorageKey() {
+    const suffix = account ? account.toLowerCase() : 'unknown';
+    return `${SOLD_STORAGE_PREFIX}${suffix}`;
+}
+
+function loadSoldIdsFromStorage() {
+    try {
+        const raw = localStorage.getItem(getSoldStorageKey());
+        if (!raw) return new Set();
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return new Set();
+        return new Set(arr.map(n => Number(n)).filter(n => Number.isFinite(n) && n > 0));
+    } catch (_) {
+        return new Set();
+    }
+}
+
+function saveSoldIdsToStorage(set) {
+    try {
+        localStorage.setItem(getSoldStorageKey(), JSON.stringify(Array.from(set)));
+    } catch (_) {
+        // ignore storage failures
+    }
+}
+
+function rememberSoldId(id) {
+    const num = Number(id);
+    if (!Number.isFinite(num) || num <= 0) return;
+    const stored = loadSoldIdsFromStorage();
+    stored.add(num);
+    saveSoldIdsToStorage(stored);
+    if (soldIdsCache) soldIdsCache.add(num);
+}
+
+async function fetchSoldIdsFromChain() {
+    if (!contract || !web3 || !account) return new Set();
+    try {
+        const events = await contract.getPastEvents('OwnershipTransferred', { fromBlock: 0, toBlock: 'latest' });
+        const sold = new Set();
+        const txCache = new Map();
+
+        for (const ev of events) {
+            const idRaw = ev && ev.returnValues ? (ev.returnValues.id ?? ev.returnValues[0]) : undefined;
+            const id = Number(idRaw);
+            if (!Number.isFinite(id) || id <= 0) continue;
+
+            let tx = txCache.get(ev.transactionHash);
+            if (!tx) {
+                tx = await web3.eth.getTransaction(ev.transactionHash);
+                txCache.set(ev.transactionHash, tx);
+            }
+            const from = tx && tx.from ? tx.from.toLowerCase() : '';
+            if (from === account) {
+                sold.add(id);
+            }
+        }
+        return sold;
+    } catch (err) {
+        console.warn('Failed to read OwnershipTransferred logs', err);
+        return new Set();
+    }
+}
+
+async function getSoldIdsForAccount() {
+    if (!account) return new Set();
+    if (soldIdsCache) return new Set(soldIdsCache);
+
+    const localIds = loadSoldIdsFromStorage();
+    const chainIds = await fetchSoldIdsFromChain();
+    const merged = new Set([...localIds, ...chainIds]);
+
+    soldIdsCache = merged;
+    saveSoldIdsToStorage(merged);
+    return merged;
+}
+
+/* --- WRITE ACTIONS --- */
+async function updateStatus() {
+    const id = getInputValue('updateId');
+    const st = getInputValue('newStatus');
+    if(!id || !st) return alert("Vui lòng điền đủ thông tin!");
+    if (!contract || !web3 || !account) return alert("Chưa kết nối ví hoặc hợp đồng.");
+    try {
+        await contract.methods.updateStatus(id, st).send({ from: account });
+        alert("Cập nhật Blockchain thành công!");
+        loadMyProducts();
+    } catch (e) { alert("Lỗi: " + e.message); }
+}
+
 async function transferOwnership() {
-    const id = document.getElementById('transferId').value.trim();
-    const buyer = document.getElementById('buyerAddress').value.trim();
+    const id = getInputValue('transferId');
+    const addrRaw = getInputValue('buyerAddress');
+    if (!contract || !web3 || !account) return alert("Chưa kết nối ví hoặc hợp đồng.");
+    if (!id || !addrRaw) return alert("Vui lòng nhập đầy đủ ID và địa chỉ ví!");
+    if (!/^\d+$/.test(id)) return alert("ID không hợp lệ!");
 
-    if (!id || !buyer) return alert("Vui lòng nhập đầy đủ ID và địa chỉ ví!");
+    let addr;
+    try {
+        addr = web3.utils.toChecksumAddress(addrRaw);
+    } catch (err) {
+        return alert("Địa chỉ ví không hợp lệ!");
+    }
 
     try {
-        await contract.methods.transferOwnership(id, buyer).send({ from: account });
-
-        // Lưu vào lịch sử xuất kho (localStorage)
-        const soldHistory = loadSoldHistory();
-        soldHistory.push({
-            id: Number(id),
-            toAddress: buyer,
-            timestamp: Date.now()
-        });
-        saveSoldHistory(soldHistory);
-
-        alert("✅ Chuyển giao thành công!\nSản phẩm đã được chuyển sang Lịch sử đã xuất.");
-        
-        // Cập nhật lại kho ngay lập tức
-        await loadMyProducts();
+        await contract.methods.transferOwnership(id, addr).send({ from: account });
+        rememberSoldId(id);
+        alert("Bàn giao quyền sở hữu thành công!");
         showTab('list-products');
-    } catch (err) {
-        alert("Lỗi chuyển giao: " + err.message);
-    }
+        loadMyProducts();
+    } catch (e) { alert("Lỗi: " + e.message); }
 }
-
-/* ======================= CÁC HÀM KHÁC (giữ nguyên) ======================= */
-// showTab, openSidePanelById, updateStatus, closeSidePanel... giữ nguyên từ code cũ của bạn
-// (bạn chỉ cần copy phần còn lại từ file cũ của mình vào đây)
-
 </script>
 </body>
 </html>
