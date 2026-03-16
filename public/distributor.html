@@ -139,37 +139,37 @@ async function loadMyProducts() {
     tbody.innerHTML = '<tr><td colspan="4" class="py-32 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400 font-bold animate-pulse">ĐANG QUÉT DỮ LIỆU BLOCKCHAIN...</p></td></tr>';
 
     try {
-        const totalCount = Number(await contract.methods.productCount().call()); // [cite: 13]
+        const totalCount = Number(await contract.methods.productCount().call());
         allProducts = [];
         let ownedCount = 0;
         
-        // CÁCH 2: DÙNG EVENTS ĐỂ TÌM HÀNG ĐÃ GIAO
-        // Chúng ta lấy tất cả sự kiện chuyển giao mà người gửi (transaction signer) là bạn
-        const myTransfers = await contract.getPastEvents('OwnershipTransferred', { // 
-            fromBlock: 0,
+        // GIẢI PHÁP: Giới hạn phạm vi quét block để tránh lỗi RPC -32080
+        const latestBlock = await web3.eth.getBlockNumber();
+        // Quét trong khoảng 5000 - 10000 block gần nhất tùy thuộc vào thời điểm bạn deploy contract
+        const fromBlock = Math.max(0, latestBlock - 10000); 
+
+        const myTransfers = await contract.getPastEvents('OwnershipTransferred', {
+            fromBlock: fromBlock, 
             toBlock: 'latest'
         });
 
-        // Lấy danh sách các Product ID mà bạn đã từng chuyển đi
-        // Lưu ý: Contract của bạn không đánh index cho sender trong event, nên ta lọc thủ công
         const transferredIds = new Set();
-        for (let event of myTransfers) {
+        // Sử dụng Promise.all để tối ưu tốc độ kiểm tra Transaction
+        await Promise.all(myTransfers.map(async (event) => {
             const tx = await web3.eth.getTransaction(event.transactionHash);
-            if (tx.from.toLowerCase() === account) {
+            if (tx && tx.from.toLowerCase() === account) {
                 transferredIds.add(Number(event.returnValues.id));
             }
-        }
+        }));
 
-        // Quét toàn bộ sản phẩm để phân loại
         for (let i = 1; i <= totalCount; i++) {
-            const p = await contract.methods.verifyProduct(i).call(); // [cite: 23, 24]
-            const currentOwner = p.owner.toLowerCase(); // 
+            const p = await contract.methods.verifyProduct(i).call();
+            const currentOwner = p.owner.toLowerCase();
 
             if (currentOwner === account) {
                 ownedCount++;
                 allProducts.push({...p, id: i, type: 'owned'});
             } else if (transferredIds.has(i)) {
-                // Nếu không còn giữ, nhưng ID này nằm trong danh sách đã từng chuyển
                 allProducts.push({...p, id: i, type: 'transferred'});
             }
         }
@@ -178,11 +178,11 @@ async function loadMyProducts() {
         document.getElementById('countTransferred').innerText = transferredIds.size;
         renderTable();
     } catch (e) {
-        console.error(e);
-        tbody.innerHTML = '<tr><td colspan="4" class="py-20 text-center text-red-500 font-bold">Lỗi truy vấn: ' + e.message + '</td></tr>';
+        console.error("Lỗi chi tiết:", e);
+        // Nếu vẫn lỗi, thử quét với phạm vi nhỏ hơn nữa
+        tbody.innerHTML = `<tr><td colspan="4" class="py-20 text-center text-red-500 font-bold">Lỗi RPC: Vui lòng giảm phạm vi fromBlock hoặc thử lại sau.</td></tr>`;
     }
 }
-
 function renderTable() {
     const tbody = document.getElementById('productListBody');
     const filtered = allProducts.filter(p => p.type === currentFilter);
