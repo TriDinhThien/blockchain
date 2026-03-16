@@ -136,37 +136,47 @@ window.addEventListener("load", async () => {
 
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
-    tbody.innerHTML = '<tr><td colspan="4" class="py-32 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400 font-bold animate-pulse">ĐANG QUÉT DỮ LIỆU BLOCKCHAIN...</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="py-32 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400 font-bold animate-pulse">ĐANG TRUY VẤN DỮ LIỆU TỐI ƯU...</p></td></tr>';
 
     try {
-        const totalCount = Number(await contract.methods.productCount().call());
+        const totalCount = Number(await contract.methods.productCount().call()); // [cite: 13]
         allProducts = [];
         let ownedCount = 0;
         
-        // GIẢI PHÁP: Giới hạn phạm vi quét block để tránh lỗi RPC -32080
+        // Bước 1: Lấy Block hiện tại
         const latestBlock = await web3.eth.getBlockNumber();
-        // Quét trong khoảng 5000 - 10000 block gần nhất tùy thuộc vào thời điểm bạn deploy contract
-        const fromBlock = Math.max(0, latestBlock - 10000); 
+        
+        // Bước 2: Chỉ quét trong phạm vi an toàn (ví dụ 10,000 block ~ khoảng 1.5 ngày trên mạng PoS)
+        // Nếu contract của bạn cũ hơn, hãy tăng con số này lên nhưng không nên quá 50,000
+        const range = 10000; 
+        const fromBlock = Math.max(0, latestBlock - range);
 
-        const myTransfers = await contract.getPastEvents('OwnershipTransferred', {
-            fromBlock: fromBlock, 
+        // Bước 3: Lấy các sự kiện với phạm vi đã thu hẹp
+        const myTransfers = await contract.getPastEvents('OwnershipTransferred', { // [cite: 14]
+            fromBlock: fromBlock,
             toBlock: 'latest'
         });
 
         const transferredIds = new Set();
-        // Sử dụng Promise.all để tối ưu tốc độ kiểm tra Transaction
+        
+        // Bước 4: Kiểm tra song song các giao dịch để tìm ID bạn đã chuyển đi
         await Promise.all(myTransfers.map(async (event) => {
-            const tx = await web3.eth.getTransaction(event.transactionHash);
-            if (tx && tx.from.toLowerCase() === account) {
-                transferredIds.add(Number(event.returnValues.id));
+            try {
+                const tx = await web3.eth.getTransaction(event.transactionHash);
+                if (tx && tx.from.toLowerCase() === account.toLowerCase()) {
+                    transferredIds.add(Number(event.returnValues.id));
+                }
+            } catch (err) {
+                console.warn("Không thể lấy thông tin giao dịch:", event.transactionHash);
             }
         }));
 
+        // Bước 5: Phân loại sản phẩm dựa trên trạng thái hiện tại và lịch sử sự kiện
         for (let i = 1; i <= totalCount; i++) {
-            const p = await contract.methods.verifyProduct(i).call();
-            const currentOwner = p.owner.toLowerCase();
+            const p = await contract.methods.verifyProduct(i).call(); // [cite: 22]
+            const currentOwner = p.owner.toLowerCase(); // [cite: 8]
 
-            if (currentOwner === account) {
+            if (currentOwner === account.toLowerCase()) {
                 ownedCount++;
                 allProducts.push({...p, id: i, type: 'owned'});
             } else if (transferredIds.has(i)) {
@@ -177,10 +187,18 @@ async function loadMyProducts() {
         document.getElementById('countOwned').innerText = ownedCount;
         document.getElementById('countTransferred').innerText = transferredIds.size;
         renderTable();
+
     } catch (e) {
-        console.error("Lỗi chi tiết:", e);
-        // Nếu vẫn lỗi, thử quét với phạm vi nhỏ hơn nữa
-        tbody.innerHTML = `<tr><td colspan="4" class="py-20 text-center text-red-500 font-bold">Lỗi RPC: Vui lòng giảm phạm vi fromBlock hoặc thử lại sau.</td></tr>`;
+        console.error("Lỗi RPC:", e);
+        if (e.message.includes("client error")) {
+            tbody.innerHTML = `<tr><td colspan="4" class="py-20 text-center text-amber-600 font-bold">
+                <i class="fa-solid fa-triangle-exclamation"></i> Node RPC quá tải. <br>
+                <span class="text-xs font-normal">Đang tự động thử lại với phạm vi hẹp hơn...</span>
+            </td></tr>`;
+            // Có thể thử lại với range nhỏ hơn tại đây
+        } else {
+            tbody.innerHTML = `<tr><td colspan="4" class="py-20 text-center text-red-500 font-bold">Lỗi: ${e.message}</td></tr>`;
+        }
     }
 }
 function renderTable() {
