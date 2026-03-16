@@ -136,45 +136,49 @@ window.addEventListener("load", async () => {
 
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
-    tbody.innerHTML = '<tr><td colspan="4" class="py-32 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400 font-bold animate-pulse">ĐANG TRUY VẤN DỮ LIỆU TỐI ƯU...</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="py-32 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400 font-bold animate-pulse">ĐANG TRUY VẤN DỮ LIỆU BLOCKCHAIN...</p></td></tr>';
 
     try {
-        const totalCount = Number(await contract.methods.productCount().call()); // [cite: 13]
+        // Chuyển đổi productCount sang Number để dùng trong vòng lặp for
+        const totalCountRaw = await contract.methods.productCount().call();
+        const totalCount = Number(totalCountRaw); 
+        
         allProducts = [];
         let ownedCount = 0;
         
-        // Bước 1: Lấy Block hiện tại
-        const latestBlock = await web3.eth.getBlockNumber();
+        // Bước 1: Lấy Block hiện tại và ép kiểu về BigInt để tính toán đồng nhất
+        const latestBlock = BigInt(await web3.eth.getBlockNumber());
+        const range = BigInt(10000); // Quét trong 10,000 block gần nhất
         
-        // Bước 2: Chỉ quét trong phạm vi an toàn (ví dụ 10,000 block ~ khoảng 1.5 ngày trên mạng PoS)
-        // Nếu contract của bạn cũ hơn, hãy tăng con số này lên nhưng không nên quá 50,000
-        const range = 10000; 
-        const fromBlock = Math.max(0, latestBlock - range);
+        // Thực hiện phép trừ giữa hai BigInt
+        let fromBlockBig = latestBlock - range;
+        if (fromBlockBig < 0n) fromBlockBig = 0n; // 0n là cách viết BigInt cho số 0
 
-        // Bước 3: Lấy các sự kiện với phạm vi đã thu hẹp
-        const myTransfers = await contract.getPastEvents('OwnershipTransferred', { // [cite: 14]
-            fromBlock: fromBlock,
+        // Bước 2: Lấy các sự kiện OwnershipTransferred
+        const myTransfers = await contract.getPastEvents('OwnershipTransferred', {
+            fromBlock: fromBlockBig,
             toBlock: 'latest'
         });
 
         const transferredIds = new Set();
         
-        // Bước 4: Kiểm tra song song các giao dịch để tìm ID bạn đã chuyển đi
+        // Bước 3: Kiểm tra giao dịch
         await Promise.all(myTransfers.map(async (event) => {
             try {
                 const tx = await web3.eth.getTransaction(event.transactionHash);
                 if (tx && tx.from.toLowerCase() === account.toLowerCase()) {
+                    // event.returnValues.id cũng có thể là BigInt, chuyển về Number để lưu vào Set
                     transferredIds.add(Number(event.returnValues.id));
                 }
             } catch (err) {
-                console.warn("Không thể lấy thông tin giao dịch:", event.transactionHash);
+                console.warn("Lỗi tra cứu giao dịch:", err);
             }
         }));
 
-        // Bước 5: Phân loại sản phẩm dựa trên trạng thái hiện tại và lịch sử sự kiện
+        // Bước 4: Duyệt danh sách sản phẩm
         for (let i = 1; i <= totalCount; i++) {
-            const p = await contract.methods.verifyProduct(i).call(); // [cite: 22]
-            const currentOwner = p.owner.toLowerCase(); // [cite: 8]
+            const p = await contract.methods.verifyProduct(i).call();
+            const currentOwner = p.owner.toLowerCase();
 
             if (currentOwner === account.toLowerCase()) {
                 ownedCount++;
@@ -189,16 +193,8 @@ async function loadMyProducts() {
         renderTable();
 
     } catch (e) {
-        console.error("Lỗi RPC:", e);
-        if (e.message.includes("client error")) {
-            tbody.innerHTML = `<tr><td colspan="4" class="py-20 text-center text-amber-600 font-bold">
-                <i class="fa-solid fa-triangle-exclamation"></i> Node RPC quá tải. <br>
-                <span class="text-xs font-normal">Đang tự động thử lại với phạm vi hẹp hơn...</span>
-            </td></tr>`;
-            // Có thể thử lại với range nhỏ hơn tại đây
-        } else {
-            tbody.innerHTML = `<tr><td colspan="4" class="py-20 text-center text-red-500 font-bold">Lỗi: ${e.message}</td></tr>`;
-        }
+        console.error("Lỗi chi tiết:", e);
+        tbody.innerHTML = `<tr><td colspan="4" class="py-20 text-center text-red-500 font-bold">Lỗi: ${e.message}</td></tr>`;
     }
 }
 function renderTable() {
