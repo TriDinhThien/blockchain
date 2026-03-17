@@ -12,7 +12,6 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        
         :root { --primary: #6366f1; }
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -20,36 +19,17 @@
             -webkit-tap-highlight-color: transparent;
             padding-bottom: calc(5rem + env(safe-area-inset-bottom));
         }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        #reader {
-            border: none !important;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            background: #000;
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        #reader { border: none !important; border-radius: 24px; overflow: hidden; background: #000; }
         #reader video { object-fit: cover !important; }
-        
         .nav-item.active { color: var(--primary); }
-        .nav-item.active i { transform: translateY(-4px); transition: all 0.3s; }
-        
         .product-card:active { transform: scale(0.96); transition: 0.2s; }
-
-        /* Fix lỗi hiển thị camera bị gạch chéo trên một số trình duyệt */
-        #reader__scan_region { background: white !important; }
     </style>
 </head>
 
 <body>
-
     <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-slate-100 px-6 py-4">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div class="flex items-center gap-2">
@@ -63,69 +43,44 @@
     </header>
 
     <main class="p-5 max-w-md mx-auto">
-        
         <div id="my-purchases" class="tab-content active">
             <div class="mb-6">
-                <h2 class="text-2xl font-bold text-slate-800">Cửa hàng của tôi</h2>
-                <p class="text-slate-500 text-sm">Sản phẩm bạn đã xác thực thành công</p>
+                <h2 class="text-2xl font-bold text-slate-800">Tủ đồ của tôi</h2>
+                <p class="text-slate-500 text-sm">Sản phẩm bạn đang sở hữu</p>
             </div>
-            
             <div id="myProductsGrid" class="grid grid-cols-1 gap-4">
-                <div class="text-center py-20">
-                    <i class="fa-solid fa-circle-notch animate-spin text-indigo-500 text-2xl mb-4"></i>
-                    <p class="text-slate-400 text-sm">Đang tải dữ liệu từ Blockchain...</p>
-                </div>
+                <div class="text-center py-20 text-slate-400">Đang tải dữ liệu...</div>
             </div>
         </div>
 
         <div id="verify-trace" class="tab-content">
             <div class="mb-6">
-                <h2 class="text-2xl font-bold text-slate-800">Quét mã QR</h2>
-                <p class="text-slate-500 text-sm">Truy xuất nguồn gốc tức thì</p>
+                <h2 class="text-2xl font-bold text-slate-800">Truy xuất</h2>
+                <p class="text-slate-500 text-sm">Quét mã QR trên sản phẩm</p>
             </div>
-
-            <div class="relative group">
-                <div id="reader"></div>
-                <div class="absolute inset-0 pointer-events-none border-[15px] border-white/5 rounded-3xl"></div>
-            </div>
-
-            <div id="traceResult" class="hidden mt-6 animate-slideUp">
-                </div>
-
-            <div class="mt-8 p-5 bg-white rounded-3xl border border-slate-100 flex items-start gap-4 shadow-sm">
-                <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
-                </div>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Đưa mã QR vào giữa khung hình. Hệ thống sẽ tự động nhận diện và hiển thị thông tin sản phẩm chính hãng.
-                </p>
-            </div>
+            <div id="reader"></div>
+            <div id="traceResult" class="hidden mt-6"></div>
         </div>
     </main>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-100 px-10 py-4 pb-6 flex justify-between items-center z-50">
         <button onclick="showTab('my-purchases')" class="nav-item active flex flex-col items-center gap-1">
-            <i class="fa-solid fa-grid-2 text-xl"></i>
-            <span class="text-[10px] font-bold uppercase tracking-tight">Tủ đồ</span>
+            <i class="fa-solid fa-bag-shopping text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Cửa hàng</span>
         </button>
-        
-        <div onclick="showTab('verify-trace')" class="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center -translate-y-6 shadow-xl shadow-indigo-200 border-4 border-white active:scale-95 transition-all">
+        <div onclick="showTab('verify-trace')" class="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center -translate-y-6 shadow-xl border-4 border-white active:scale-95 transition-all">
             <i class="fa-solid fa-qrcode text-white text-xl"></i>
         </div>
-
         <button onclick="location.reload()" class="nav-item flex flex-col items-center gap-1">
             <i class="fa-solid fa-arrows-rotate text-xl text-slate-400"></i>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Tải lại</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Tải lại</span>
         </button>
     </nav>
 
     <div id="detailModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] hidden flex items-end sm:items-center justify-center">
         <div class="bg-white w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 shadow-2xl relative">
-            <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-6 sm:hidden"></div>
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-300 hover:text-slate-500">
-                <i class="fa-solid fa-circle-xmark text-2xl"></i>
-            </button>
-            <div id="modalContent" class="max-h-[80vh] overflow-y-auto pr-2"></div>
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-slate-300"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
+            <div id="modalContent" class="max-h-[75vh] overflow-y-auto"></div>
         </div>
     </div>
 
@@ -138,9 +93,8 @@ const abi = [
 
 let web3, contract, account, html5QrCode;
 
-// Fix lỗi ERR_UNKNOWN_URL_SCHEME [cite: 1, 10, 11]
 function formatUrl(url) {
-    if (!url || url.trim() === "") return 'https://via.placeholder.com/400x300?text=No+Image';
+    if (!url || url === "") return 'https://via.placeholder.com/400x300?text=No+Image';
     if (url.startsWith('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
     if (url.startsWith('http')) return url;
     return `https://ipfs.io/ipfs/${url}`;
@@ -148,17 +102,12 @@ function formatUrl(url) {
 
 window.addEventListener("load", async () => {
     if (window.ethereum) {
-        try {
-            web3 = new Web3(window.ethereum);
-            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            account = accounts[0];
-            document.getElementById('statusDot').classList.replace('bg-slate-300', 'bg-green-500');
-            contract = new web3.eth.Contract(abi, contractAddress);
-            loadPurchasedProducts();
-        } catch (e) { 
-            console.error("Wallet connection failed", e);
-            document.getElementById('statusDot').classList.add('bg-red-500');
-        }
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0];
+        document.getElementById('statusDot').classList.replace('bg-slate-300', 'bg-green-500');
+        contract = new web3.eth.Contract(abi, contractAddress);
+        loadPurchasedProducts();
     }
 });
 
@@ -166,134 +115,86 @@ function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    
-    if (tabId === 'verify-trace') {
-        startScanner();
-    } else {
-        stopScanner();
-        loadPurchasedProducts();
-    }
+    if (tabId === 'verify-trace') startScanner(); else stopScanner();
 }
 
 async function loadPurchasedProducts() {
     const grid = document.getElementById('myProductsGrid');
     try {
-        const count = await contract.methods.productCount().call(); [cite: 13]
+        const count = await contract.methods.productCount().call();
         let html = '';
-        let found = 0;
         for (let i = 1; i <= count; i++) {
-            const p = await contract.methods.verifyProduct(i).call(); [cite: 23]
-            if (p[6].toLowerCase() === account.toLowerCase()) { [cite: 8, 26]
-                found++;
-                html += `
-                    <div onclick="openProductDetail(${i})" class="product-card bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 active:bg-slate-50">
-                        <img src="${formatUrl(p[8])}" class="w-16 h-16 rounded-2xl object-cover bg-slate-50">
-                        <div class="flex-1">
-                            <h4 class="font-bold text-slate-800 text-sm">${p[0]}</h4>
-                            <p class="text-[9px] text-indigo-500 font-bold uppercase tracking-wider">${p[1]}</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-slate-200 text-xs pr-2"></i>
+            const p = await contract.methods.verifyProduct(i).call();
+            if (p.owner.toLowerCase() === account.toLowerCase()) {
+                html += `<div onclick="openProductDetail(${i})" class="product-card bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                    <img src="${formatUrl(p.productImageUrl)}" class="w-16 h-16 rounded-2xl object-cover">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-800 text-sm">${p.name}</h4>
+                        <p class="text-[9px] text-indigo-500 font-bold uppercase">${p.batchID}</p>
                     </div>
-                `;
+                </div>`;
             }
         }
-        grid.innerHTML = found > 0 ? html : '<div class="text-center py-20 text-slate-400 text-sm">Bạn chưa sở hữu sản phẩm nào.</div>';
-    } catch (e) { grid.innerHTML = 'Lỗi kết nối Blockchain.'; }
+        grid.innerHTML = html || '<p class="text-center text-slate-400 py-10">Trống.</p>';
+    } catch (e) { grid.innerHTML = 'Lỗi Blockchain.'; }
 }
 
 async function startScanner() {
-    try {
-        if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-        if (html5QrCode.isScanning) await html5QrCode.stop();
-
-        await html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
-            (decodedText) => {
-                const id = decodedText.includes('-') ? decodedText.split('-').pop() : decodedText;
-                vibrateDevice();
-                verifyProduct(id);
-            }
-        );
-    } catch (err) {
-        console.error(err);
-        alert("Vui lòng cấp quyền Camera và sử dụng HTTPS.");
-    }
+    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+    if (html5QrCode.isScanning) await html5QrCode.stop();
+    html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (text) => {
+        const id = text.split('-').pop();
+        if (navigator.vibrate) navigator.vibrate(100);
+        verifyProduct(id);
+    }).catch(err => alert("Lỗi Camera: Hãy dùng HTTPS."));
 }
 
-function stopScanner() {
-    if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop();
-}
+function stopScanner() { if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop(); }
 
 async function verifyProduct(id) {
     const res = document.getElementById('traceResult');
     res.classList.remove('hidden');
-    res.innerHTML = '<div class="bg-white p-10 rounded-[2rem] text-center"><i class="fa-solid fa-spinner animate-spin text-indigo-500"></i></div>';
-    
+    res.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner animate-spin text-indigo-500"></i></div>';
     try {
-        const p = await contract.methods.verifyProduct(id).call(); [cite: 23]
-        res.innerHTML = `
-            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl text-center">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fa-solid fa-shield-check text-2xl"></i>
-                </div>
-                <h3 class="font-bold text-lg text-slate-800 mb-1">${p[0]}</h3>
-                <p class="text-xs text-slate-400 mb-6">Mã lô: ${p[1]}</p>
-                <button onclick="openProductDetail(${id})" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100">
-                    Xem chi tiết nguồn gốc
-                </button>
-            </div>
-        `;
+        const p = await contract.methods.verifyProduct(id).call();
+        res.innerHTML = `<div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl text-center">
+            <h3 class="font-bold text-lg text-slate-800 mb-4">${p.name}</h3>
+            <button onclick="openProductDetail(${id})" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold">Xem chi tiết</button>
+        </div>`;
         stopScanner();
-    } catch (e) {
-        res.innerHTML = '<div class="bg-white p-6 rounded-[2rem] text-center text-red-500 font-bold">Không tìm thấy sản phẩm!</div>';
-    }
+    } catch (e) { res.innerHTML = '<div class="text-center text-red-500">Không tìm thấy!</div>'; }
 }
 
 async function openProductDetail(id) {
-    const p = await contract.methods.verifyProduct(id).call(); [cite: 23, 26]
+    const p = await contract.methods.verifyProduct(id).call();
     document.getElementById('detailModal').classList.remove('hidden');
+    
+    // Xử lý lịch sử an toàn để tránh lỗi map
+    const historyHtml = p.history && p.history.length > 0 
+        ? p.history.map(log => `<div class="bg-slate-50 p-3 rounded-xl mb-2 text-[11px] text-slate-600">${log}</div>`).join('')
+        : '<p class="text-xs text-slate-400">Không có dữ liệu.</p>';
+
     document.getElementById('modalContent').innerHTML = `
-        <img src="${formatUrl(p[8])}" class="w-full h-52 object-cover rounded-3xl mb-6 shadow-md bg-slate-50">
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h3 class="text-xl font-extrabold text-slate-800">${p[0]}</h3>
-                <p class="text-indigo-500 font-bold text-[10px] uppercase tracking-widest">${p[1]}</p>
-            </div>
-            <span class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[9px] font-bold">CHÍNH HÃNG</span>
-        </div>
-        
+        <img src="${formatUrl(p.productImageUrl)}" class="w-full h-48 object-cover rounded-3xl mb-6 shadow-md">
+        <h3 class="text-xl font-extrabold text-slate-800 mb-1">${p.name}</h3>
+        <p class="text-indigo-500 font-bold text-[10px] uppercase mb-4">${p.batchID}</p>
         <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="bg-slate-50 p-3 rounded-2xl">
-                <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Xuất xứ</p>
-                <p class="text-xs font-semibold text-slate-700">${p[3]}</p> [cite: 5, 23]
+                <p class="text-[9px] font-bold text-slate-400 uppercase">Xuất xứ</p>
+                <p class="text-xs font-semibold">${p.origin}</p>
             </div>
             <div class="bg-slate-50 p-3 rounded-2xl">
-                <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Ngày SX</p>
-                <p class="text-xs font-semibold text-slate-700">${new Date(Number(p[2])*1000).toLocaleDateString()}</p> [cite: 4, 23]
+                <p class="text-[9px] font-bold text-slate-400 uppercase">Ngày SX</p>
+                <p class="text-xs font-semibold">${new Date(Number(p.manufactureDate)*1000).toLocaleDateString()}</p>
             </div>
         </div>
-
-        <div class="mb-6">
-            <p class="text-[10px] font-bold text-slate-400 uppercase mb-3 ml-1">Lịch sử di chuyển</p>
-            <div class="space-y-3">
-                ${p[5].map(log => ` [cite: 7, 23]
-                    <div class="flex items-center gap-3 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                        <div class="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
-                        <p class="text-[11px] text-slate-600">${log}</p>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-        
-        <a href="${formatUrl(p[9])}" target="_blank" class="block w-full text-center py-4 bg-slate-50 rounded-2xl font-bold text-slate-600 text-sm hover:bg-slate-100 transition-colors">
-            <i class="fa-solid fa-certificate mr-2"></i> Kiểm tra Chứng nhận IPFS
-        </a>
+        <p class="text-[10px] font-bold text-slate-400 uppercase mb-3">Lịch sử di chuyển</p>
+        <div class="mb-6">${historyHtml}</div>
+        <a href="${formatUrl(p.certificationUrl)}" target="_blank" class="block w-full text-center py-4 bg-slate-100 rounded-2xl font-bold text-slate-600 text-sm">Xem chứng nhận IPFS</a>
     `;
 }
 
 function closeModal() { document.getElementById('detailModal').classList.add('hidden'); }
-function vibrateDevice() { if (navigator.vibrate) navigator.vibrate(100); }
 </script>
 </body>
 </html>
