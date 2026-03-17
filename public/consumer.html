@@ -1,148 +1,276 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Người Tiêu Dùng - Truy Xuất Mỹ Phẩm Blockchain</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard | VeriGlow Blockchain</title>
 
-  <!-- Web3 -->
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
-  <!-- CSS tương tự verify.html -->
-  <style>
-    /* Giống verify.html, copy style từ đó */
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f0f8ff;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      background-color: #ffffff;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0, 119, 182, 0.2);
-      padding: 40px;
-      max-width: 600px;
-      width: 100%;
-    }
-
-    h1 {
-      text-align: center;
-      color: #0077b6;
-      margin-bottom: 30px;
-      font-size: 28px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #00a8e8;
-      border-radius: 8px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #0077b6;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #005f8f;
-    }
-
-    #result {
-      background-color: #e6f7ff;
-      border: 1px solid #00a8e8;
-      border-radius: 8px;
-      padding: 20px;
-      margin-top: 20px;
-      font-size: 16px;
-      line-height: 1.6;
-    }
-
-    #result p {
-      margin: 10px 0;
-    }
-
-    #result strong {
-      color: #0077b6;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 20px;
-      }
-      h1 { font-size: 24px; }
-    }
-  </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .sidebar-item.active { background: #6366f1; color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        #reader { width: 100%; border-radius: 20px; overflow: hidden; border: none !important; }
+        #reader__dashboard_section_csr button { 
+            background: #6366f1 !important; color: white !important; border-radius: 8px !important; padding: 8px 15px !important; border: none !important; margin: 10px 0;
+        }
+    </style>
 </head>
 
-<body>
+<body class="bg-[#fcfdff] min-h-screen flex text-slate-900">
 
-  <div class="container">
-    <h1>Người Tiêu Dùng: Xác Thực Sản Phẩm</h1>
-    <input id="verifyId" placeholder="ID sản phẩm (từ QR)"><br>
-    <button onclick="verifyProduct()">Xác Thực</button>
-    <div id="result"></div>
-  </div>
+    <aside class="w-72 bg-white border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen">
+        <div class="p-8">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 overflow-hidden">
+                    <img src="2.png" alt="Logo" class="w-full h-full object-cover">
+                </div>
+                <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">VeriGlow</span>
+            </div>
+        </div>
+        
+        <nav class="mt-4 flex-1 px-6 space-y-2">
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Dành cho khách hàng</div>
+            <button onclick="showTab('my-purchases')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
+                <i class="fa-solid fa-bag-shopping text-lg"></i> <span>Sản phẩm đã mua</span>
+            </button>
+            <button onclick="showTab('verify-trace')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
+                <i class="fa-solid fa-qrcode text-lg"></i> <span>Truy xuất nguồn gốc</span>
+            </button>
+        </nav>
+
+        <div class="p-6 mt-auto border-t border-slate-100">
+            <div id="accountDisplay" class="text-[10px] font-mono text-slate-500 bg-slate-50 p-3 rounded-xl border border-dashed border-slate-300 truncate">
+                Đang kết nối ví...
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30">
+            <h2 id="pageTitle" class="text-2xl font-bold text-slate-800">Sản phẩm của tôi</h2>
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">C</div>
+            </div>
+        </header>
+
+        <div class="p-10">
+            <div id="my-purchases" class="tab-content active">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="myProductsGrid">
+                    </div>
+            </div>
+
+            <div id="verify-trace" class="tab-content max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl">
+                        <div class="flex items-center gap-3 mb-6">
+                            <i class="fa-solid fa-camera text-indigo-500 text-xl"></i>
+                            <h3 class="font-bold text-lg">Quét mã QR</h3>
+                        </div>
+                        <div id="reader" class="bg-slate-100 rounded-2xl overflow-hidden"></div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl flex flex-col justify-center">
+                        <div class="flex items-center gap-3 mb-6">
+                            <i class="fa-solid fa-keyboard text-indigo-500 text-xl"></i>
+                            <h3 class="font-bold text-lg">Nhập ID sản phẩm</h3>
+                        </div>
+                        <input id="verifyId" type="number" placeholder="Ví dụ: 1" class="w-full px-6 py-4 rounded-2xl border border-slate-200 bg-slate-50 mb-4 focus:ring-4 focus:ring-indigo-100 outline-none">
+                        <button onclick="verifyProduct(document.getElementById('verifyId').value)" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+                            Truy xuất ngay
+                        </button>
+                    </div>
+                </div>
+
+                <div id="traceResult" class="hidden mt-10 bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-2xl">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
 
 <script>
-/* =======================
-   CONTRACT CONFIG và ABI giống verify.html (copy từ đó)
-======================= */
-// Paste contractAddress và abi từ verify.html
+const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a";
+const abi = [
+    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"uint256","name":"manufactureDate","type":"uint256"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"bool","name":"isAuthentic","type":"bool"},{"internalType":"string[]","name":"history","type":"string[]"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"string","name":"productImageUrl","type":"string"},{"internalType":"string","name":"certificationUrl","type":"string"}],"stateMutability":"view","type":"function"},
+    {"inputs":[],"name":"productCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+];
 
-const web3 = new Web3('https://eth-sepolia.g.alchemy.com/v2/vAbZjsKMrBm36nuUECfKk');
-const contract = new web3.eth.Contract(abi, contractAddress);
+let web3, contract, account;
 
-async function verifyProduct() {
-  const id = Number(document.getElementById('verifyId').value);
+window.addEventListener("load", async () => {
+    if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0];
+        document.getElementById('accountDisplay').innerText = "Wallet: " + account;
+        contract = new web3.eth.Contract(abi, contractAddress);
+        loadPurchasedProducts();
+        startScanner();
+    }
+});
 
-  if (!id || id <= 0) {
-    document.getElementById('result').innerHTML = '<p style="color: red;">ID sản phẩm không hợp lệ!</p>';
-    return;
-  }
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.getElementById('pageTitle').innerText = tabId === 'my-purchases' ? 'Sản phẩm của tôi' : 'Truy xuất nguồn gốc';
+    
+    const idx = tabId === 'my-purchases' ? 0 : 1;
+    document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
+}
 
-  try {
-    const result = await contract.methods.verifyProduct(id).call();
+// 1. LOAD SẢN PHẨM ĐÃ MUA
+async function loadPurchasedProducts() {
+    const grid = document.getElementById('myProductsGrid');
+    grid.innerHTML = '<div class="col-span-full text-center py-20 text-slate-400">Đang tìm kiếm sản phẩm của bạn trên Blockchain...</div>';
 
-    const manufactureDateStr = new Date(Number(result[2]) * 1000).toLocaleDateString('vi-VN');
-    const productImageHash = result[8].replace('ipfs://', '');
-    const certificationHash = result[9].replace('ipfs://', '');
+    try {
+        const count = await contract.methods.productCount().call();
+        let html = '';
+        let found = 0;
 
-    document.getElementById('result').innerHTML = `
-      <p><strong>Tên sản phẩm:</strong> ${result[0]}</p>
-      <p><strong>Mã lô:</strong> ${result[1]}</p>
-      <p><strong>Ngày sản xuất:</strong> ${manufactureDateStr}</p>
-      <p><strong>Nguồn gốc:</strong> ${result[3]}</p>
-      <p><strong>Chính hãng:</strong> ${result[4] ? 'Có' : 'Không'}</p>
-      <p><strong>Lịch sử:</strong> <br>${result[5].join('<br>')}</p>
-      <p><strong>Chủ sở hữu hiện tại:</strong> ${result[6]}</p>
-      <p><strong>Thành phần:</strong> ${result[7].join(', ')}</p>
-      <p><strong>Ảnh sản phẩm:</strong> <br><img src="https://ipfs.io/ipfs/${productImageHash}" alt="Ảnh sản phẩm" width="200"></p>
-      <p><strong>Chứng nhận sản xuất:</strong> <br><img src="https://ipfs.io/ipfs/${certificationHash}" alt="Chứng nhận" width="200"></p>
+        for (let i = 1; i <= count; i++) {
+            const p = await contract.methods.verifyProduct(i).call();
+            if (p[6].toLowerCase() === account.toLowerCase()) {
+                found++;
+                html += `
+                    <div onclick="openProductDetail(${i})" class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
+                        <div class="w-full h-48 rounded-2xl bg-slate-100 mb-4 overflow-hidden">
+                            <img src="${p[8] || 'https://via.placeholder.com/400x300?text=No+Image'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">${p[1]}</span>
+                            <span class="text-[10px] font-mono text-slate-400">ID: #${i}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">${p[0]}</h4>
+                        <p class="text-sm text-slate-500"><i class="fa-solid fa-location-dot mr-1"></i> ${p[3]}</p>
+                    </div>
+                `;
+            }
+        }
+        grid.innerHTML = found > 0 ? html : '<div class="col-span-full text-center py-20 text-slate-400">Bạn chưa sở hữu sản phẩm nào.</div>';
+    } catch (e) {
+        grid.innerHTML = '<div class="col-span-full text-center text-red-500">Lỗi kết nối mạng Sepolia.</div>';
+    }
+}
+
+// 2. TRUY XUẤT NGUỒN GỐC (QR & INPUT)
+async function verifyProduct(id) {
+    if (!id) return;
+    const resultDiv = document.getElementById('traceResult');
+    resultDiv.classList.remove('hidden');
+    resultDiv.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner animate-spin text-3xl text-indigo-500"></i></div>';
+
+    try {
+        const p = await contract.methods.verifyProduct(id).call();
+        const date = new Date(Number(p[2]) * 1000).toLocaleDateString('vi-VN');
+        
+        resultDiv.innerHTML = `
+            <div class="flex flex-col md:flex-row gap-10">
+                <div class="w-full md:w-1/3">
+                    <img src="${p[8]}" class="w-full rounded-3xl shadow-lg border-4 border-white">
+                    <div class="mt-4 p-4 bg-green-50 rounded-2xl border border-green-100 text-center">
+                        <i class="fa-solid fa-shield-check text-green-500 text-2xl mb-2"></i>
+                        <p class="text-green-700 font-bold text-sm">Sản phẩm chính hãng</p>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-3xl font-black text-slate-800 mb-1">${p[0]}</h3>
+                    <p class="text-indigo-600 font-bold mb-6">Mã lô: ${p[1]}</p>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Ngày sản xuất</p>
+                            <p class="font-semibold text-slate-700">${date}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Xuất xứ</p>
+                            <p class="font-semibold text-slate-700">${p[3]}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-3">Lịch sử di chuyển (Blockchain)</p>
+                        <div class="space-y-3">
+                            ${p[5].map(log => `
+                                <div class="flex items-center gap-3 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <i class="fa-solid fa-circle-check text-indigo-400"></i> ${log}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (e) {
+        resultDiv.innerHTML = '<p class="text-red-500 text-center font-bold">Không tìm thấy sản phẩm này trên hệ thống!</p>';
+    }
+}
+
+// 3. SCANNER LOGIC
+function startScanner() {
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+            // Giả sử mã QR chứa URL hoặc ID (PRD-00000001)
+            const id = decodedText.split('-').pop(); 
+            verifyProduct(id);
+        }
+    ).catch(err => console.log("Camera error:", err));
+}
+
+// 4. MODAL CHI TIẾT
+async function openProductDetail(id) {
+    const p = await contract.methods.verifyProduct(id).call();
+    document.getElementById('detailModal').classList.remove('hidden');
+    document.getElementById('modalContent').innerHTML = `
+        <div class="p-10">
+            <div class="flex gap-8 mb-8">
+                <img src="${p[8]}" class="w-40 h-40 object-cover rounded-2xl shadow-md">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-800">${p[0]}</h3>
+                    <p class="text-indigo-500 font-mono text-sm mb-4">ID: #${id}</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${p[7].map(ing => `<span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold text-slate-600">${ing}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4 border-t border-slate-100 pt-8">
+                 <div class="flex justify-between">
+                    <span class="text-slate-400 text-sm">Chủ sở hữu hiện tại:</span>
+                    <span class="text-slate-800 text-sm font-mono">${p[6].substring(0,10)}...${p[6].substring(38)}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400 text-sm">Chứng nhận sản xuất:</span>
+                    <a href="${p[9]}" target="_blank" class="text-indigo-500 text-sm font-bold hover:underline">Xem chứng chỉ (IPFS)</a>
+                </div>
+            </div>
+        </div>
     `;
-  } catch (err) {
-    console.error(err);
-    document.getElementById('result').innerHTML = '<p style="color: red;">Lỗi: ' + (err.message || err) + '</p>';
-  }
+}
+
+function closeModal() {
+    document.getElementById('detailModal').classList.add('hidden');
 }
 </script>
-
 </body>
 </html>
