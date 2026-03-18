@@ -115,14 +115,271 @@
 // Cấu hình ABI chuẩn từ file .sol của bạn
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
 const abi = [
-    { "inputs": [], "name": "productCount", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-    { "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }], "name": "verifyProduct", "outputs": [
-        { "name": "name", "type": "string" }, { "name": "batchID", "type": "string" }, { "name": "manufactureDate", "type": "uint256" },
-        { "name": "origin", "type": "string" }, { "name": "isAuthentic", "type": "bool" }, { "name": "history", "type": "string[]" },
-        { "name": "owner", "type": "address" }, { "name": "ingredients", "type": "string[]" },
-        { "name": "productImageUrl", "type": "string" }, { "name": "certificationUrl", "type": "string" }
-    ], "stateMutability": "view", "type": "function" },
-    { "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }, { "internalType": "address", "name": "_newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_batchID",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_manufactureDate",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_origin",
+				"type": "string"
+			},
+			{
+				"internalType": "string[]",
+				"name": "_ingredients",
+				"type": "string[]"
+			},
+			{
+				"internalType": "string",
+				"name": "_productImageUrl",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_certificationUrl",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_manufacturerName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_factoryAddress",
+				"type": "string"
+			}
+		],
+		"name": "createProduct",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "oldOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			}
+		],
+		"name": "ProductCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "newStatus",
+				"type": "string"
+			}
+		],
+		"name": "StatusUpdated",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "productCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "products",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "batchID",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "manufactureDate",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "origin",
+				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "isAuthentic",
+				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "productImageUrl",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "certificationUrl",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "manufacturerName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "factoryAddress",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "verifyProduct",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "batchID",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "manufactureDate",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "origin",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "manufacturerName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "factoryAddress",
+				"type": "string"
+			},
+			{
+				"internalType": "string[]",
+				"name": "visibleHistory",
+				"type": "string[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
 ];
 
 let web3, contract, account;
