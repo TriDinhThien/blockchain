@@ -17,7 +17,6 @@
             --primary: #6366f1; 
             --primary-dark: #4f46e5;
             --accent: #f472b6;
-            --glass: rgba(255, 255, 255, 0.7);
         }
 
         body { 
@@ -25,10 +24,8 @@
             background: radial-gradient(circle at top right, #fdfcfb 0%, #e2d1c3 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Glassmorphism Classes */
         .glass-nav {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(15px);
@@ -40,6 +37,9 @@
             background: white;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(226, 232, 240, 0.5);
+            border-radius: 2.5rem;
+            padding: 1rem;
+            cursor: pointer;
         }
 
         .product-card:hover {
@@ -47,7 +47,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
         }
 
-        /* Animation */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: slideUpFade 0.5s ease-out; }
         
@@ -56,23 +55,12 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Custom Scanner Style */
-        #reader {
-            border: none !important;
-            border-radius: 2rem;
-            overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Sidebar & Nav Active */
         .sidebar-item.active {
             background: var(--primary);
             color: white;
             box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
         }
-        .nav-item.active { color: var(--primary); }
 
-        /* Timeline UI */
         .timeline-item::before {
             content: '';
             position: absolute;
@@ -86,16 +74,13 @@
             box-shadow: 0 0 0 2px var(--primary);
         }
 
-        @media (max-width: 768px) {
-            .desktop-sidebar { display: none; }
-            body { padding-bottom: 5rem; }
-        }
+        #reader { border: none !important; border-radius: 2rem; overflow: hidden; }
     </style>
 </head>
 
 <body class="flex text-slate-900">
 
-    <aside class="desktop-sidebar fixed left-0 top-0 bottom-0 w-72 bg-white/80 backdrop-blur-xl border-r border-slate-100 flex-col z-50">
+    <aside class="desktop-sidebar fixed left-0 top-0 bottom-0 w-72 bg-white/80 backdrop-blur-xl border-r border-slate-100 flex flex-col z-50 hidden md:flex">
         <div class="p-10">
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-200">
@@ -123,7 +108,6 @@
     </aside>
 
     <main class="main-content flex-1 flex flex-col min-w-0 w-full md:ml-72">
-        
         <header class="h-20 glass-nav flex items-center justify-between px-6 md:px-12 sticky top-0 z-30">
             <div>
                 <span class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Dashboard</span>
@@ -142,52 +126,25 @@
             <div id="my-purchases" class="tab-content active">
                 <div class="mb-10">
                     <h1 class="text-4xl font-black text-slate-900 mb-2">Xin chào! ✨</h1>
-                    <p class="text-slate-500 font-medium">Khám phá các sản phẩm chính hãng bạn đã sở hữu trên Blockchain.</p>
+                    <p class="text-slate-500 font-medium">Danh sách các sản phẩm chính hãng bạn đang sở hữu.</p>
                 </div>
-                
                 <div id="myProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="col-span-full flex flex-col items-center py-20">
-                        <i class="fa-solid fa-circle-notch animate-spin text-3xl text-indigo-500 mb-4"></i>
-                        <p class="text-slate-400 font-medium">Đang đồng bộ dữ liệu...</p>
                     </div>
-                </div>
             </div>
 
             <div id="verify-trace" class="tab-content">
-                <div class="max-w-4xl mx-auto">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-                        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
-                            <div class="mb-8">
-                                <h2 class="text-2xl font-black text-slate-800">Quét mã QR</h2>
-                                <p class="text-slate-400 text-sm mt-1 font-medium">Đặt mã QR vào giữa khung hình camera</p>
-                            </div>
-                            <div id="reader"></div>
-                        </div>
-                        
-                        <div id="traceResult" class="hidden">
-                            </div>
+                <div class="max-w-xl mx-auto">
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 mb-10">
+                        <div id="reader"></div>
                     </div>
+                    <div id="traceResult" class="hidden"></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav class="mobile-nav fixed bottom-0 left-0 right-0 glass-nav px-8 py-4 pb-8 flex justify-between items-center z-50 md:hidden rounded-t-[2.5rem] shadow-2xl">
-        <button onclick="showTab('my-purchases')" class="nav-item active flex flex-col items-center gap-1.5">
-            <i class="fa-solid fa-house-chimney text-xl"></i>
-            <span class="text-[10px] font-extrabold uppercase tracking-tighter">Cửa hàng</span>
-        </button>
-        <div onclick="showTab('verify-trace')" class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center -translate-y-8 shadow-xl shadow-indigo-200 border-4 border-white">
-            <i class="fa-solid fa-qrcode text-white text-2xl"></i>
-        </div>
-        <button onclick="location.reload()" class="nav-item flex flex-col items-center gap-1.5">
-            <i class="fa-solid fa-rotate-right text-xl"></i>
-            <span class="text-[10px] font-extrabold uppercase tracking-tighter">Làm mới</span>
-        </button>
-    </nav>
-
     <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[70] hidden flex items-end md:items-center justify-center p-0 md:p-8 transition-all">
-        <div class="bg-white w-full max-w-4xl rounded-t-[3rem] md:rounded-[3rem] shadow-2xl relative max-h-[92vh] flex flex-col overflow-hidden">
+        <div class="bg-white w-full max-w-5xl rounded-t-[3rem] md:rounded-[3rem] shadow-2xl relative max-h-[92vh] flex flex-col overflow-hidden">
             <button onclick="closeModal()" class="absolute top-8 right-8 z-10 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -195,138 +152,19 @@
         </div>
     </div>
 
+    <nav class="mobile-nav fixed bottom-0 left-0 right-0 glass-nav px-8 py-4 pb-8 flex justify-between items-center z-50 md:hidden rounded-t-[2.5rem] shadow-2xl">
+        <button onclick="showTab('my-purchases')" class="flex flex-col items-center gap-1"><i class="fa-solid fa-house"></i><span class="text-[10px] font-bold">Tủ đồ</span></button>
+        <div onclick="showTab('verify-trace')" class="w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center -translate-y-6 shadow-lg border-4 border-white"><i class="fa-solid fa-qrcode text-white"></i></div>
+        <button onclick="location.reload()" class="flex flex-col items-center gap-1"><i class="fa-solid fa-rotate"></i><span class="text-[10px] font-bold">Tải lại</span></button>
+    </nav>
+
 <script>
-// Giữ nguyên các biến contract và ABI của bạn
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
 const abi = [
 	{
 		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_batchID",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_manufactureDate",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_origin",
-				"type": "string"
-			},
-			{
-				"internalType": "string[]",
-				"name": "_ingredients",
-				"type": "string[]"
-			},
-			{
-				"internalType": "string",
-				"name": "_productImageUrl",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_certificationUrl",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_manufacturerName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_factoryAddress",
-				"type": "string"
-			}
-		],
-		"name": "createProduct",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "oldOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			}
-		],
-		"name": "ProductCreated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "newStatus",
-				"type": "string"
-			}
-		],
-		"name": "StatusUpdated",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_id",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "_newOwner",
-				"type": "address"
-			}
+			{ "internalType": "uint256", "name": "_id", "type": "uint256" },
+			{ "internalType": "address", "name": "_newOwner", "type": "address" }
 		],
 		"name": "transferOwnership",
 		"outputs": [],
@@ -336,323 +174,185 @@ const abi = [
 	{
 		"inputs": [],
 		"name": "productCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
+		"outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
 		"stateMutability": "view",
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
+		"inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
 		"name": "products",
 		"outputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "batchID",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "manufactureDate",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "origin",
-				"type": "string"
-			},
-			{
-				"internalType": "bool",
-				"name": "isAuthentic",
-				"type": "bool"
-			},
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "productImageUrl",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "certificationUrl",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "manufacturerName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "factoryAddress",
-				"type": "string"
-			}
+			{ "internalType": "string", "name": "name", "type": "string" },
+			{ "internalType": "string", "name": "batchID", "type": "string" },
+			{ "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
+			{ "internalType": "string", "name": "origin", "type": "string" },
+			{ "internalType": "bool", "name": "isAuthentic", "type": "bool" },
+			{ "internalType": "address", "name": "owner", "type": "address" },
+			{ "internalType": "string", "name": "productImageUrl", "type": "string" },
+			{ "internalType": "string", "name": "certificationUrl", "type": "string" },
+			{ "internalType": "string", "name": "manufacturerName", "type": "string" },
+			{ "internalType": "string", "name": "factoryAddress", "type": "string" }
 		],
 		"stateMutability": "view",
 		"type": "function"
 	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_id",
-				"type": "uint256"
-			}
-		],
-		"name": "verifyProduct",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "batchID",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "manufactureDate",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "origin",
-				"type": "string"
-			},
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "manufacturerName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "factoryAddress",
-				"type": "string"
-			},
-			{
-				"internalType": "string[]",
-				"name": "visibleHistory",
-				"type": "string[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
+    {
+        "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }],
+        "name": "verifyProduct",
+        "outputs": [
+            { "internalType": "string", "name": "name", "type": "string" },
+            { "internalType": "string", "name": "batchID", "type": "string" },
+            { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
+            { "internalType": "string", "name": "origin", "type": "string" },
+            { "internalType": "address", "name": "owner", "type": "address" },
+            { "internalType": "string", "name": "manufacturerName", "type": "string" },
+            { "internalType": "string", "name": "factoryAddress", "type": "string" },
+            { "internalType": "string[]", "name": "visibleHistory", "type": "string[]" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
 ];
 
 let web3, contract, account, html5QrCode;
 
 function formatUrl(url) {
-    if (!url || url === "") return 'https://via.placeholder.com/400x300?text=VeriGlow+Product';
+    if (!url || url === "" || url === "undefined") return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmVmZWZlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZpbGw9IiNhYmFiYWIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlZlcmlHbG93PC90ZXh0Pjwvc3ZnPg==';
     if (url.startsWith('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
     return url;
 }
 
+function formatDate(ts) {
+    if (!ts || ts == 0) return "N/A";
+    const date = new Date(Number(ts) * 1000);
+    return date.toLocaleDateString('vi-VN');
+}
+
 window.addEventListener("load", async () => {
     if (window.ethereum) {
-        try {
-            web3 = new Web3(window.ethereum);
-            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            account = accounts[0];
-            document.getElementById('statusDot').className = "w-3 h-3 rounded-full bg-green-500 border-2 border-white shadow-sm";
-            document.getElementById('pcAccount').innerText = account;
-            contract = new web3.eth.Contract(abi, contractAddress);
-            loadPurchasedProducts();
-        } catch (e) { console.error(e); }
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0];
+        document.getElementById('pcAccount').innerText = account;
+        document.getElementById('statusDot').classList.replace('bg-slate-300', 'bg-green-500');
+        contract = new web3.eth.Contract(abi, contractAddress);
+        loadPurchasedProducts();
     }
 });
 
-function showTab(tabId) {
-    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-
-    document.getElementById(tabId).classList.add('active');
-    document.getElementById('pageTitle').innerText = tabId === 'my-purchases' ? 'Tủ đồ của tôi' : 'Xác thực Blockchain';
-
-    if (tabId === 'verify-trace') {
-        startScanner();
-        document.querySelectorAll('.sidebar-item')[1].classList.add('active');
-        document.querySelectorAll('.nav-item')[1].classList.add('active');
-    } else {
-        stopScanner();
-        loadPurchasedProducts();
-        document.querySelectorAll('.sidebar-item')[0].classList.add('active');
-        document.querySelectorAll('.nav-item')[0].classList.add('active');
-    }
-}
-
 async function loadPurchasedProducts() {
     const grid = document.getElementById('myProductsGrid');
+    grid.innerHTML = '<div class="col-span-full text-center py-10"><i class="fa-solid fa-spinner animate-spin"></i> Đang tải...</div>';
     try {
         const count = await contract.methods.productCount().call();
         let html = '';
         let found = 0;
         for (let i = 1; i <= count; i++) {
-            const p = await contract.methods.verifyProduct(i).call();
+            const p = await contract.methods.products(i).call();
             if (p.owner.toLowerCase() === account.toLowerCase()) {
                 found++;
                 html += `
-                    <div onclick="openProductDetail(${i})" class="product-card p-4 rounded-[2.5rem] relative group cursor-pointer">
-                        <div class="relative overflow-hidden rounded-[2rem] mb-5">
-                            <img src="${formatUrl(p.productImageUrl)}" class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 border border-white">
-                                <i class="fa-solid fa-shield-check text-green-500 text-[10px]"></i>
-                                <span class="text-[9px] font-black text-slate-700 uppercase">Verified</span>
+                    <div onclick="openProductDetail(${i})" class="product-card group">
+                        <div class="relative overflow-hidden rounded-[2rem] mb-4 aspect-square">
+                            <img src="${formatUrl(p.productImageUrl)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute top-3 right-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold border border-white">
+                                <i class="fa-solid fa-badge-check text-green-500"></i> VERIFIED
                             </div>
                         </div>
-                        <div class="px-2 pb-2">
-                            <h4 class="font-extrabold text-slate-900 text-xl mb-1">${p.name}</h4>
-                            <div class="flex justify-between items-center">
-                                <p class="text-xs font-bold text-indigo-500 uppercase tracking-widest">${p.batchID}</p>
-                                <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                                    <i class="fa-solid fa-arrow-right-long text-xs"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                        <h4 class="font-bold text-lg text-slate-900">${p.name}</h4>
+                        <p class="text-xs text-indigo-500 font-bold uppercase tracking-widest">${p.batchID}</p>
+                    </div>`;
             }
         }
-        grid.innerHTML = found > 0 ? html : `
-            <div class="col-span-full text-center py-20">
-                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fa-solid fa-box-open text-slate-200 text-4xl"></i>
-                </div>
-                <p class="text-slate-400 font-bold italic">Bạn chưa sở hữu sản phẩm nào.</p>
-            </div>
-        `;
+        grid.innerHTML = found > 0 ? html : '<p class="col-span-full text-center py-20 text-slate-400">Bạn chưa sở hữu sản phẩm nào.</p>';
     } catch (e) { grid.innerHTML = 'Lỗi kết nối Blockchain.'; }
 }
 
-async function startScanner() {
-    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-    if (html5QrCode.isScanning) await html5QrCode.stop();
-    html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 280 }, (text) => {
-        const id = text.split('-').pop();
-        if (navigator.vibrate) navigator.vibrate(150);
-        verifyProduct(id);
-    }).catch(err => console.log(err));
-}
-
-function stopScanner() { if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop(); }
-
-async function verifyProduct(id) {
-    const res = document.getElementById('traceResult');
-    res.classList.remove('hidden');
-    res.innerHTML = '<div class="bg-white p-12 rounded-[2.5rem] shadow-xl text-center"><i class="fa-solid fa-spinner-third animate-spin text-indigo-500 text-3xl"></i></div>';
-    try {
-        const p = await contract.methods.verifyProduct(id).call();
-        res.innerHTML = `
-            <div class="bg-white p-10 rounded-[2.5rem] border border-slate-50 shadow-2xl text-center animate-slideUpFade">
-                <div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-                    <i class="fa-solid fa-badge-check text-5xl"></i>
-                </div>
-                <h3 class="font-black text-3xl text-slate-900 mb-3">${p.name}</h3>
-                <p class="text-slate-500 mb-10 font-medium">Sản phẩm chính hãng đã được mã hóa trên Blockchain bởi VeriGlow.</p>
-                <button onclick="openProductDetail(${id})" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-black transition-all transform active:scale-95">
-                    XEM CHI TIẾT NGUỒN GỐC
-                </button>
-            </div>
-        `;
-        stopScanner();
-    } catch (e) { res.innerHTML = '<div class="p-10 text-center font-bold text-red-500 bg-white rounded-3xl shadow-xl">Mã QR không hợp lệ hoặc không tồn tại!</div>'; }
-}
-
 async function openProductDetail(id) {
-    const p = await contract.methods.verifyProduct(id).call();
-    document.getElementById('detailModal').classList.remove('hidden');
-    
-    // Nâng cấp phần Timeline Lịch sử
-    const historyHtml = p.history && p.history.length > 0 
-        ? `<div class="mt-8 relative ml-4 pl-8 border-l-2 border-slate-100 space-y-8">
-            ${p.history.map(log => {
-                const parts = log.split(':');
-                return `
-                <div class="timeline-item relative">
-                    <p class="text-sm font-black text-slate-800">${parts[0] || 'Cập nhật'}</p>
-                    <p class="text-xs font-medium text-slate-500 mt-1">${parts[1] || log}</p>
-                </div>`;
-            }).join('')}
-          </div>`
-        : '<p class="text-slate-400 italic text-sm">Chưa có dữ liệu vận chuyển.</p>';
+    try {
+        const p1 = await contract.methods.verifyProduct(id).call();
+        const p2 = await contract.methods.products(id).call();
+        
+        document.getElementById('detailModal').classList.remove('hidden');
+        
+        const historyHtml = p1.visibleHistory && p1.visibleHistory.length > 0 
+            ? `<div class="mt-4 relative ml-4 pl-8 border-l-2 border-slate-100 space-y-6">
+                ${p1.visibleHistory.map(log => {
+                    const parts = log.split(':');
+                    return `
+                    <div class="timeline-item relative">
+                        <p class="text-sm font-black text-slate-800">${parts[0] || 'Cập nhật'}</p>
+                        <p class="text-xs font-medium text-slate-500">${parts[1] || log}</p>
+                    </div>`;
+                }).join('')}
+              </div>`
+            : '<p class="text-slate-400 italic text-sm">Chưa có hành trình.</p>';
 
-    document.getElementById('modalContent').innerHTML = `
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div class="space-y-6">
-                <img src="${formatUrl(p.productImageUrl)}" class="w-full h-80 lg:h-[500px] object-cover rounded-[3rem] shadow-2xl border-4 border-slate-50">
-                <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100">
-                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Chứng nhận số</p>
-                    <a href="${formatUrl(p.certificationUrl)}" target="_blank" class="flex items-center justify-between text-indigo-600 font-bold hover:underline">
-                        <span>GACP-WHO Certification (IPFS)</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="flex flex-col">
-                <span class="text-xs font-black text-indigo-500 uppercase tracking-[0.3em] mb-2">Thông tin sản phẩm</span>
-                <h3 class="text-4xl font-black text-slate-900 mb-2 leading-tight">${p.name}</h3>
-                <p class="text-slate-400 font-mono text-xs mb-8">NFT-ID: 0x${id.toString(16).padStart(4, '0')}...VeriGlow</p>
-                
-                <div class="grid grid-cols-2 gap-4 mb-10">
-                    <div class="bg-slate-50 p-5 rounded-2xl">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Xuất xứ</p>
-                        <p class="text-sm font-black text-slate-800">${p.origin}</p>
-                    </div>
-                    <div class="bg-slate-50 p-5 rounded-2xl">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Sản xuất ngày</p>
-                        <p class="text-sm font-black text-slate-800">${new Date(Number(p.manufactureDate)*1000).toLocaleDateString('vi-VN')}</p>
+        document.getElementById('modalContent').innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                    <img src="${formatUrl(p2.productImageUrl)}" class="w-full h-[400px] object-cover rounded-[2.5rem] shadow-xl mb-6">
+                    <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100">
+                        <p class="text-[10px] font-black text-indigo-400 mb-2 uppercase">Chứng nhận chất lượng</p>
+                        <a href="${formatUrl(p2.certificationUrl)}" target="_blank" class="flex justify-between items-center font-bold text-indigo-600 hover:underline">
+                            <span>GACP-WHO Certificate</span> <i class="fa-solid fa-external-link"></i>
+                        </a>
                     </div>
                 </div>
-
-                <div class="flex-1">
-                    <p class="text-xs font-black text-slate-900 uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">Hành trình sản phẩm</p>
-                    ${historyHtml}
-                </div>
-
-                <div class="mt-10 pt-8 border-t border-slate-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white">
-                            <i class="fa-solid fa-check"></i>
+                <div>
+                    <span class="text-xs font-black text-indigo-500 uppercase tracking-widest">Sản phẩm chi tiết</span>
+                    <h2 class="text-4xl font-black text-slate-900 mb-2 mt-1">${p1.name}</h2>
+                    <p class="text-slate-400 font-mono text-xs mb-8">Mã lô: ${p1.batchID} | NFT ID: #${id}</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-slate-50 p-4 rounded-xl">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Ngày sản xuất</p>
+                            <p class="text-sm font-bold">${formatDate(p1.manufactureDate)}</p>
                         </div>
-                        <div>
-                            <p class="text-sm font-black text-slate-800">Xác thực bởi VeriGlow Ledger</p>
-                            <p class="text-[10px] text-slate-400">Dữ liệu không thể sửa đổi trên mạng Ethereum</p>
+                        <div class="bg-slate-50 p-4 rounded-xl">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Xuất xứ</p>
+                            <p class="text-sm font-bold">${p1.origin}</p>
                         </div>
                     </div>
+
+                    <div class="mb-8 p-5 bg-slate-900 text-white rounded-2xl">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Cơ sở sản xuất</p>
+                        <p class="text-sm font-bold">${p1.manufacturerName}</p>
+                        <p class="text-[11px] text-slate-400 mt-1">${p1.factoryAddress}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-black text-slate-900 uppercase border-b pb-2 mb-4">Hành trình sản phẩm</p>
+                        ${historyHtml}
+                    </div>
                 </div>
-            </div>
-        </div>
-    `;
+            </div>`;
+    } catch (e) { alert("Lỗi tải chi tiết!"); }
 }
 
+function showTab(id) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
+    if(id === 'my-purchases') {
+        document.querySelectorAll('.sidebar-item')[0].classList.add('active');
+        stopScanner();
+    } else {
+        document.querySelectorAll('.sidebar-item')[1].classList.add('active');
+        startScanner();
+    }
+}
+
+function startScanner() {
+    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+        const id = text.split('-').pop();
+        openProductDetail(id);
+        stopScanner();
+    }).catch(() => {});
+}
+
+function stopScanner() { if(html5QrCode) html5QrCode.stop(); }
 function closeModal() { document.getElementById('detailModal').classList.add('hidden'); }
 </script>
 </body>
