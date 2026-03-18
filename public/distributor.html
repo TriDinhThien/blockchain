@@ -25,7 +25,6 @@
             color: #1e293b;
         }
 
-        /* Glassmorphism Effect */
         .glass-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -33,7 +32,6 @@
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
         }
 
-        /* Tab Transitions */
         .tab-content { display: none; opacity: 0; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease-out forwards; }
 
@@ -42,7 +40,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Sidebar Styling */
         .sidebar-item {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -63,23 +60,19 @@
             border-radius: 0 4px 4px 0;
         }
 
-        /* Table Styling */
         .custom-table tr { transition: all 0.2s; border-bottom: 1px solid #f1f5f9; }
         .custom-table tr:hover { background-color: #f1f5f9; transform: scale(1.002); }
 
-        /* Drawer Styling */
         #sideDrawer { 
             transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
             z-index: 1000;
         }
         #sideDrawer.open { transform: translateX(0); }
 
-        /* Fancy Scrollbar */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
 
-        /* Toast Animation */
         .toast {
             animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
@@ -106,7 +99,7 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div id="drawerContent" class="p-8">
+        <div id="drawerContent" class="p-8 pb-20">
             </div>
     </div>
 
@@ -183,8 +176,7 @@
                                     <th class="px-8 py-5 text-right px-10"></th>
                                 </tr>
                             </thead>
-                            <tbody id="inventoryBody">
-                                </tbody>
+                            <tbody id="inventoryBody"></tbody>
                         </table>
                     </div>
                 </div>
@@ -227,13 +219,9 @@
     </main>
 
 <script>
-// --- GIỮ NGUYÊN LOGIC CỦA BẠN ---
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
 const abi = [
     { "inputs": [ { "internalType": "string", "name": "_name", "type": "string" }, { "internalType": "string", "name": "_batchID", "type": "string" }, { "internalType": "string", "name": "_manufactureDate", "type": "string" }, { "internalType": "string", "name": "_origin", "type": "string" }, { "internalType": "string[]", "name": "_ingredients", "type": "string[]" }, { "internalType": "string", "name": "_productImageUrl", "type": "string" }, { "internalType": "string", "name": "_certificationUrl", "type": "string" }, { "internalType": "string", "name": "_manufacturerName", "type": "string" }, { "internalType": "string", "name": "_factoryAddress", "type": "string" } ], "name": "createProduct", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-    { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "oldOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" } ], "name": "OwnershipTransferred", "type": "event" },
-    { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" }, { "indexed": false, "internalType": "string", "name": "name", "type": "string" } ], "name": "ProductCreated", "type": "event" },
-    { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "id", "type": "uint256" }, { "indexed": false, "internalType": "string", "name": "newStatus", "type": "string" } ], "name": "StatusUpdated", "type": "event" },
     { "inputs": [ { "internalType": "uint256", "name": "_id", "type": "uint256" }, { "internalType": "address", "name": "_newOwner", "type": "address" } ], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
     { "inputs": [], "name": "productCount", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
     { "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "name": "products", "outputs": [ { "internalType": "string", "name": "name", "type": "string" }, { "internalType": "string", "name": "batchID", "type": "string" }, { "internalType": "string", "name": "manufactureDate", "type": "string" }, { "internalType": "string", "name": "origin", "type": "string" }, { "internalType": "bool", "name": "isAuthentic", "type": "bool" }, { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "string", "name": "productImageUrl", "type": "string" }, { "internalType": "string", "name": "certificationUrl", "type": "string" }, { "internalType": "string", "name": "manufacturerName", "type": "string" }, { "internalType": "string", "name": "factoryAddress", "type": "string" } ], "stateMutability": "view", "type": "function" },
@@ -334,6 +322,111 @@ function renderInventory() {
     `).join('') || `<tr><td colspan="4" class="py-24 text-center text-slate-400 font-medium italic">Không có dữ liệu hiển thị</td></tr>`;
 }
 
+async function openDrawer(id) {
+    const p = allProducts.find(x => x.id == id);
+    if (!p) return;
+    const content = document.getElementById('drawerContent');
+    
+    content.innerHTML = `
+        <div class="space-y-8 animate-fadeIn">
+            <div class="aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-inner flex items-center justify-center relative group">
+                ${p.productImageUrl ? `<img src="${p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box text-slate-100 text-8xl"></i>`}
+                <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-slate-100">
+                    <span class="text-[10px] font-black text-indigo-600 uppercase">ID: #${String(p.id).padStart(4, '0')}</span>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-2xl font-black text-slate-900 leading-tight">${p.name}</h4>
+                <div class="flex items-center gap-2 mt-2 text-indigo-500">
+                    <i class="fa-solid fa-location-dot text-[10px]"></i>
+                    <span class="text-xs font-bold uppercase tracking-wider">${p.origin}</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Lô sản xuất</p>
+                    <p class="font-bold text-slate-800 text-sm">${p.batchID}</p>
+                </div>
+                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Ngày SX</p>
+                    <p class="font-bold text-slate-800 text-sm">${p.manufactureDate}</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Thành phần chi tiết</p>
+                <div class="flex flex-wrap gap-2">
+                    ${p.ingredients && p.ingredients.length > 0 
+                        ? p.ingredients.map(ing => `<span class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-[11px] font-bold border border-indigo-100">${ing}</span>`).join('')
+                        : '<span class="text-xs text-slate-400 italic font-medium">Đang cập nhật...</span>'}
+                </div>
+            </div>
+
+            <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-4">
+                <div>
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nhà sản xuất</p>
+                    <p class="font-extrabold text-slate-800 text-sm">${p.manufacturerName || 'N/A'}</p>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nhà máy địa chỉ</p>
+                    <p class="text-xs text-slate-600 font-medium leading-relaxed">${p.factoryAddress || 'Chưa cập nhật'}</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Nhật ký hành trình
+                </p>
+                <div class="space-y-4 ml-2">
+                    ${p.visibleHistory.map((h, i) => `
+                        <div class="flex gap-4">
+                            <div class="w-5 flex flex-col items-center">
+                                <div class="w-2 h-2 rounded-full ${i === 0 ? 'bg-indigo-600 ring-4 ring-indigo-100' : 'bg-slate-300'}"></div>
+                                ${i !== p.visibleHistory.length - 1 ? '<div class="w-px flex-1 bg-slate-200 mt-1"></div>' : ''}
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-[11px] font-bold text-slate-600 block">${h}</span>
+                                <span class="text-[9px] text-slate-400 uppercase font-black tracking-tighter italic">Secured on Chain</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-5 bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl">
+                <div id="drawerQR" class="p-3 bg-white rounded-2xl shadow-lg"></div>
+                <div class="text-center space-y-2">
+                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Cổng tra cứu Web3</p>
+                    <div class="bg-white/10 px-4 py-2 rounded-xl">
+                         <p class="text-[9px] font-mono opacity-80 break-all select-all leading-relaxed">${p.owner}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('overlay').classList.remove('hidden');
+    setTimeout(() => document.getElementById('overlay').classList.add('opacity-100'), 10);
+    
+    setTimeout(() => {
+        const qrContainer = document.getElementById('drawerQR');
+        if(qrContainer) {
+            const canvas = document.createElement('canvas');
+            QRCode.toCanvas(canvas, `https://veriglow.io/verify?id=${id}`, { 
+                width: 150, 
+                margin: 2,
+                color: { dark: '#0f172a', light: '#ffffff' }
+            }, (err) => {
+                qrContainer.innerHTML = '';
+                qrContainer.appendChild(canvas);
+            });
+        }
+    }, 150);
+}
+
 function filterInventory(type, btn) {
     currentFilter = type;
     document.querySelectorAll('.filter-btn').forEach(b => {
@@ -353,77 +446,15 @@ async function transferOwnership() {
         const product = allProducts.find(x => x.id == id);
         if (!product || product.owner.toLowerCase() !== account) return showToast("Bạn không sở hữu ID này!", "error");
 
-        showToast("Đang thực hiện chữ ký số...", "success");
+        showToast("Vui lòng xác nhận trên ví...", "success");
         await contract.methods.transferOwnership(id, receiver).send({ from: account });
         
         showToast("Xuất kho thành công!", "success");
         loadInventory();
         showTab('inventory');
     } catch (err) {
-        showToast("Giao dịch thất bại!", "error");
+        showToast("Giao dịch bị từ chối!", "error");
     }
-}
-
-async function openDrawer(id) {
-    const p = allProducts.find(x => x.id == id);
-    if (!p) return;
-    const content = document.getElementById('drawerContent');
-    
-    content.innerHTML = `
-        <div class="space-y-8 animate-fadeIn">
-            <div class="aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-inner flex items-center justify-center">
-                ${p.productImageUrl ? `<img src="${p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box text-slate-100 text-8xl"></i>`}
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Lô sản xuất</p>
-                    <p class="font-bold text-slate-800 text-sm">${p.batchID}</p>
-                </div>
-                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Ngày SX</p>
-                    <p class="font-bold text-slate-800 text-sm">${p.manufactureDate}</p>
-                </div>
-            </div>
-
-            <div class="space-y-3">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lịch sử di chuyển</p>
-                <div class="space-y-3">
-                    ${p.visibleHistory.map((h, i) => `
-                        <div class="flex gap-4">
-                            <div class="w-5 flex flex-col items-center">
-                                <div class="w-2.5 h-2.5 rounded-full ${i === 0 ? 'bg-indigo-600' : 'bg-slate-300'}"></div>
-                                ${i !== p.visibleHistory.length - 1 ? '<div class="w-px flex-1 bg-slate-200 mt-1"></div>' : ''}
-                            </div>
-                            <span class="text-xs font-bold text-slate-600">${h}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-
-            <div class="flex flex-col items-center gap-4 bg-slate-900 rounded-[2rem] p-8 text-white">
-                <div id="drawerQR" class="p-3 bg-white rounded-xl"></div>
-                <div class="text-center">
-                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Cổng truy xuất khách hàng</p>
-                    <p class="text-[10px] font-mono opacity-50 break-all">${p.owner}</p>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.getElementById('sideDrawer').classList.add('open');
-    document.getElementById('overlay').classList.remove('hidden');
-    setTimeout(() => document.getElementById('overlay').classList.add('opacity-100'), 10);
-    
-    setTimeout(() => {
-        QRCode.toCanvas(document.createElement('canvas'), `https://veriglow.io/verify?id=${id}`, { width: 140, margin: 1 }, (err, canvas) => {
-            const container = document.getElementById('drawerQR');
-            if(container) {
-                container.innerHTML = '';
-                container.appendChild(canvas);
-            }
-        });
-    }, 100);
 }
 
 function closeDrawer() {
@@ -436,7 +467,6 @@ function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    
     document.getElementById('pageTitle').innerText = tabId === 'inventory' ? 'Quản lý kho hàng' : 'Bàn giao đại lý';
     document.getElementById(`side-${tabId}`).classList.add('active');
 }
