@@ -269,18 +269,30 @@ function showToast(message, type = "success") {
 
 async function loadInventory() {
     const tbody = document.getElementById('inventoryBody');
-    tbody.innerHTML = `<tr><td colspan="4" class="py-24 text-center"><div class="inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="py-24 text-center">...</td></tr>`;
 
     try {
-        const count = Number(await contract.methods.productCount().call());
+        const count = Number(await contract.methods.productCount().call()); // [cite: 13]
         allProducts = [];
         for (let i = 1; i <= count; i++) {
-            const p = await contract.methods.verifyProduct(i).call();
-            const raw = await contract.methods.products(i).call();
-            allProducts.push({ id: i, ...p, productImageUrl: raw.productImageUrl, ingredients: raw.ingredients || [] });
+            // Chỉ cần gọi duy nhất hàm verifyProduct vì nó đã trả về đủ 10 tham số [cite: 23, 24]
+            const p = await contract.methods.verifyProduct(i).call(); 
+            
+            allProducts.push({ 
+                id: i, 
+                name: p.name,
+                batchID: p.batchID,
+                manufactureDate: p.manufactureDate, // Lưu ý: Đây là timestamp (uint) 
+                origin: p.origin,
+                owner: p.owner,
+                ingredients: p.ingredients, // Bây giờ mảng này sẽ có dữ liệu 
+                productImageUrl: p.productImageUrl,
+                visibleHistory: p.history // Lấy từ mảng history trong contract 
+            });
         }
         renderInventory();
     } catch (err) {
+        console.error(err);
         showToast("Lỗi đồng bộ Ledger", "error");
     }
 }
