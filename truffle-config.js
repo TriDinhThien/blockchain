@@ -11,7 +11,7 @@ module.exports = {
     sepolia: {
       provider: () => new HDWalletProvider(
         process.env.PRIVATE_KEY,  // Private key từ .env
-        'https://eth-sepolia.g.alchemy.com/v2/vAbZjsKMrBm36nuUECfKk'  // RPC Alchemy (thay key đầy đủ nếu cần)
+        'https://eth-sepolia.g.alchemy.com/v2/cPo6gulMMQceRabUjyN01'  // RPC Alchemy (thay key đầy đủ nếu cần)
       ),
       network_id: 11155111,  // Chain ID của Sepolia
       gas: 5500000,          // Gas limit mặc định (có thể điều chỉnh nếu tx phức tạp)
