@@ -160,8 +160,12 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Phần QR được kích hoạt sau khi tạo thành công -->
                 <div id="qrSection" class="hidden mt-8 text-center bg-white p-8 rounded-[2rem] border-2 border-dashed border-slate-200">
-                    <canvas id="qrCode" class="mx-auto rounded-xl"></canvas>
+                    <div id="newQrLabel" class="text-sm font-semibold text-slate-700 mb-4">QR Code sản phẩm mới</div>
+                    <canvas id="qrCode" class="mx-auto rounded-xl shadow-lg"></canvas>
+                    <p class="text-xs text-slate-400 mt-4">Quét mã để người dùng kiểm tra nguồn gốc</p>
                 </div>
             </div>
 
@@ -222,6 +226,8 @@ window.addEventListener("load", async () => {
         document.getElementById('accountDisplay').innerText = account;
         contract = new web3.eth.Contract(abi, contractAddress);
         loadMyProducts();
+    } else {
+        alert("Vui lòng cài MetaMask để sử dụng!");
     }
 });
 
@@ -309,7 +315,8 @@ async function loadMyProducts() {
 
         tbody.innerHTML = html || '<tr><td colspan="4" class="px-8 py-10 text-center text-slate-400">Danh sách trống.</td></tr>';
     } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center text-red-400">Lỗi Blockchain.</td></tr>';
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center text-red-400">Lỗi kết nối Blockchain.</td></tr>';
     }
 }
 
@@ -342,29 +349,116 @@ async function previewProduct(id) {
     }
 }
 
+// === PHẦN ĐÃ HOÀN THIỆN: TẠO SẢN PHẨM + GỬI BLOCKCHAIN + HIỂN THỊ QR NGAY ===
 async function createProduct() {
-    // Logic Create cũ của bạn...
-    const name = document.getElementById("name").value;
-    const batch = document.getElementById("batchID").value;
-    const date = Math.floor(new Date(document.getElementById("manufactureDate").value).getTime()/1000);
-    const origin = document.getElementById("origin").value;
+    const btn = document.getElementById('btnCreate');
+    const originalBtnText = btn.innerHTML;
+    
+    // Disable button + loading
+    btn.disabled = true;
+    btn.innerHTML = `
+        <span class="inline-flex items-center gap-2">
+            Đang ký & gửi lên Blockchain 
+            <div class="loading-spinner"></div>
+        </span>
+    `;
+
+    // Lấy dữ liệu form
+    const name = document.getElementById("name").value.trim();
+    const batch = document.getElementById("batchID").value.trim();
+    const manufactureDateInput = document.getElementById("manufactureDate").value;
+    const origin = document.getElementById("origin").value.trim() || "Vietnam";
+
+    // Validation
+    if (!name || !batch) {
+        alert("Vui lòng nhập đầy đủ Tên mỹ phẩm và Mã lô!");
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+        return;
+    }
+
+    const manufactureDate = manufactureDateInput 
+        ? Math.floor(new Date(manufactureDateInput).getTime() / 1000) 
+        : Math.floor(Date.now() / 1000);
 
     try {
-        await contract.methods.createProduct(name, batch, date, origin, [], "", "").send({from: account});
-        alert("Thành công!");
+        // Lấy ID hiện tại trước khi tạo
+        const currentCount = Number(await contract.methods.productCount().call());
+
+        // Gửi giao dịch (thêm gas limit để tránh lỗi gas estimation trên Sepolia)
+        await contract.methods
+            .createProduct(name, batch, manufactureDate, origin, [], "", "")
+            .send({ 
+                from: account,
+                gas: 500000   // giới hạn gas an toàn cho createProduct
+            });
+
+        const newProductId = currentCount + 1;
+
+        // Thông báo thành công
+        alert(`✅ Đăng ký thành công! Sản phẩm ID: #${newProductId}`);
+
+        // HIỂN THỊ QR NGAY (tính năng bạn nói chưa kích hoạt)
+        const qrSection = document.getElementById('qrSection');
+        const displayId = `PRD-${String(newProductId).padStart(8, '0')}`;
+        
+        document.getElementById('newQrLabel').innerText = displayId;
+        qrSection.classList.remove('hidden');
+
+        // Tạo QR code
+        const verifyUrl = `${window.location.origin}/verify.html?code=${displayId}`;
+        await QRCode.toCanvas(document.getElementById("qrCode"), verifyUrl, { 
+            width: 280,
+            margin: 1,
+            color: { dark: '#0ea5e9', light: '#ffffff' }
+        });
+
+        // Reset form (tùy chọn)
+        document.getElementById("name").value = "";
+        document.getElementById("batchID").value = "";
+        document.getElementById("manufactureDate").value = "";
+        document.getElementById("origin").value = "";
+
+        // Cập nhật danh sách kho
         loadMyProducts();
-    } catch (e) { alert("Lỗi!"); }
+
+    } catch (e) {
+        console.error("Lỗi tạo sản phẩm:", e);
+        let msg = "Lỗi giao dịch!";
+        if (e.message.includes("User denied")) msg = "Bạn đã từ chối giao dịch trên MetaMask.";
+        else if (e.message.includes("gas")) msg = "Lỗi gas. Hãy thử lại hoặc kiểm tra mạng Sepolia.";
+        alert(msg);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+    }
 }
 
 async function transferOwnership() {
     const id = document.getElementById("transferId").value;
-    const to = document.getElementById("newOwner").value;
+    const to = document.getElementById("newOwner").value.trim();
+    
+    if (!id || !to || !to.startsWith("0x")) {
+        alert("Vui lòng nhập ID và địa chỉ ví hợp lệ!");
+        return;
+    }
+
+    const btn = document.getElementById('btnTransfer');
+    btn.disabled = true;
+    btn.innerHTML = 'Đang xử lý...';
+
     try {
         await contract.methods.transferOwnership(id, to).send({from: account});
-        saveShippedId(id); // Lưu lại ID đã chuyển
-        alert("Bàn giao thành công!");
+        saveShippedId(id);
+        alert("✅ Bàn giao thành công!");
         showTab('list-products');
-    } catch (e) { alert("Lỗi giao dịch!"); }
+    } catch (e) {
+        console.error(e);
+        alert("Lỗi giao dịch chuyển quyền!");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Xác nhận bàn giao';
+    }
 }
 
 function showProductQr(id) {
