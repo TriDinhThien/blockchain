@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distributor Portal | VeriGlow</title>
+    <title>Distributor Dashboard | VeriGlow</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,17 +11,21 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .sidebar-item.active { background: #0ea5e9; color: white; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); }
+        
         #sideDrawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; }
         #sideDrawer.open { transform: translateX(0); }
         #overlay { transition: opacity 0.3s ease; display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 40; }
         #overlay.active { display: block; }
+
         .filter-btn.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0ea5e9; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 
@@ -31,7 +35,7 @@
 
     <div id="sideDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl translate-x-full overflow-y-auto">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur-md">
-            <h3 class="font-bold text-lg text-slate-800">Thông tin chi tiết</h3>
+            <h3 class="font-bold text-lg text-slate-800">Chi tiết sản phẩm</h3>
             <button onclick="closeDrawer()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
                 <i class="fa-solid fa-xmark text-slate-400 text-xl"></i>
             </button>
@@ -50,33 +54,33 @@
         </div>
         
         <nav class="mt-4 flex-1 px-6 space-y-2">
-            <button onclick="showTab('list-products')" id="btn-list" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
+            <button onclick="showTab('list-products')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
                 <i class="fa-solid fa-boxes-stacked"></i> <span>Kho sản phẩm</span>
             </button>
-            <button onclick="showTab('transfer-ownership')" id="btn-transfer" class="sidebar-item w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
-                <i class="fa-solid fa-share-nodes"></i> <span>Bàn giao đại lý</span>
+            <button onclick="showTab('transfer-ownership')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
+                <i class="fa-solid fa-truck-ramp-box"></i> <span>Chuyển giao quyền</span>
             </button>
         </nav>
 
         <div class="p-6 mt-auto border-t border-slate-100">
-            <div class="bg-slate-50 rounded-2xl p-4 italic text-[10px] font-mono text-slate-400 break-all border border-slate-100" id="accountDisplay">Đang kết nối...</div>
+            <div class="bg-slate-50 rounded-2xl p-4 italic text-[10px] font-mono text-slate-400 break-all" id="accountDisplay">Kết nối ví...</div>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col min-w-0">
         <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30">
-            <h2 id="pageTitle" class="text-2xl font-bold text-slate-800">Kho hàng phân phối</h2>
-            <button onclick="loadMyProducts()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all">
-                <i class="fa-solid fa-arrows-rotate"></i> Đồng bộ Ledger
+            <h2 id="pageTitle" class="text-2xl font-bold text-slate-800">Kho sản phẩm</h2>
+            <button onclick="loadMyProducts()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50">
+                <i class="fa-solid fa-arrows-rotate"></i> Làm mới
             </button>
         </header>
 
         <div class="p-10">
             <div id="list-products" class="tab-content active">
                 <div class="flex items-center gap-2 mb-6 bg-white p-1.5 rounded-2xl border border-slate-200 w-fit">
-                    <button onclick="filterProducts('all', this)" class="filter-btn active px-5 py-2 rounded-xl text-xs font-bold">Tất cả</button>
-                    <button onclick="filterProducts('in-stock', this)" class="filter-btn px-5 py-2 rounded-xl text-xs font-bold">Trong kho</button>
-                    <button onclick="filterProducts('transferred', this)" class="filter-btn px-5 py-2 rounded-xl text-xs font-bold">Đã xuất đi</button>
+                    <button onclick="filterProducts('all', this)" class="filter-btn active px-5 py-2 rounded-xl text-xs font-bold transition-all">Tất cả</button>
+                    <button onclick="filterProducts('in-stock', this)" class="filter-btn px-5 py-2 rounded-xl text-xs font-bold transition-all">Còn trong kho</button>
+                    <button onclick="filterProducts('transferred', this)" class="filter-btn px-5 py-2 rounded-xl text-xs font-bold transition-all">Đã xuất kho</button>
                 </div>
 
                 <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
@@ -95,20 +99,14 @@
             </div>
 
             <div id="transfer-ownership" class="tab-content max-w-xl mx-auto">
-                <div class="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                <div class="bg-white p-10 rounded-[2rem] border border-slate-200 shadow-sm">
                     <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
-                        <i class="fa-solid fa-paper-plane text-sky-500"></i> Xuất kho đại lý
+                        <i class="fa-solid fa-truck-moving text-orange-500"></i> Bàn giao quyền sở hữu
                     </h3>
                     <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">ID Sản phẩm</label>
-                            <input id="transferId" type="number" placeholder="Nhập ID (vd: 1)" class="w-full p-4 mt-1 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500 transition-all">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 ml-2 uppercase">Địa chỉ ví nhận (Đại lý/Retailer)</label>
-                            <input id="newOwner" type="text" placeholder="0x..." class="w-full p-4 mt-1 bg-slate-50 rounded-xl border border-slate-100 outline-none font-mono focus:ring-2 focus:ring-sky-500 transition-all text-sm">
-                        </div>
-                        <button onclick="transferOwnership()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-5 rounded-2xl transition-all mt-6 shadow-xl">Xác nhận chuyển giao</button>
+                        <input id="transferId" type="number" placeholder="ID sản phẩm (Ví dụ: 1)" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-orange-500">
+                        <input id="newOwner" type="text" placeholder="Địa chỉ ví nhận (0x...)" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none font-mono focus:ring-2 focus:ring-orange-500">
+                        <button onclick="transferOwnership()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl transition-all mt-4">Xác nhận xuất kho</button>
                     </div>
                 </div>
             </div>
@@ -116,44 +114,61 @@
     </main>
 
 <script>
-// --- CONFIGURATION ---
+// --- ABI & CONFIG (SAO CHÉP CHÍNH XÁC TỪ FILE MANUFACTURER) ---
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
 const abi = [
-    {
-        "inputs": [],
-        "name": "productCount",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [{"internalType": "uint256", "name": "_id", "type": "uint256"}],
-        "name": "verifyProduct",
-        "outputs": [
-            {"internalType": "string", "name": "name", "type": "string"},
-            {"internalType": "string", "name": "batchID", "type": "string"},
-            {"internalType": "string", "name": "manufactureDate", "type": "string"},
-            {"internalType": "string", "name": "origin", "type": "string"},
-            {"internalType": "address", "name": "owner", "type": "address"},
-            {"internalType": "string", "name": "manufacturerName", "type": "string"},
-            {"internalType": "string", "name": "factoryAddress", "type": "string"},
-            {"internalType": "string", "name": "productImageUrl", "type": "string"},
-            {"internalType": "string[]", "name": "ingredients", "type": "string[]"},
-            {"internalType": "string[]", "name": "visibleHistory", "type": "string[]"}
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {"internalType": "uint256", "name": "_id", "type": "uint256"},
-            {"internalType": "address", "name": "_newOwner", "type": "address"}
-        ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
+	{
+		"inputs": [
+			{ "internalType": "string", "name": "_name", "type": "string" },
+			{ "internalType": "string", "name": "_batchID", "type": "string" },
+			{ "internalType": "string", "name": "_manufactureDate", "type": "string" },
+			{ "internalType": "string", "name": "_origin", "type": "string" },
+			{ "internalType": "string[]", "name": "_ingredients", "type": "string[]" },
+			{ "internalType": "string", "name": "_productImageUrl", "type": "string" },
+			{ "internalType": "string", "name": "_certificationUrl", "type": "string" },
+			{ "internalType": "string", "name": "_manufacturerName", "type": "string" },
+			{ "internalType": "string", "name": "_factoryAddress", "type": "string" }
+		],
+		"name": "createProduct",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{ "internalType": "uint256", "name": "_id", "type": "uint256" },
+			{ "internalType": "address", "name": "_newOwner", "type": "address" }
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "productCount",
+		"outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+		"name": "products",
+		"outputs": [
+			{ "internalType": "string", "name": "name", "type": "string" },
+			{ "internalType": "string", "name": "batchID", "type": "string" },
+			{ "internalType": "string", "name": "manufactureDate", "type": "string" },
+			{ "internalType": "string", "name": "origin", "type": "string" },
+			{ "internalType": "bool", "name": "isAuthentic", "type": "bool" },
+			{ "internalType": "address", "name": "owner", "type": "address" },
+			{ "internalType": "string", "name": "productImageUrl", "type": "string" },
+			{ "internalType": "string", "name": "certificationUrl", "type": "string" },
+			{ "internalType": "string", "name": "manufacturerName", "type": "string" },
+			{ "internalType": "string", "name": "factoryAddress", "type": "string" }
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
 ];
 
 let web3, contract, account;
@@ -163,51 +178,33 @@ let currentFilter = 'all';
 window.addEventListener("load", async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
-        try {
-            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            account = accounts[0].toLowerCase();
-            document.getElementById('accountDisplay').innerText = account;
-            contract = new web3.eth.Contract(abi, contractAddress);
-            loadMyProducts();
-        } catch (e) { console.error("User denied access"); }
-    } else { alert("Vui lòng cài đặt MetaMask!"); }
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0].toLowerCase();
+        document.getElementById('accountDisplay').innerText = account;
+        contract = new web3.eth.Contract(abi, contractAddress);
+        loadMyProducts();
+    } else {
+        alert("Vui lòng cài đặt MetaMask!");
+    }
 });
 
-// --- CORE LOGIC (FIX LỖI ĐỒNG BỘ) ---
+// --- TẢI DỮ LIỆU ---
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
-    tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center"><div class="animate-spin inline-block w-6 h-6 border-4 border-sky-500 border-t-transparent rounded-full"></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center"><div class="loading-spinner mx-auto"></div></td></tr>';
 
     try {
         const count = Number(await contract.methods.productCount().call());
         allProducts = [];
-
+        // Sử dụng products(i) như file manufacturer để đảm bảo không bị lỗi decode
         for (let i = 1; i <= count; i++) {
-            try {
-                // Sử dụng cơ chế gọi an toàn
-                const p = await contract.methods.verifyProduct(i).call();
-                
-                // Chuẩn hóa dữ liệu trả về (hỗ trợ cả Array và Object)
-                allProducts.push({
-                    id: i,
-                    name: p.name || p[0],
-                    batchID: p.batchID || p[1],
-                    manufactureDate: p.manufactureDate || p[2],
-                    origin: p.origin || p[3],
-                    owner: (p.owner || p[4]).toLowerCase(),
-                    manufacturerName: p.manufacturerName || p[5],
-                    factoryAddress: p.factoryAddress || p[6],
-                    productImageUrl: p.productImageUrl || p[7],
-                    ingredients: p.ingredients || p[8]
-                });
-            } catch (itemErr) {
-                console.warn(`Bỏ qua sản phẩm lỗi ID ${i}:`, itemErr);
-            }
+            const p = await contract.methods.products(i).call();
+            allProducts.push({ id: i, ...p });
         }
         renderTable();
     } catch (err) {
-        console.error("Lỗi Ledger:", err);
-        tbody.innerHTML = `<tr><td colspan="4" class="px-8 py-10 text-center text-red-500 font-bold">LỖI ĐỒNG BỘ LEDGER: KIỂM TRA ABI HOẶC MẠNG</td></tr>`;
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-16 text-center text-red-400">Lỗi đồng bộ Ledger. Hãy chắc chắn bạn đã deploy contract mới nhất.</td></tr>';
     }
 }
 
@@ -216,56 +213,64 @@ function renderTable() {
     let filtered = allProducts;
 
     if (currentFilter === 'in-stock') {
-        filtered = allProducts.filter(p => p.owner === account);
+        filtered = allProducts.filter(p => p.owner.toLowerCase() === account);
     } else if (currentFilter === 'transferred') {
-        filtered = allProducts.filter(p => p.owner !== account);
+        filtered = allProducts.filter(p => p.owner.toLowerCase() !== account);
     }
 
     tbody.innerHTML = filtered.map(p => `
         <tr class="hover:bg-slate-50 transition-all cursor-pointer group" onclick="openDrawer(${p.id})">
-            <td class="px-8 py-6 font-mono text-[10px] text-slate-400">#${String(p.id).padStart(3, '0')}</td>
+            <td class="px-8 py-6 font-mono text-xs text-slate-400">#${p.id}</td>
             <td class="px-8 py-6">
-                <div class="flex items-center gap-3">
-                    <img src="${p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-100" onerror="this.src='https://placehold.co/100x100?text=Cosme'">
-                    <div>
-                        <div class="font-bold text-slate-800 text-sm group-hover:text-sky-600 transition-colors">${p.name}</div>
-                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tight">${p.origin}</div>
-                    </div>
-                </div>
+                <div class="font-bold text-slate-800 group-hover:text-sky-600 transition-colors">${p.name}</div>
+                <div class="text-[10px] text-slate-400 uppercase font-bold">${p.origin}</div>
             </td>
-            <td class="px-8 py-6 text-xs font-semibold text-slate-600">${p.batchID}</td>
+            <td class="px-8 py-6 text-sm font-semibold text-slate-600">${p.batchID}</td>
             <td class="px-8 py-6">
-                ${p.owner === account 
-                    ? '<span class="px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[9px] font-black italic border border-green-100">SẴN SÀNG XUẤT</span>'
-                    : '<span class="px-3 py-1 bg-slate-100 text-slate-400 rounded-lg text-[9px] font-black italic border border-slate-200">ĐÃ CHUYỂN</span>'}
+                ${p.owner.toLowerCase() === account 
+                    ? '<span class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold italic border border-green-100 uppercase">Trong kho</span>'
+                    : '<span class="px-3 py-1 bg-slate-100 text-slate-400 rounded-full text-[10px] font-bold italic border border-slate-200 uppercase">Đã xuất đi</span>'}
             </td>
         </tr>
-    `).join('') || '<tr><td colspan="4" class="py-20 text-center text-slate-400 text-sm italic">Không tìm thấy sản phẩm nào.</td></tr>';
+    `).join('') || '<tr><td colspan="4" class="px-8 py-16 text-center text-slate-400 font-medium">Kho hàng trống.</td></tr>';
 }
 
+function filterProducts(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable();
+}
+
+// --- CHUYỂN GIAO ---
 async function transferOwnership() {
     const id = document.getElementById("transferId").value;
     const receiver = document.getElementById("newOwner").value.trim();
 
-    if (!id || !receiver) { alert("Vui lòng điền đủ thông tin!"); return; }
+    if (!id || !receiver) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+    }
 
     try {
-        const product = allProducts.find(x => x.id == id);
-        if (product && product.owner !== account) {
-            alert("Bạn không phải là chủ sở hữu hiện tại của ID này!"); return;
+        const product = allProducts.find(p => p.id == id);
+        if (!product || product.owner.toLowerCase() !== account) {
+            alert("Bạn không sở hữu sản phẩm này hoặc ID không tồn tại!");
+            return;
         }
 
         await contract.methods.transferOwnership(id, receiver).send({ from: account });
-        alert("Chuyển giao quyền sở hữu thành công!");
+        alert("Xuất kho thành công!");
         loadMyProducts();
-        showTab('list-products');
-    } catch (err) { alert("Lỗi giao dịch: " + err.message); }
+    } catch (err) {
+        alert("Lỗi: " + err.message);
+    }
 }
 
-// --- UI HELPERS ---
-async function openDrawer(id) {
-    const p = allProducts.find(x => x.id == id);
-    if (!p) return;
+// --- SIDE DRAWER ---
+function openDrawer(id) {
+    const product = allProducts.find(p => p.id == id);
+    if (!product) return;
 
     const drawer = document.getElementById('sideDrawer');
     const overlay = document.getElementById('overlay');
@@ -273,50 +278,41 @@ async function openDrawer(id) {
 
     content.innerHTML = `
         <div class="space-y-6">
-            <div class="aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-inner">
-                <img src="${p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400?text=Product'">
+            <div class="aspect-square bg-slate-50 rounded-3xl overflow-hidden border border-slate-100 shadow-inner flex items-center justify-center">
+                ${product.productImageUrl ? 
+                    `<img src="${product.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}" class="w-full h-full object-cover">` : 
+                    `<i class="fa-solid fa-image text-slate-200 text-6xl"></i>`}
             </div>
-            
             <div class="space-y-1">
-                <h4 class="text-2xl font-black text-slate-900 leading-tight">${p.name}</h4>
-                <div class="flex items-center gap-2 text-sky-600 font-bold text-xs uppercase tracking-widest italic">
-                    <i class="fa-solid fa-certificate"></i> Verified on Blockchain
-                </div>
+                <h4 class="text-2xl font-black text-slate-900">${product.name}</h4>
+                <p class="text-sky-600 font-bold text-sm italic">Hộ chiếu sản phẩm: ID-${id}</p>
             </div>
-
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-4">
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Số lô (Batch)</p>
-                    <p class="font-bold text-slate-700 text-sm">${p.batchID}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Mã Lô</p>
+                    <p class="font-bold text-slate-700">${product.batchID}</p>
                 </div>
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Ngày sản xuất</p>
-                    <p class="font-bold text-slate-700 text-sm">${p.manufactureDate}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Ngày Sản Xuất</p>
+                    <p class="font-bold text-slate-700">${product.manufactureDate}</p>
                 </div>
             </div>
-
-            <div class="space-y-3">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Thành phần (Ingredients)</p>
-                <div class="flex flex-wrap gap-1.5">
-                    ${p.ingredients && p.ingredients.length > 0 
-                        ? p.ingredients.map(ing => `<span class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg text-[10px] font-semibold">${ing}</span>`).join('')
-                        : '<span class="text-xs text-slate-400 italic">Không có dữ liệu thành phần</span>'}
+            <div class="space-y-4 pt-4 border-t border-slate-100">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Chủ sở hữu hiện tại</p>
+                    <div class="p-3 bg-slate-900 text-sky-400 rounded-xl font-mono text-[10px] break-all border border-slate-800">
+                        ${product.owner}
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Nhà sản xuất</p>
+                    <p class="text-sm font-bold text-slate-700">${product.manufacturerName}</p>
+                    <p class="text-[10px] text-slate-400 italic">${product.factoryAddress}</p>
                 </div>
             </div>
-
-            <div class="p-6 bg-slate-900 rounded-[2rem] text-white shadow-xl">
-                <p class="text-[9px] font-bold text-slate-500 uppercase mb-2">Chủ sở hữu Blockchain</p>
-                <p class="font-mono text-[10px] text-sky-300 break-all mb-4">${p.owner}</p>
-                <div class="pt-4 border-t border-slate-800">
-                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Sản xuất bởi</p>
-                    <p class="text-xs font-bold text-slate-200">${p.manufacturerName}</p>
-                    <p class="text-[9px] text-slate-400 italic mt-1 leading-relaxed">${p.factoryAddress}</p>
-                </div>
-            </div>
-
             <div class="pt-6 flex flex-col items-center gap-2">
-                <div id="drawerQR" class="p-4 bg-white border border-slate-100 rounded-3xl shadow-sm"></div>
-                <p class="text-[10px] text-slate-400 font-black tracking-widest">PRODUCT DIGITAL TWIN</p>
+                <div id="drawerQR" class="p-4 bg-white border-2 border-dashed border-slate-200 rounded-3xl shadow-sm"></div>
+                <p class="text-[10px] text-slate-400 font-medium tracking-widest uppercase">Mã truy xuất nguồn gốc</p>
             </div>
         </div>
     `;
@@ -328,7 +324,7 @@ async function openDrawer(id) {
         const qrContainer = document.getElementById('drawerQR');
         qrContainer.innerHTML = '';
         const canvas = document.createElement('canvas');
-        QRCode.toCanvas(canvas, `VERIGLOW-TRACE-${id}`, { width: 130, margin: 1 });
+        QRCode.toCanvas(canvas, `VERIGLOW-PRODUCT-${id}`, { width: 140, margin: 1 });
         qrContainer.appendChild(canvas);
     }, 100);
 }
@@ -343,11 +339,11 @@ function showTab(tabId) {
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     
-    const titles = { 'list-products': 'Kho hàng phân phối', 'transfer-ownership': 'Bàn giao đại lý' };
+    const titles = { 'list-products': 'Kho sản phẩm', 'transfer-ownership': 'Chuyển giao quyền' };
     document.getElementById('pageTitle').innerText = titles[tabId];
     
-    if (tabId === 'list-products') document.getElementById('btn-list').classList.add('active');
-    else document.getElementById('btn-transfer').classList.add('active');
+    const idx = Object.keys(titles).indexOf(tabId);
+    document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
 }
 </script>
 </body>
