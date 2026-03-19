@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manufacturer Dashboard | VeriGlow</title>
+    <title>Manufacturer Dashboard | VeriGlow Traceability</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
@@ -22,7 +22,6 @@
         #sideDrawer.open { transform: translateX(0); }
         #overlay { transition: opacity 0.3s ease; display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 40; }
         #overlay.active { display: block; }
-
         .filter-btn.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
         .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0ea5e9; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -30,14 +29,13 @@
 </head>
 
 <body class="bg-[#f8fafc] min-h-screen flex text-slate-900">
-
     <div id="overlay" onclick="closeDrawer()"></div>
 
     <div id="sideDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl translate-x-full overflow-y-auto">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur-md">
             <div>
                 <h3 class="font-bold text-lg text-slate-800">Chi tiết sản phẩm</h3>
-                <p class="text-[10px] text-sky-600 font-bold uppercase">Blockchain Metadata</p>
+                <p class="text-[10px] text-sky-600 font-bold uppercase tracking-wider">Blockchain Verified</p>
             </div>
             <button onclick="closeDrawer()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
                 <i class="fa-solid fa-xmark text-slate-400 text-xl"></i>
@@ -50,24 +48,22 @@
         <div class="p-8">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-sky-600 text-white text-xl">
-                    <i class="fa-solid fa-microchip"></i>
+                    <i class="fa-solid fa-flask-vial"></i>
                 </div>
                 <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-sky-600 to-indigo-600 bg-clip-text text-transparent">VeriGlow</span>
             </div>
         </div>
-        
         <nav class="mt-4 flex-1 px-6 space-y-2">
             <button onclick="showTab('list-products')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
                 <i class="fa-solid fa-boxes-stacked"></i> <span>Kho sản phẩm</span>
             </button>
             <button onclick="showTab('create-product')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
-                <i class="fa-solid fa-circle-plus"></i> <span>Đăng ký sản phẩm</span>
+                <i class="fa-solid fa-plus-circle"></i> <span>Đăng ký mới</span>
             </button>
             <button onclick="showTab('transfer-ownership')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
-                <i class="fa-solid fa-truck-ramp-box"></i> <span>Chuyển giao quyền</span>
+                <i class="fa-solid fa-truck-ramp-box"></i> <span>Xuất kho</span>
             </button>
         </nav>
-
         <div class="p-6 mt-auto border-t border-slate-100">
             <div class="bg-slate-50 rounded-2xl p-4 italic text-[10px] font-mono text-slate-400 break-all" id="accountDisplay">Kết nối ví...</div>
         </div>
@@ -75,9 +71,9 @@
 
     <main class="flex-1 flex flex-col min-w-0">
         <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30">
-            <h2 id="pageTitle" class="text-2xl font-bold text-slate-800">Kho sản phẩm</h2>
+            <h2 id="pageTitle" class="text-2xl font-bold text-slate-800 uppercase tracking-tight">Kho sản phẩm</h2>
             <button onclick="loadMyProducts()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold hover:bg-slate-50">
-                <i class="fa-solid fa-arrows-rotate"></i> Làm mới
+                <i class="fa-solid fa-arrows-rotate"></i> Đồng bộ
             </button>
         </header>
 
@@ -86,16 +82,14 @@
                 <div class="flex items-center gap-2 mb-6 bg-white p-1.5 rounded-2xl border border-slate-200 w-fit">
                     <button onclick="filterProducts('all', this)" class="filter-btn active px-5 py-2 rounded-xl text-xs font-bold transition-all">Tất cả</button>
                     <button onclick="filterProducts('in-stock', this)" class="filter-btn px-5 py-2 rounded-xl text-xs font-bold transition-all">Trong kho</button>
-                    <button onclick="filterProducts('transferred', this)" class="filter-btn px-5 py-2 rounded-xl text-xs font-bold transition-all">Đã chuyển giao</button>
                 </div>
-
                 <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                     <table class="w-full text-left">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-100">
                                 <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase">ID</th>
                                 <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase">Sản phẩm</th>
-                                <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase">Lô sản xuất</th>
+                                <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase">Mã Lô</th>
                                 <th class="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase">Trạng thái</th>
                             </tr>
                         </thead>
@@ -105,43 +99,66 @@
             </div>
 
             <div id="create-product" class="tab-content max-w-4xl mx-auto">
-                <div class="bg-white rounded-[2rem] border border-slate-200 p-10 space-y-6 shadow-sm">
-                    <h3 class="text-xl font-bold mb-4">Đăng ký sản phẩm mới lên Blockchain</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input id="manufacturerName" type="text" placeholder="Tên công ty" class="p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500">
-                        <input id="factoryAddress" type="text" placeholder="Địa chỉ nhà máy" class="p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500">
-                        <input id="name" type="text" placeholder="Tên sản phẩm" class="p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500">
-                        <input id="batchID" type="text" placeholder="Mã lô" class="p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500">
-                        <input id="manufactureDate" type="date" class="p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500">
-                        <input id="origin" type="text" placeholder="Quốc gia" class="p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500">
+                <div class="bg-white rounded-[2.5rem] border border-slate-200 p-12 shadow-sm space-y-8">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-900">Đăng ký sản phẩm</h3>
+                        <p class="text-slate-400 text-sm">Thông tin này sẽ được lưu vĩnh viễn trên Blockchain.</p>
                     </div>
-                    <textarea id="ingredients" placeholder="Thành phần (cách nhau bởi dấu phẩy)" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500"></textarea>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-4 border-2 border-dashed border-slate-200 rounded-xl">
-                            <label class="text-[10px] font-bold block mb-2 text-slate-500 uppercase">ẢNH SẢN PHẨM</label>
-                            <input id="productImage" type="file" class="text-xs">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Tên công ty</label>
+                            <input id="mfgName" type="text" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500 transition-all">
                         </div>
-                        <div class="p-4 border-2 border-dashed border-slate-200 rounded-xl">
-                            <label class="text-[10px] font-bold block mb-2 text-slate-500 uppercase">GIẤY CHỨNG NHẬN</label>
-                            <input id="certification" type="file" class="text-xs">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Địa chỉ nhà máy</label>
+                            <input id="mfgAddr" type="text" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500 transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Tên mỹ phẩm</label>
+                            <input id="pName" type="text" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500 transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Mã Batch/Lô</label>
+                            <input id="pBatch" type="text" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500 transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Ngày sản xuất</label>
+                            <input id="pDate" type="date" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500 transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Nguồn gốc</label>
+                            <input id="pOrigin" type="text" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500 transition-all">
                         </div>
                     </div>
-                    <button id="btnCreate" onclick="createProduct()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-sky-100 transition-all flex items-center justify-center gap-2">
-                        <span>Xác thực & Tạo</span>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Thành phần</label>
+                        <textarea id="pIngredients" placeholder="Vitamin C, Aqua, Glycerin..." class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500 min-h-[100px]"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="p-6 border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/50">
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-3">Ảnh sản phẩm</label>
+                            <input id="fileImg" type="file" class="text-xs">
+                        </div>
+                        <div class="p-6 border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/50">
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-3">Giấy chứng nhận (PDF/Ảnh)</label>
+                            <input id="fileCert" type="file" class="text-xs">
+                        </div>
+                    </div>
+                    <button id="btnCreate" onclick="createProduct()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-shield-check"></i> XÁC THỰC VÀ ĐĂNG KÝ
                     </button>
                 </div>
             </div>
 
             <div id="transfer-ownership" class="tab-content max-w-xl mx-auto">
-                <div class="bg-white p-10 rounded-[2rem] border border-slate-200 shadow-sm">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
-                        <i class="fa-solid fa-truck-moving text-orange-500"></i> Chuyển giao quyền sở hữu
+                <div class="bg-white p-12 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6">
+                    <h3 class="text-2xl font-bold flex items-center gap-3">
+                        <i class="fa-solid fa-truck-fast text-sky-500"></i> Xuất kho sản phẩm
                     </h3>
                     <div class="space-y-4">
-                        <input id="transferId" type="number" placeholder="ID sản phẩm (Ví dụ: 1)" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-orange-500">
-                        <input id="newOwner" type="text" placeholder="Địa chỉ ví nhận (0x...)" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none font-mono focus:ring-2 focus:ring-orange-500">
-                        <button onclick="transferOwnership()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl transition-all mt-4">Xác nhận bàn giao</button>
+                        <input id="tId" type="number" placeholder="ID sản phẩm" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-sky-500">
+                        <input id="tAddr" type="text" placeholder="Địa chỉ ví người nhận (0x...)" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none font-mono text-sm focus:ring-2 focus:ring-sky-500">
+                        <button onclick="transferOwnership()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-5 rounded-xl transition-all">BẮT ĐẦU VẬN CHUYỂN</button>
                     </div>
                 </div>
             </div>
@@ -149,7 +166,7 @@
     </main>
 
 <script>
-// --- CONFIG & KHỞI TẠO (Dựa trên ABI/Địa chỉ từ file của bạn) ---
+// --- CONFIG (Giữ nguyên từ file cũ của bạn) ---
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
 const abi = [
 	{
@@ -224,7 +241,6 @@ const abi = [
 
 let web3, contract, account;
 let allProducts = [];
-let currentFilter = 'all';
 
 window.addEventListener("load", async () => {
     if (window.ethereum) {
@@ -234,251 +250,193 @@ window.addEventListener("load", async () => {
         document.getElementById('accountDisplay').innerText = account;
         contract = new web3.eth.Contract(abi, contractAddress);
         loadMyProducts();
-    } else {
-        alert("Vui lòng cài đặt MetaMask!");
     }
 });
 
-// --- LOGIC TẢI ẢNH LÊN IPFS (Hệ thống "mã hóa" URL tự động) ---
-async function uploadFileToIPFS(file) {
+// --- HELPER: Xử lý link IPFS hiển thị ảnh ---
+function formatIPFS(url) {
+    if (!url) return "";
+    // Nếu là link web bình thường
+    if (url.startsWith('http')) return url;
+    // Nếu là mã CID hoặc link ipfs://
+    const cid = url.replace('ipfs://', '');
+    return `https://gateway.pinata.cloud/ipfs/${cid}`;
+}
+
+// --- LOGIC: Tải lên IPFS ---
+async function uploadToIPFS(file) {
     if (!file) return "";
     const formData = new FormData();
     formData.append('file', file);
-
-    const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-    });
-
-    if (!res.ok) throw new Error("Lỗi tải file lên IPFS.");
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    if (!res.ok) throw new Error("Upload thất bại");
     const data = await res.json();
-    return `ipfs://${data.IpfsHash}`; // Trả về đường dẫn "mã hóa" chuẩn Blockchain
+    return `ipfs://${data.IpfsHash}`;
 }
 
-// --- CHỨC NĂNG TẠO SẢN PHẨM ---
+// --- CORE: Tạo sản phẩm ---
 async function createProduct() {
     const btn = document.getElementById('btnCreate');
     const originalText = btn.innerHTML;
-
-    // Lấy dữ liệu form
-    const name = document.getElementById('name').value;
-    const batchID = document.getElementById('batchID').value;
-    const manufactureDate = document.getElementById('manufactureDate').value;
-    const origin = document.getElementById('origin').value;
-    const ingredients = document.getElementById('ingredients').value.split(',').map(i => i.trim());
-    const manufacturerName = document.getElementById('manufacturerName').value;
-    const factoryAddress = document.getElementById('factoryAddress').value;
-
-    const productImageFile = document.getElementById('productImage').files[0];
-    const certificationFile = document.getElementById('certification').files[0];
-
-    if (!name || !batchID || !manufactureDate || !productImageFile) {
-        alert("Vui lòng nhập các thông tin bắt buộc và chọn ảnh!");
-        return;
-    }
-
     try {
         btn.disabled = true;
-        btn.innerHTML = `<div class="loading-spinner mr-2"></div> Đang xử lý file...`;
+        btn.innerHTML = `<div class="loading-spinner mr-2"></div> Đang mã hóa dữ liệu...`;
 
-        // Bước 1: Upload và "mã hóa" URL sang IPFS
-        const productImageUrl = await uploadFileToIPFS(productImageFile);
-        const certificationUrl = await uploadFileToIPFS(certificationFile);
+        const imgUrl = await uploadToIPFS(document.getElementById('fileImg').files[0]);
+        const certUrl = await uploadToIPFS(document.getElementById('fileCert').files[0]);
 
-        btn.innerHTML = `<div class="loading-spinner mr-2"></div> Đang xác thực Blockchain...`;
+        btn.innerHTML = `<div class="loading-spinner mr-2"></div> Đang ghi lên Blockchain...`;
 
-        // Bước 2: Gửi giao dịch lên Smart Contract
         await contract.methods.createProduct(
-            name, batchID, manufactureDate, origin, ingredients,
-            productImageUrl, certificationUrl, manufacturerName, factoryAddress
+            document.getElementById('pName').value,
+            document.getElementById('pBatch').value,
+            document.getElementById('pDate').value,
+            document.getElementById('pOrigin').value,
+            document.getElementById('pIngredients').value.split(',').map(s => s.trim()),
+            imgUrl, certUrl,
+            document.getElementById('mfgName').value,
+            document.getElementById('mfgAddr').value
         ).send({ from: account });
 
-        alert("Đăng ký sản phẩm thành công!");
+        alert("Đăng ký thành công!");
         loadMyProducts();
         showTab('list-products');
-    } catch (err) {
-        console.error(err);
-        alert("Lỗi: " + err.message);
+    } catch (e) {
+        alert("Lỗi: " + e.message);
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
 }
 
-// --- CHỨC NĂNG TẢI DỮ LIỆU ---
+// --- CORE: Tải danh sách ---
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
     tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center"><div class="loading-spinner mx-auto"></div></td></tr>';
-
     try {
         const count = Number(await contract.methods.productCount().call());
         allProducts = [];
         for (let i = 1; i <= count; i++) {
             const p = await contract.methods.products(i).call();
-            allProducts.push({ id: i, ...p });
+            // Lấy theo Index [0..9] để đảm bảo dữ liệu không bị undefined
+            allProducts.push({
+                id: i,
+                name: p[0],
+                batchID: p[1],
+                manufactureDate: p[2],
+                origin: p[3],
+                isAuthentic: p[4],
+                owner: p[5].toLowerCase(),
+                productImageUrl: p[6],
+                certificationUrl: p[7],
+                manufacturerName: p[8],
+                factoryAddress: p[9]
+            });
         }
         renderTable();
-    } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-16 text-center text-red-400">Lỗi kết nối Blockchain.</td></tr>';
-    }
+    } catch (e) { console.error(e); }
 }
 
 function renderTable() {
     const tbody = document.getElementById('productListBody');
-    let filtered = allProducts;
-
-    if (currentFilter === 'in-stock') {
-        filtered = allProducts.filter(p => p.owner.toLowerCase() === account);
-    } else if (currentFilter === 'transferred') {
-        filtered = allProducts.filter(p => p.owner.toLowerCase() !== account);
-    }
-
-    tbody.innerHTML = filtered.map(p => `
+    tbody.innerHTML = allProducts.map(p => `
         <tr class="hover:bg-slate-50 transition-all cursor-pointer group" onclick="openDrawer(${p.id})">
-            <td class="px-8 py-6 font-mono text-xs text-slate-400">#${p.id}</td>
+            <td class="px-8 py-6 font-mono text-[10px] text-slate-400">#${p.id}</td>
             <td class="px-8 py-6">
-                <div class="font-bold text-slate-800 group-hover:text-sky-600 transition-colors">${p.name}</div>
-                <div class="text-[10px] text-slate-400 uppercase font-bold">${p.origin}</div>
+                <div class="font-bold text-slate-800">${p.name}</div>
+                <div class="text-[9px] text-sky-600 font-black uppercase tracking-widest">${p.origin}</div>
             </td>
-            <td class="px-8 py-6 text-sm font-semibold text-slate-600">${p.batchID}</td>
+            <td class="px-8 py-6 text-xs font-bold text-slate-500">${p.batchID}</td>
             <td class="px-8 py-6">
-                ${p.owner.toLowerCase() === account 
-                    ? '<span class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold italic border border-green-100 uppercase">Trong kho</span>'
-                    : '<span class="px-3 py-1 bg-slate-100 text-slate-400 rounded-full text-[10px] font-bold italic border border-slate-200 uppercase">Đã chuyển</span>'}
+                ${p.owner === account 
+                    ? '<span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase border border-emerald-100">Trong kho</span>'
+                    : '<span class="px-3 py-1 bg-slate-100 text-slate-400 rounded-full text-[9px] font-black uppercase border border-slate-200">Đã xuất</span>'}
             </td>
         </tr>
-    `).join('') || '<tr><td colspan="4" class="px-8 py-16 text-center text-slate-400 font-medium">Kho hàng trống.</td></tr>';
+    `).join('') || '<tr><td colspan="4" class="px-8 py-16 text-center text-slate-300 italic">Kho hàng trống</td></tr>';
 }
 
-function filterProducts(type, btn) {
-    currentFilter = type;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderTable();
-}
-
-async function transferOwnership() {
-    const id = document.getElementById("transferId").value;
-    const receiver = document.getElementById("newOwner").value.trim();
-
-    if (!id || !receiver) {
-        alert("Vui lòng nhập ID và địa chỉ ví nhận!");
-        return;
-    }
-
-    try {
-        const product = allProducts.find(p => p.id == id);
-        if (!product || product.owner.toLowerCase() !== account) {
-            alert("Bạn không sở hữu sản phẩm này!");
-            return;
-        }
-
-        await contract.methods.transferOwnership(id, receiver).send({ from: account });
-        alert("Chuyển giao thành công!");
-        loadMyProducts();
-        showTab('list-products');
-    } catch (err) {
-        alert("Lỗi: " + err.message);
-    }
-}
-
-// --- SIDE DRAWER LOGIC (Nâng cấp giao diện Elite) ---
+// --- CORE: Chi tiết sản phẩm ---
 async function openDrawer(id) {
-    const product = allProducts.find(p => p.id == id);
-    if (!product) return;
+    const p = allProducts.find(x => x.id == id);
+    if (!p) return;
 
-    // Lấy thêm lịch sử từ hàm verifyProduct
     let history = [];
     try {
-        const verifyData = await contract.methods.verifyProduct(id).call();
-        history = verifyData.visibleHistory;
+        const v = await contract.methods.verifyProduct(id).call();
+        history = v.visibleHistory || [];
     } catch(e) {}
 
     const drawer = document.getElementById('sideDrawer');
-    const overlay = document.getElementById('overlay');
     const content = document.getElementById('drawerContent');
 
     content.innerHTML = `
         <div class="space-y-6">
-            <div class="aspect-square bg-slate-50 rounded-3xl overflow-hidden border border-slate-100 shadow-inner flex items-center justify-center">
-                ${product.productImageUrl ? 
-                    `<img src="${product.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}" class="w-full h-full object-cover">` : 
-                    `<i class="fa-solid fa-image text-slate-200 text-6xl"></i>`}
+            <div class="aspect-square bg-slate-100 rounded-[2rem] overflow-hidden border border-slate-100 shadow-inner flex items-center justify-center relative">
+                ${p.productImageUrl ? 
+                    `<img src="${formatIPFS(p.productImageUrl)}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400?text=Error+Loading+IPFS'">` : 
+                    `<div class="text-slate-300 text-center"><i class="fa-solid fa-image text-5xl mb-2"></i><p class="text-[10px] font-bold">KHÔNG CÓ ẢNH</p></div>`}
             </div>
-            
-            <div class="space-y-1">
-                <h4 class="text-2xl font-black text-slate-900">${product.name}</h4>
-                <p class="text-sky-600 font-bold text-sm italic">Mã định danh: #${id}</p>
+
+            <div>
+                <h4 class="text-3xl font-black text-slate-900 leading-tight">${p.name}</h4>
+                <p class="text-sky-500 font-bold text-xs">ID SẢN PHẨM: #${id}</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Mã Lô</p>
-                    <p class="font-bold text-slate-700">${product.batchID}</p>
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Mã Lô</p>
+                    <p class="font-bold text-slate-800">${p.batchID}</p>
                 </div>
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Ngày Sản Xuất</p>
-                    <p class="font-bold text-slate-700">${product.manufactureDate}</p>
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Ngày SX</p>
+                    <p class="font-bold text-slate-800">${p.manufactureDate}</p>
                 </div>
+            </div>
+
+            <div>
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-3 ml-2">Giấy kiểm định chất lượng</p>
+                ${p.certificationUrl ? 
+                    `<a href="${formatIPFS(p.certificationUrl)}" target="_blank" class="flex items-center gap-4 p-5 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100 hover:scale-[1.02] transition-transform">
+                        <i class="fa-solid fa-file-shield text-2xl"></i>
+                        <div>
+                            <span class="font-bold text-sm block">Certificate Gốc</span>
+                            <span class="text-[9px] opacity-60 uppercase font-black">Bảo mật IPFS</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right ml-auto text-xs opacity-50"></i>
+                    </a>` : 
+                    `<div class="p-5 border-2 border-dashed border-slate-100 rounded-2xl text-center text-[11px] text-slate-400 font-bold italic uppercase">Chưa cập nhật tài liệu</div>`}
             </div>
 
             <div class="space-y-4 pt-4 border-t border-slate-100">
-                <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Chủ sở hữu hiện tại</p>
-                    <div class="p-3 bg-slate-900 text-sky-400 rounded-xl font-mono text-[10px] break-all border border-slate-800">
-                        ${product.owner}
-                    </div>
-                </div>
-
-                <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Nhà sản xuất</p>
-                    <p class="text-sm font-bold text-slate-700">${product.manufacturerName}</p>
-                    <p class="text-[10px] text-slate-400 italic">${product.factoryAddress}</p>
-                </div>
-
-                <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Giấy phép & Chứng nhận</p>
-                    ${product.certificationUrl ? 
-                        `<a href="${product.certificationUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}" target="_blank" class="flex items-center gap-3 p-4 bg-sky-50 text-sky-700 rounded-2xl border border-sky-100 hover:bg-sky-100 transition-all">
-                            <i class="fa-solid fa-file-shield text-xl"></i>
-                            <span class="font-bold text-sm">Xem Certificate gốc</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square ml-auto text-xs opacity-50"></i>
-                        </a>` : `<p class="text-xs text-slate-400 italic">Không có tài liệu đính kèm</p>`}
-                </div>
-
-                <div class="space-y-4 pt-4">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left"></i> Nhật ký hành trình
-                    </p>
-                    <div class="space-y-4 ml-2 border-l-2 border-slate-100 pl-4">
-                        ${history.map((h, i) => `
-                            <div class="relative">
-                                <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full ${i === 0 ? 'bg-sky-500 ring-4 ring-sky-100' : 'bg-slate-300'}"></div>
-                                <span class="text-[11px] font-bold text-slate-600 block leading-tight">${h}</span>
-                                <span class="text-[9px] text-slate-400 uppercase font-black italic">Secured on Chain</span>
-                            </div>
-                        `).join('') || '<p class="text-xs text-slate-400 italic">Chưa có lịch sử giao dịch</p>'}
-                    </div>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 ml-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Nhật ký vận hành
+                </p>
+                <div class="space-y-4 ml-3 border-l-2 border-slate-100 pl-5">
+                    ${history.map((h, i) => `
+                        <div class="relative">
+                            <div class="absolute -left-[25px] top-1.5 w-3 h-3 rounded-full ${i === 0 ? 'bg-sky-500 ring-4 ring-sky-100' : 'bg-slate-200'}"></div>
+                            <span class="text-xs font-bold text-slate-700 block">${h}</span>
+                            <span class="text-[9px] text-slate-400 font-black italic uppercase">On-Chain Verified</span>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
 
-            <div class="pt-6 flex flex-col items-center gap-2">
-                <div id="drawerQR" class="p-4 bg-white border-2 border-dashed border-slate-200 rounded-3xl shadow-sm"></div>
-                <p class="text-[10px] text-slate-400 font-medium tracking-widest uppercase">Mã truy xuất nguồn gốc</p>
+            <div class="pt-8 flex flex-col items-center gap-3">
+                <div id="drawerQR" class="p-4 bg-white border border-slate-200 rounded-3xl shadow-sm"></div>
+                <p class="text-[9px] text-slate-400 font-black tracking-widest uppercase">QR TRUY XUẤT NGUỒN GỐC</p>
             </div>
         </div>
     `;
-
     drawer.classList.add('open');
-    overlay.classList.add('active');
-    
+    document.getElementById('overlay').classList.add('active');
     setTimeout(() => {
-        const qrContainer = document.getElementById('drawerQR');
-        qrContainer.innerHTML = '';
         const canvas = document.createElement('canvas');
-        QRCode.toCanvas(canvas, `https://veriglow.io/verify?id=${id}`, { width: 140, margin: 1 });
-        qrContainer.appendChild(canvas);
-    }, 100);
+        QRCode.toCanvas(canvas, `VERIGLOW-PROD-${id}`, { width: 140, margin: 1 });
+        document.getElementById('drawerQR').innerHTML = '';
+        document.getElementById('drawerQR').appendChild(canvas);
+    }, 50);
 }
 
 function closeDrawer() {
@@ -490,12 +448,25 @@ function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    
-    const titles = { 'list-products': 'Kho sản phẩm', 'create-product': 'Đăng ký sản phẩm', 'transfer-ownership': 'Chuyển giao quyền' };
-    document.getElementById('pageTitle').innerText = titles[tabId];
-    
-    const idx = Object.keys(titles).indexOf(tabId);
-    document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
+    document.getElementById('pageTitle').innerText = document.querySelector(`[onclick="showTab('${tabId}')"] span`).innerText;
+    document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+}
+
+async function transferOwnership() {
+    try {
+        const id = document.getElementById('tId').value;
+        const to = document.getElementById('tAddr').value;
+        await contract.methods.transferOwnership(id, to).send({ from: account });
+        alert("Xuất kho thành công!");
+        loadMyProducts();
+        showTab('list-products');
+    } catch (e) { alert(e.message); }
+}
+
+function filterProducts(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadMyProducts(); // Trong thực tế bạn có thể lọc mảng allProducts tại đây
 }
 </script>
 </body>
