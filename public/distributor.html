@@ -220,12 +220,62 @@
 
 <script>
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
+
+// ==================== ABI ĐÃ SỬA HOÀN CHỈNH (khớp với CosmeticsTraceability.sol) ====================
 const abi = [
-    { "inputs": [ { "internalType": "string", "name": "_name", "type": "string" }, { "internalType": "string", "name": "_batchID", "type": "string" }, { "internalType": "string", "name": "_manufactureDate", "type": "string" }, { "internalType": "string", "name": "_origin", "type": "string" }, { "internalType": "string[]", "name": "_ingredients", "type": "string[]" }, { "internalType": "string", "name": "_productImageUrl", "type": "string" }, { "internalType": "string", "name": "_certificationUrl", "type": "string" }, { "internalType": "string", "name": "_manufacturerName", "type": "string" }, { "internalType": "string", "name": "_factoryAddress", "type": "string" } ], "name": "createProduct", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-    { "inputs": [ { "internalType": "uint256", "name": "_id", "type": "uint256" }, { "internalType": "address", "name": "_newOwner", "type": "address" } ], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-    { "inputs": [], "name": "productCount", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
-    { "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "name": "products", "outputs": [ { "internalType": "string", "name": "name", "type": "string" }, { "internalType": "string", "name": "batchID", "type": "string" }, { "internalType": "string", "name": "manufactureDate", "type": "string" }, { "internalType": "string", "name": "origin", "type": "string" }, { "internalType": "bool", "name": "isAuthentic", "type": "bool" }, { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "string", "name": "productImageUrl", "type": "string" }, { "internalType": "string", "name": "certificationUrl", "type": "string" }, { "internalType": "string", "name": "manufacturerName", "type": "string" }, { "internalType": "string", "name": "factoryAddress", "type": "string" } ], "stateMutability": "view", "type": "function" },
-    { "inputs": [ { "internalType": "uint256", "name": "_id", "type": "uint256" } ], "name": "verifyProduct", "outputs": [ { "internalType": "string", "name": "name", "type": "string" }, { "internalType": "string", "name": "batchID", "type": "string" }, { "internalType": "string", "name": "manufactureDate", "type": "string" }, { "internalType": "string", "name": "origin", "type": "string" }, { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "string", "name": "manufacturerName", "type": "string" }, { "internalType": "string", "name": "factoryAddress", "type": "string" }, { "internalType": "string[]", "name": "visibleHistory", "type": "string[]" } ], "stateMutability": "view", "type": "function" }
+    {
+        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "name": "productCount",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "name": "products",
+        "outputs": [
+            { "internalType": "string", "name": "name", "type": "string" },
+            { "internalType": "string", "name": "batchID", "type": "string" },
+            { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
+            { "internalType": "string", "name": "origin", "type": "string" },
+            { "internalType": "bool", "name": "isAuthentic", "type": "bool" },
+            { "internalType": "string[]", "name": "history", "type": "string[]" },
+            { "internalType": "address", "name": "owner", "type": "address" },
+            { "internalType": "string[]", "name": "ingredients", "type": "string[]" },
+            { "internalType": "string", "name": "productImageUrl", "type": "string" },
+            { "internalType": "string", "name": "certificationUrl", "type": "string" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }],
+        "name": "verifyProduct",
+        "outputs": [
+            { "internalType": "string", "name": "name", "type": "string" },
+            { "internalType": "string", "name": "batchID", "type": "string" },
+            { "internalType": "uint256", "name": "manufactureDate", "type": "uint256" },
+            { "internalType": "string", "name": "origin", "type": "string" },
+            { "internalType": "bool", "name": "isAuthentic", "type": "bool" },
+            { "internalType": "string[]", "name": "history", "type": "string[]" },
+            { "internalType": "address", "name": "owner", "type": "address" },
+            { "internalType": "string[]", "name": "ingredients", "type": "string[]" },
+            { "internalType": "string", "name": "productImageUrl", "type": "string" },
+            { "internalType": "string", "name": "certificationUrl", "type": "string" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "uint256", "name": "_id", "type": "uint256" },
+            { "internalType": "address", "name": "_newOwner", "type": "address" }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
 ];
 
 let web3, contract, account;
@@ -275,13 +325,13 @@ async function loadInventory() {
         const count = Number(await contract.methods.productCount().call());
         allProducts = [];
         for (let i = 1; i <= count; i++) {
-            const p = await contract.methods.verifyProduct(i).call();
-            const raw = await contract.methods.products(i).call();
-            allProducts.push({ id: i, ...p, productImageUrl: raw.productImageUrl, ingredients: raw.ingredients || [] });
+            const p = await contract.methods.verifyProduct(i).call();   // ← giờ đã trả về đầy đủ ingredients + history
+            allProducts.push({ id: i, ...p });
         }
         renderInventory();
     } catch (err) {
         showToast("Lỗi đồng bộ Ledger", "error");
+        console.error(err);
     }
 }
 
@@ -325,6 +375,7 @@ function renderInventory() {
 async function openDrawer(id) {
     const p = allProducts.find(x => x.id == id);
     if (!p) return;
+
     const content = document.getElementById('drawerContent');
     
     content.innerHTML = `
@@ -364,27 +415,16 @@ async function openDrawer(id) {
                 </div>
             </div>
 
-            <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-4">
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nhà sản xuất</p>
-                    <p class="font-extrabold text-slate-800 text-sm">${p.manufacturerName || 'N/A'}</p>
-                </div>
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nhà máy địa chỉ</p>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed">${p.factoryAddress || 'Chưa cập nhật'}</p>
-                </div>
-            </div>
-
             <div class="space-y-4">
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <i class="fa-solid fa-clock-rotate-left"></i> Nhật ký hành trình
                 </p>
                 <div class="space-y-4 ml-2">
-                    ${p.visibleHistory.map((h, i) => `
+                    ${p.history.map((h, i) => `
                         <div class="flex gap-4">
                             <div class="w-5 flex flex-col items-center">
                                 <div class="w-2 h-2 rounded-full ${i === 0 ? 'bg-indigo-600 ring-4 ring-indigo-100' : 'bg-slate-300'}"></div>
-                                ${i !== p.visibleHistory.length - 1 ? '<div class="w-px flex-1 bg-slate-200 mt-1"></div>' : ''}
+                                ${i !== p.history.length - 1 ? '<div class="w-px flex-1 bg-slate-200 mt-1"></div>' : ''}
                             </div>
                             <div class="flex-1">
                                 <span class="text-[11px] font-bold text-slate-600 block">${h}</span>
@@ -454,6 +494,7 @@ async function transferOwnership() {
         showTab('inventory');
     } catch (err) {
         showToast("Giao dịch bị từ chối!", "error");
+        console.error(err);
     }
 }
 
