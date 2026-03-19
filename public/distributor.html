@@ -69,10 +69,6 @@
         }
         #sideDrawer.open { transform: translateX(0); }
 
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-
         .toast {
             animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
@@ -99,8 +95,7 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div id="drawerContent" class="p-8 pb-20">
-            </div>
+        <div id="drawerContent" class="p-8 pb-20"></div>
     </div>
 
     <aside class="w-72 bg-slate-50 border-r border-slate-200 hidden lg:flex flex-col h-screen shrink-0">
@@ -195,7 +190,7 @@
                     <div class="space-y-6 relative z-10">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Sản phẩm ID</label>
-                            <input id="transferId" type="number" placeholder="Nhập ID (Ví dụ: 12)" 
+                            <input id="transferId" type="number" placeholder="Nhập ID (Ví dụ: 1)" 
                                 class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 transition-all font-bold text-lg outline-none">
                         </div>
                         <div class="space-y-2">
@@ -208,10 +203,6 @@
                             <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                         </button>
                     </div>
-                    
-                    <div class="absolute -right-20 -bottom-20 opacity-5">
-                        <i class="fa-solid fa-shield-halved text-[200px]"></i>
-                    </div>
                 </div>
             </div>
 
@@ -219,273 +210,17 @@
     </main>
 
 <script>
+// --- CẤU HÌNH ---
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
+// ABI rút gọn dựa trên file .sol bạn đã cung cấp
 const abi = [
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_batchID",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_manufactureDate",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_origin",
-				"type": "string"
-			},
-			{
-				"internalType": "string[]",
-				"name": "_ingredients",
-				"type": "string[]"
-			},
-			{
-				"internalType": "string",
-				"name": "_productImageUrl",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_certificationUrl",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_manufacturerName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_factoryAddress",
-				"type": "string"
-			}
-		],
-		"name": "createProduct",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "oldOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			}
-		],
-		"name": "ProductCreated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "newStatus",
-				"type": "string"
-			}
-		],
-		"name": "StatusUpdated",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_id",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "_newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "productCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "products",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "batchID",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "manufactureDate",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "origin",
-				"type": "string"
-			},
-			{
-				"internalType": "bool",
-				"name": "isAuthentic",
-				"type": "bool"
-			},
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "productImageUrl",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "certificationUrl",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "manufacturerName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "factoryAddress",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_id",
-				"type": "uint256"
-			}
-		],
-		"name": "verifyProduct",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "batchID",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "manufactureDate",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "origin",
-				"type": "string"
-			},
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "manufacturerName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "factoryAddress",
-				"type": "string"
-			},
-			{
-				"internalType": "string[]",
-				"name": "visibleHistory",
-				"type": "string[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
+    { "inputs": [], "name": "productCount", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
+    { "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }], "name": "verifyProduct", "outputs": [
+        { "name": "name", "type": "string" }, { "name": "batchID", "type": "string" }, { "name": "manufactureDate", "type": "uint256" },
+        { "name": "origin", "type": "string" }, { "name": "isAuthentic", "type": "bool" }, { "name": "history", "type": "string[]" },
+        { "name": "owner", "type": "address" }, { "name": "ingredients", "type": "string[]" }, { "name": "productImageUrl", "type": "string" }, { "name": "certificationUrl", "type": "string" }
+    ], "stateMutability": "view", "type": "function" },
+    { "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }, { "internalType": "address", "name": "_newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
 ];
 
 let web3, contract, account;
@@ -501,32 +236,16 @@ window.addEventListener("load", async () => {
             document.getElementById('accountDisplay').innerText = account;
             contract = new web3.eth.Contract(abi, contractAddress);
             loadInventory();
-            showToast("Kết nối thành công Node", "success");
+            showToast("Đã kết nối ví Distributor", "success");
         } catch (e) {
-            showToast("Cần cấp quyền ví", "error");
+            showToast("Bạn đã từ chối kết nối ví", "error");
         }
     } else {
-        showToast("Vui lòng cài MetaMask!", "error");
+        showToast("Vui lòng cài đặt MetaMask!", "error");
     }
 });
 
-function showToast(message, type = "success") {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    const bg = type === 'success' ? 'bg-indigo-600 text-white' : 'bg-red-500 text-white';
-    const icon = type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation';
-    
-    toast.className = `toast ${bg} flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl pointer-events-auto`;
-    toast.innerHTML = `<i class="fa-solid ${icon}"></i><span class="text-xs font-bold uppercase tracking-widest">${message}</span>`;
-    
-    container.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(20px)';
-        setTimeout(() => toast.remove(), 500);
-    }, 4000);
-}
-
+// Load dữ liệu từ Blockchain
 async function loadInventory() {
     const tbody = document.getElementById('inventoryBody');
     tbody.innerHTML = `<tr><td colspan="4" class="py-24 text-center"><div class="inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></td></tr>`;
@@ -536,15 +255,16 @@ async function loadInventory() {
         allProducts = [];
         for (let i = 1; i <= count; i++) {
             const p = await contract.methods.verifyProduct(i).call();
-            const raw = await contract.methods.products(i).call();
-            allProducts.push({ id: i, ...p, productImageUrl: raw.productImageUrl, ingredients: raw.ingredients || [] });
+            allProducts.push({ id: i, ...p });
         }
         renderInventory();
     } catch (err) {
-        showToast("Lỗi đồng bộ Ledger", "error");
+        console.error(err);
+        showToast("Lỗi truy xuất Blockchain", "error");
     }
 }
 
+// Hiển thị danh sách dựa trên bộ lọc
 function renderInventory() {
     const tbody = document.getElementById('inventoryBody');
     const filtered = allProducts.filter(p => 
@@ -571,7 +291,7 @@ function renderInventory() {
             </td>
             <td class="px-8 py-7">
                 <div class="text-xs font-bold text-slate-600">${p.batchID}</div>
-                <div class="text-[10px] text-slate-400 italic">${p.manufactureDate}</div>
+                <div class="text-[10px] text-slate-400 italic">${new Date(p.manufactureDate * 1000).toLocaleDateString('vi-VN')}</div>
             </td>
             <td class="px-8 py-7 text-right">
                 <button class="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
@@ -579,29 +299,24 @@ function renderInventory() {
                 </button>
             </td>
         </tr>
-    `).join('') || `<tr><td colspan="4" class="py-24 text-center text-slate-400 font-medium italic">Không có dữ liệu hiển thị</td></tr>`;
+    `).join('') || `<tr><td colspan="4" class="py-24 text-center text-slate-400 font-medium italic">Trống</td></tr>`;
 }
 
-async function openDrawer(id) {
+// Mở chi tiết sản phẩm
+function openDrawer(id) {
     const p = allProducts.find(x => x.id == id);
     if (!p) return;
     const content = document.getElementById('drawerContent');
     
     content.innerHTML = `
         <div class="space-y-8 animate-fadeIn">
-            <div class="aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-inner flex items-center justify-center relative group">
+            <div class="aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden border border-slate-100 flex items-center justify-center relative">
                 ${p.productImageUrl ? `<img src="${p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-box text-slate-100 text-8xl"></i>`}
-                <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-slate-100">
-                    <span class="text-[10px] font-black text-indigo-600 uppercase">ID: #${String(p.id).padStart(4, '0')}</span>
-                </div>
             </div>
 
             <div>
                 <h4 class="text-2xl font-black text-slate-900 leading-tight">${p.name}</h4>
-                <div class="flex items-center gap-2 mt-2 text-indigo-500">
-                    <i class="fa-solid fa-location-dot text-[10px]"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider">${p.origin}</span>
-                </div>
+                <p class="text-indigo-500 font-bold text-xs uppercase mt-1 italic">Trạng thái: ${p.isAuthentic ? 'Chính hãng' : 'Cần kiểm tra'}</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -610,59 +325,26 @@ async function openDrawer(id) {
                     <p class="font-bold text-slate-800 text-sm">${p.batchID}</p>
                 </div>
                 <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Ngày SX</p>
-                    <p class="font-bold text-slate-800 text-sm">${p.manufactureDate}</p>
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Sở hữu bởi</p>
+                    <p class="font-bold text-slate-800 text-[10px] break-all">${p.owner === account ? 'Bạn (Distributor)' : p.owner.substring(0,10)+'...'}</p>
                 </div>
             </div>
 
             <div class="space-y-3">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Thành phần chi tiết</p>
-                <div class="flex flex-wrap gap-2">
-                    ${p.ingredients && p.ingredients.length > 0 
-                        ? p.ingredients.map(ing => `<span class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-[11px] font-bold border border-indigo-100">${ing}</span>`).join('')
-                        : '<span class="text-xs text-slate-400 italic font-medium">Đang cập nhật...</span>'}
-                </div>
-            </div>
-
-            <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-4">
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nhà sản xuất</p>
-                    <p class="font-extrabold text-slate-800 text-sm">${p.manufacturerName || 'N/A'}</p>
-                </div>
-                <div>
-                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nhà máy địa chỉ</p>
-                    <p class="text-xs text-slate-600 font-medium leading-relaxed">${p.factoryAddress || 'Chưa cập nhật'}</p>
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Nhật ký hành trình
-                </p>
-                <div class="space-y-4 ml-2">
-                    ${p.visibleHistory.map((h, i) => `
-                        <div class="flex gap-4">
-                            <div class="w-5 flex flex-col items-center">
-                                <div class="w-2 h-2 rounded-full ${i === 0 ? 'bg-indigo-600 ring-4 ring-indigo-100' : 'bg-slate-300'}"></div>
-                                ${i !== p.visibleHistory.length - 1 ? '<div class="w-px flex-1 bg-slate-200 mt-1"></div>' : ''}
-                            </div>
-                            <div class="flex-1">
-                                <span class="text-[11px] font-bold text-slate-600 block">${h}</span>
-                                <span class="text-[9px] text-slate-400 uppercase font-black tracking-tighter italic">Secured on Chain</span>
-                            </div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lịch sử di chuyển</p>
+                <div class="space-y-4 ml-2 border-l-2 border-slate-100 pl-4">
+                    ${p.history.map(h => `
+                        <div class="relative">
+                            <div class="absolute -left-[21px] top-1 w-2 h-2 rounded-full bg-indigo-500"></div>
+                            <span class="text-xs font-bold text-slate-600 block">${h}</span>
                         </div>
                     `).join('')}
                 </div>
             </div>
 
-            <div class="flex flex-col items-center gap-5 bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl">
-                <div id="drawerQR" class="p-3 bg-white rounded-2xl shadow-lg"></div>
-                <div class="text-center space-y-2">
-                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Cổng tra cứu Web3</p>
-                    <div class="bg-white/10 px-4 py-2 rounded-xl">
-                         <p class="text-[9px] font-mono opacity-80 break-all select-all leading-relaxed">${p.owner}</p>
-                    </div>
-                </div>
+            <div class="flex flex-col items-center gap-5 bg-slate-900 rounded-[2.5rem] p-8 text-white">
+                <div id="drawerQR" class="p-2 bg-white rounded-xl"></div>
+                <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">QR Kiểm tra nhanh</p>
             </div>
         </div>
     `;
@@ -671,50 +353,48 @@ async function openDrawer(id) {
     document.getElementById('overlay').classList.remove('hidden');
     setTimeout(() => document.getElementById('overlay').classList.add('opacity-100'), 10);
     
-    setTimeout(() => {
-        const qrContainer = document.getElementById('drawerQR');
-        if(qrContainer) {
-            const canvas = document.createElement('canvas');
-            QRCode.toCanvas(canvas, `https://veriglow.io/verify?id=${id}`, { 
-                width: 150, 
-                margin: 2,
-                color: { dark: '#0f172a', light: '#ffffff' }
-            }, (err) => {
-                qrContainer.innerHTML = '';
-                qrContainer.appendChild(canvas);
-            });
-        }
-    }, 150);
-}
-
-function filterInventory(type, btn) {
-    currentFilter = type;
-    document.querySelectorAll('.filter-btn').forEach(b => {
-        b.className = "filter-btn px-6 py-2.5 rounded-xl text-xs font-black text-slate-500 hover:text-slate-700 transition-all";
+    // Tạo QR
+    QRCode.toCanvas(document.createElement('canvas'), `https://veriglow.io/verify?id=${id}`, { width: 140 }, (err, canvas) => {
+        const container = document.getElementById('drawerQR');
+        container.innerHTML = '';
+        container.appendChild(canvas);
     });
-    btn.className = "filter-btn active px-6 py-2.5 bg-white shadow-sm rounded-xl text-xs font-black text-indigo-600 transition-all";
-    renderInventory();
 }
 
+// Chuyển quyền sở hữu
 async function transferOwnership() {
     const id = document.getElementById("transferId").value;
     const receiver = document.getElementById("newOwner").value.trim();
 
-    if (!id || !receiver) return showToast("Điền đủ ID & Ví!", "error");
+    if (!id || !receiver) return showToast("Vui lòng điền đủ ID và Ví!", "error");
+    if (!web3.utils.isAddress(receiver)) return showToast("Địa chỉ ví không hợp lệ!", "error");
 
     try {
-        const product = allProducts.find(x => x.id == id);
-        if (!product || product.owner.toLowerCase() !== account) return showToast("Bạn không sở hữu ID này!", "error");
-
-        showToast("Vui lòng xác nhận trên ví...", "success");
+        showToast("Đang gửi yêu cầu xác nhận...", "success");
         await contract.methods.transferOwnership(id, receiver).send({ from: account });
-        
-        showToast("Xuất kho thành công!", "success");
+        showToast("Đã xuất kho thành công!", "success");
         loadInventory();
         showTab('inventory');
     } catch (err) {
-        showToast("Giao dịch bị từ chối!", "error");
+        showToast("Giao dịch thất bại!", "error");
     }
+}
+
+function showToast(message, type = "success") {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    const bg = type === 'success' ? 'bg-indigo-600' : 'bg-red-500';
+    toast.className = `toast ${bg} text-white flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl pointer-events-auto`;
+    toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check' : 'fa-xmark'}"></i><span class="text-xs font-bold uppercase">${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 4000);
+}
+
+function filterInventory(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.className = "filter-btn px-6 py-2.5 rounded-xl text-xs font-black text-slate-500 transition-all");
+    btn.className = "filter-btn active px-6 py-2.5 bg-white shadow-sm rounded-xl text-xs font-black text-indigo-600 transition-all";
+    renderInventory();
 }
 
 function closeDrawer() {
@@ -727,9 +407,9 @@ function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    document.getElementById('pageTitle').innerText = tabId === 'inventory' ? 'Quản lý kho hàng' : 'Bàn giao đại lý';
     document.getElementById(`side-${tabId}`).classList.add('active');
+    document.getElementById('pageTitle').innerText = tabId === 'inventory' ? 'Quản lý kho hàng' : 'Bàn giao đại lý';
 }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9dea5bf9acc8383f',t:'MTc3MzkwMTEwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9dea819f4a29b42b',t:'MTc3MzkwMjY0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
