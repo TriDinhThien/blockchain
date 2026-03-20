@@ -13,14 +13,14 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
-        .status-badge {
+        .status-badge-pulse {
             animation: pulse-green 2s infinite;
         }
         @keyframes pulse-green {
@@ -28,12 +28,12 @@
             70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
             100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
-        .loading-shimmer {
-            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+            animation: shimmer-effect 1.5s infinite;
         }
-        @keyframes shimmer {
+        @keyframes shimmer-effect {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
@@ -44,257 +44,201 @@
 
     <div class="mb-8 text-center">
         <div class="flex items-center justify-center gap-3 mb-2">
-            <img src="/2.png" alt="VeriGlow" class="w-12 h-12 object-cover rounded-2xl shadow-xl" onerror="this.src='https://ui-avatars.com/api/?name=VG&background=0ea5e9&color=fff'">
+            <div class="w-12 h-12 bg-sky-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+            </div>
             <span class="font-bold text-2xl tracking-tight text-slate-800">VeriGlow</span>
         </div>
-        <div class="px-4 py-1 bg-sky-500/10 text-sky-600 rounded-full text-[10px] font-bold uppercase tracking-widest inline-block border border-sky-100">
-            Blockchain Verified System
+        <div class="px-4 py-1 bg-emerald-500/10 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-widest inline-block border border-emerald-100">
+            Cosmetics Traceability System
         </div>
     </div>
 
     <div id="mainContainer" class="w-full max-w-md">
         
-        <div id="loadingState" class="glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-sky-200/50">
-            <div class="w-20 h-20 bg-slate-100 rounded-full mx-auto mb-6 loading-shimmer"></div>
-            <div class="h-6 bg-slate-100 rounded-lg w-3/4 mx-auto mb-4 loading-shimmer"></div>
-            <div class="h-4 bg-slate-100 rounded-lg w-1/2 mx-auto loading-shimmer"></div>
+        <div id="loadingState" class="glass-card rounded-[2.5rem] p-10 shadow-xl text-center">
+            <div class="w-16 h-16 rounded-full shimmer mx-auto mb-6"></div>
+            <div class="h-4 w-3/4 shimmer rounded mx-auto mb-3"></div>
+            <p class="text-slate-400 text-sm">Đang truy vấn dữ liệu Blockchain...</p>
         </div>
 
-        <div id="batchGate" class="hidden glass-card rounded-[2.5rem] p-6 shadow-xl shadow-slate-200/40 text-center">
-            <h3 class="text-lg font-bold text-slate-800 mb-2">Nhập mã BATCH để xác thực</h3>
-            <p class="text-slate-400 text-sm mb-4">Vui lòng nhập đúng mã in trên bao bì sản phẩm.</p>
-            <input id="batchInput" type="text" placeholder="Ví dụ: 123-345" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500 mb-4 text-center font-bold tracking-widest uppercase">
-            <button id="btnVerifyBatch" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-95">
-                Xác thực ngay
+        <div id="batchGate" class="hidden glass-card rounded-[2.5rem] p-8 shadow-xl text-center border border-sky-100">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Xác thực mã BATCH</h3>
+            <p class="text-slate-400 text-sm mb-6">Vui lòng nhập mã Batch in trên sản phẩm của bạn.</p>
+            <input id="batchInput" type="text" placeholder="Ví dụ: 123-345" class="w-full px-4 py-4 rounded-2xl border border-slate-200 bg-slate-50 outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-500 mb-4 text-center font-bold text-lg uppercase tracking-wider">
+            <button id="btnVerifyBatch" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95">
+                Kiểm tra sản phẩm
             </button>
-            <p id="batchError" class="text-xs text-red-500 mt-3 hidden italic">Mã BATCH không khớp. Vui lòng kiểm tra lại!</p>
+            <p id="batchError" class="text-xs text-red-500 mt-4 hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> Mã BATCH không khớp với hồ sơ gốc.</p>
         </div>
 
         <div id="resultContent" class="hidden space-y-4">
             
-            <div id="statusCard" class="glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-sky-200/50 text-center border-t-4 border-red-500 transition-all duration-500">
-                <div id="statusIcon" class="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-                    <i class="fa-solid fa-check-double"></i>
+            <div id="statusCard" class="glass-card rounded-[2.5rem] p-8 shadow-2xl text-center border-t-8 border-emerald-500">
+                <div id="statusIcon" class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl status-badge-pulse">
+                    <i class="fa-solid fa-certificate"></i>
                 </div>
-                <h2 id="statusTitle" class="text-xl font-bold text-slate-800 mb-1">Đang kiểm tra...</h2>
-                <p id="statusDesc" class="text-slate-400 text-sm mb-6">Kết nối Blockchain...</p>
+                <h2 class="text-2xl font-black text-slate-800 mb-1">CHÍNH HÃNG</h2>
+                <p class="text-slate-400 text-sm mb-6 px-4">Sản phẩm đã được xác thực thành công trên mạng lưới Blockchain Sepolia.</p>
                 
-                <div class="bg-slate-50 rounded-2xl p-4 overflow-hidden">
-                    <img id="productImg" src="" alt="Ảnh sản phẩm" class="w-full h-48 object-cover rounded-xl mb-4 shadow-sm border border-white">
-                    <h3 id="pName" class="text-lg font-bold text-slate-800">---</h3>
-                    <p id="pBatch" class="text-sky-600 font-mono text-xs font-bold tracking-widest hidden mt-1">BATCH ID: ---</p>
+                <div class="bg-slate-50 rounded-3xl p-4 border border-slate-100">
+                    <h3 id="pName" class="text-xl font-bold text-slate-800">---</h3>
+                    <div id="pBatchDisplay" class="text-sky-600 font-mono text-sm font-bold mt-1 uppercase">---</div>
                 </div>
             </div>
 
-            <div class="glass-card rounded-3xl p-6 shadow-xl shadow-slate-200/40">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-info"></i> Thông số chi tiết
+            <div class="glass-card rounded-3xl p-6 shadow-md">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-sky-500"></i> Thông số kỹ thuật
                 </h4>
-                <div class="grid grid-cols-2 gap-4">
-                    <div id="pDateBlock" class="p-3 bg-slate-50 rounded-xl hidden">
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Ngày sản xuất</span>
-                        <span id="pDate" class="text-sm font-bold text-slate-700">--/--/----</span>
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                        <span class="text-xs text-slate-500 font-medium">Ngày sản xuất</span>
+                        <span id="pDate" class="text-sm font-bold text-slate-800">---</span>
                     </div>
-                    <div class="p-3 bg-slate-50 rounded-xl">
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Xuất xứ</span>
-                        <span id="pOrigin" class="text-sm font-bold text-slate-700">---</span>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl col-span-2">
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Thành phần</span>
-                        <span id="pIngredients" class="text-sm text-slate-600 leading-relaxed italic">---</span>
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                        <span class="text-xs text-slate-500 font-medium">Xuất xứ</span>
+                        <span id="pOrigin" class="text-sm font-bold text-slate-800">---</span>
                     </div>
                 </div>
             </div>
 
-            <div id="creatorBlock" class="glass-card rounded-3xl p-6 shadow-xl shadow-slate-200/40 border-l-4 border-sky-500 hidden">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-industry"></i> Đơn vị sản xuất (Creator)
+            <div class="glass-card rounded-3xl p-6 shadow-md border-l-4 border-sky-600">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-industry text-sky-600"></i> Thông tin sản xuất
                 </h4>
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <div>
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Tên công ty</span>
-                        <span id="cCompany" class="text-sm font-bold text-slate-800 uppercase">CÔNG TY TNHH VERIGLOW VIỆT NAM</span>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Tên đơn vị</p>
+                        <p id="cManufacturer" class="text-sm font-bold text-slate-800 uppercase">---</p>
                     </div>
                     <div>
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Địa chỉ nhà máy</span>
-                        <span id="cAddress" class="text-sm text-slate-600 leading-snug">Khu Công Nghệ Cao, Phường Tân Phú, TP. Thủ Đức, TP. Hồ Chí Minh</span>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Địa chỉ sản xuất</p>
+                        <p id="cFactory" class="text-sm text-slate-600 leading-relaxed font-medium">---</p>
                     </div>
                     <div class="pt-2 border-t border-slate-100">
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Ví Blockchain đại diện</span>
-                        <span id="pOwner" class="text-[9px] font-mono text-sky-600 break-all bg-sky-50 px-2 py-1 rounded">0x...</span>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Ví Blockchain sở hữu</p>
+                        <p id="pOwner" class="text-[10px] font-mono text-sky-600 break-all bg-sky-50 p-2 rounded-lg">---</p>
                     </div>
                 </div>
             </div>
 
-            <div class="glass-card rounded-3xl p-6 shadow-xl shadow-slate-200/40">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Nhật ký sản phẩm
+            <div class="glass-card rounded-3xl p-6 shadow-md">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-route text-sky-500"></i> Hành trình sản phẩm
                 </h4>
-                <div id="pHistory" class="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
+                <div id="pHistory" class="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
                 </div>
             </div>
 
-            <a id="certBtn" href="#" target="_blank" class="hidden flex items-center justify-between w-full p-5 bg-slate-900 text-white rounded-3xl hover:bg-black transition-all group shadow-xl">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-file-contract"></i>
-                    </div>
-                    <div class="text-left">
-                        <div class="text-sm font-bold">Chứng nhận COA / GACP</div>
-                        <div class="text-[10px] text-slate-400 font-mono">Blockchain Verified Document</div>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-slate-600"></i>
-            </a>
-
-            <p class="text-center text-[10px] text-slate-400 pb-8">
-                &copy; 2024-2026 VeriGlow Platform. Bảo mật bởi Smart Contract.<br>
-                Contract: <span id="contractAddr" class="font-mono">---</span>
+            <p class="text-center text-[10px] text-slate-400 pb-10 uppercase tracking-widest leading-loose">
+                Verified by Veriglow Platform &copy; 2026<br>
+                Secure on Sepolia Network
             </p>
         </div>
 
-        <div id="errorState" class="hidden glass-card rounded-[2.5rem] p-8 text-center border-t-4 border-red-500 shadow-2xl">
+        <div id="errorState" class="hidden glass-card rounded-[2.5rem] p-10 text-center border-t-4 border-red-500 shadow-xl">
             <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 class="font-bold text-slate-800">Không tìm thấy dữ liệu!</h3>
-            <p id="errorMsg" class="text-sm text-slate-400 mt-2">ID sản phẩm không tồn tại trên hệ thống.</p>
-            <button onclick="location.reload()" class="mt-4 text-sky-600 font-bold text-xs uppercase tracking-widest underline">Thử lại</button>
+            <h3 class="font-bold text-slate-800">Không tìm thấy mã này!</h3>
+            <p id="errorMsg" class="text-sm text-slate-400 mt-2">Dữ liệu sản phẩm không tồn tại hoặc đã bị xóa khỏi Blockchain.</p>
+            <button onclick="location.reload()" class="mt-6 text-sky-600 font-bold text-xs uppercase tracking-widest border-b border-sky-600">Quay lại</button>
         </div>
 
     </div>
 
 <script>
+// Cấu hình Smart Contract từ file .sol của bạn
 const contractAddress = "0xf57C58cA13F953271a761f1d3Eb6283270A5331a";
 const abi = [
-    {"inputs":[{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_batchID","type":"string"},{"internalType":"string","name":"_manufactureDate","type":"string"},{"internalType":"string","name":"_origin","type":"string"},{"internalType":"string[]","name":"_ingredients","type":"string[]"},{"internalType":"string","name":"_productImageUrl","type":"string"},{"internalType":"string","name":"_certificationUrl","type":"string"},{"internalType":"string","name":"_manufacturerName","type":"string"},{"internalType":"string","name":"_factoryAddress","type":"string"}],"name":"createProduct","outputs":[],"stateMutability":"nonpayable","type":"function"},
-    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"},
-    {"inputs":[],"name":"productCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"},{"internalType":"address","name":"_newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
-    {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"products","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"bool","name":"isAuthentic","type":"bool"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"productImageUrl","type":"string"},{"internalType":"string","name":"certificationUrl","type":"string"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"}],"stateMutability":"view","type":"function"}
+	{
+		"inputs": [{"internalType": "uint256","name": "_id","type": "uint256"}],
+		"name": "verifyProduct",
+		"outputs": [
+			{"internalType": "string","name": "name","type": "string"},
+			{"internalType": "string","name": "batchID","type": "string"},
+			{"internalType": "string","name": "manufactureDate","type": "string"},
+			{"internalType": "string","name": "origin","type": "string"},
+			{"internalType": "address","name": "owner","type": "address"},
+			{"internalType": "string","name": "manufacturerName","type": "string"},
+			{"internalType": "string","name": "factoryAddress","type": "string"},
+			{"internalType": "string[]","name": "visibleHistory","type": "string[]"}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
 ];
 
-// Mapping thông tin Creator theo địa chỉ ví
-const CREATOR_DATA = {
-    "0xf57C58cA13F953271a761f1d3Eb6283270A5331a": { // Thay địa chỉ ví thực tế của bạn vào đây
-        company: "Công ty TNHH VeriGlow Blockchain",
-        address: "Khu Công Nghệ Cao, Phường Tân Phú, TP. Thủ Đức, TP. Hồ Chí Minh"
-    }
-};
-
 window.addEventListener("load", async () => {
-    document.getElementById('contractAddr').innerText = contractAddress.substring(0,8) + '...' + contractAddress.substring(34);
-    
     const urlParams = new URLSearchParams(window.location.search);
-    let id = Number(urlParams.get('id'));
-    const code = urlParams.get('code');
-    
-    if ((!id || isNaN(id)) && code) {
-        const match = code.match(/\d+/);
-        if (match) id = Number(match[0]);
-    }
+    let id = Number(urlParams.get('id')) || (urlParams.get('code') ? Number(urlParams.get('code').match(/\d+/)) : null);
 
     if (!id) {
-        showError("ID sản phẩm không xác định.");
+        showError("Mã định danh (ID) không hợp lệ.");
         return;
     }
 
     try {
         const web3 = new Web3('https://eth-sepolia.g.alchemy.com/v2/vAbZjsKMrBm36nuUECfKk');
         const contract = new web3.eth.Contract(abi, contractAddress);
+        
+        // Gọi hàm verifyProduct (trả về 8 trường đúng như file .sol)
         const result = await contract.methods.verifyProduct(id).call();
 
-        // Xử lý dữ liệu trả về (hỗ trợ cả Array và Object return)
-        const name = result.name || result[0];
-        const batchIDFromBC = String(result.batchID || result[1] || '').trim();
-        const manufactureDate = result.manufactureDate || result[2];
-        const origin = result.origin || result[3];
-        const history = result.history || result[5] || [];
-        const owner = result.owner || result[6];
-        const ingredients = result.ingredients || result[7] || [];
-        const productImageUrl = result.productImageUrl || result[8] || '';
-        const certificationUrl = result.certificationUrl || result[9] || '';
+        // Map dữ liệu từ Smart Contract sang Giao diện
+        const pName = result[0];
+        const pBatchBC = result[1];
+        const pDate = result[2];
+        const pOrigin = result[3];
+        const pOwner = result[4];
+        const pManufacturer = result[5];
+        const pFactory = result[6];
+        const pHistory = result[7];
 
-        // Điền dữ liệu cơ bản
-        document.getElementById('pName').innerText = name || "Sản phẩm không tên";
-        document.getElementById('pDate').innerText = manufactureDate > 0 ? new Date(Number(manufactureDate) * 1000).toLocaleDateString('vi-VN') : "N/A";
-        document.getElementById('pOrigin').innerText = origin || "N/A";
-        document.getElementById('pIngredients').innerText = ingredients.length ? ingredients.join(', ') : "Chưa cập nhật";
-        document.getElementById('pOwner').innerText = owner;
+        // Điền thông tin vào giao diện
+        document.getElementById('pName').innerText = pName;
+        document.getElementById('pDate').innerText = pDate;
+        document.getElementById('pOrigin').innerText = pOrigin;
+        document.getElementById('pOwner').innerText = pOwner;
+        document.getElementById('cManufacturer').innerText = pManufacturer;
+        document.getElementById('cFactory').innerText = pFactory;
+        document.getElementById('pBatchDisplay').innerText = `Batch: ${pBatchBC}`;
 
-        // Xử lý ảnh
-        const imgEl = document.getElementById('productImg');
-        if (productImageUrl.startsWith('ipfs://')) {
-            imgEl.src = `https://ipfs.io/ipfs/${productImageUrl.replace('ipfs://', '')}`;
-        } else if (productImageUrl.startsWith('http')) {
-            imgEl.src = productImageUrl;
-        } else {
-            imgEl.src = 'https://ui-avatars.com/api/?name=Product&background=e2e8f0';
-        }
-
-        // Xử lý thông tin Creator
-        if (owner && CREATOR_DATA[owner]) {
-            document.getElementById('cCompany').innerText = CREATOR_DATA[owner].company;
-            document.getElementById('cAddress').innerText = CREATOR_DATA[owner].address;
-        }
-
-        // Xử lý chứng nhận
-        const certBtn = document.getElementById('certBtn');
-        if (certificationUrl) {
-            certBtn.href = certificationUrl.startsWith('ipfs://') ? `https://ipfs.io/ipfs/${certificationUrl.replace('ipfs://', '')}` : certificationUrl;
-        }
-
-        // Hiển thị lịch sử
-        document.getElementById('pHistory').innerHTML = history.length ? history.map((h, i) => `
+        // Xử lý Timeline Lịch sử
+        const historyHtml = pHistory.map((status, index) => `
             <div class="flex gap-4 relative z-10">
-                <div class="w-6 h-6 rounded-full bg-white border-2 border-sky-500 flex-shrink-0 flex items-center justify-center">
-                    <div class="w-2 h-2 rounded-full bg-sky-500"></div>
+                <div class="w-6 h-6 rounded-full bg-white border-2 border-sky-500 flex-shrink-0 flex items-center justify-center shadow-sm">
+                    <div class="w-1.5 h-1.5 rounded-full bg-sky-500"></div>
                 </div>
                 <div>
-                    <p class="text-xs font-bold text-slate-700">${h}</p>
-                    <p class="text-[10px] text-slate-400">Bước #${i+1}</p>
+                    <p class="text-xs font-bold text-slate-700">${status}</p>
+                    <p class="text-[10px] text-slate-400">Ghi nhận vào sổ cái #${index + 1}</p>
                 </div>
-            </div>`).join('') : '<p class="text-xs text-slate-400">Chưa ghi nhận hành trình.</p>';
+            </div>
+        `).join('');
+        document.getElementById('pHistory').innerHTML = historyHtml;
 
-        // Ẩn loading, hiện ô nhập Batch
+        // Xử lý màn hình nhập mã Batch
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('batchGate').classList.remove('hidden');
 
-        // LOGIC XÁC THỰC MÃ BATCH (SỬA LỖI KHÔNG KHỚP)
         document.getElementById('btnVerifyBatch').onclick = () => {
             const userInput = document.getElementById('batchInput').value.trim().toLowerCase();
-            const blockchainInput = batchIDFromBC.toLowerCase();
+            const originalBatch = pBatchBC.trim().toLowerCase();
 
-            if (userInput === blockchainInput && userInput !== "") {
-                // KHỚP MÃ
-                document.getElementById('batchError').classList.add('hidden');
+            if (userInput === originalBatch && userInput !== "") {
+                document.getElementById('batchGate').classList.add('hidden');
                 document.getElementById('resultContent').classList.remove('hidden');
-                
-                const sCard = document.getElementById('statusCard');
-                sCard.className = "glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-green-100 border-t-4 border-green-500 text-center transition-all duration-700";
-                
-                document.getElementById('statusIcon').className = "w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl status-badge";
-                document.getElementById('statusTitle').innerText = "Sản phẩm chính hãng";
-                document.getElementById('statusDesc').innerText = "Dữ liệu được bảo mật và xác minh bởi VeriGlow Blockchain.";
-                
-                document.getElementById('pBatch').innerText = `BATCH ID: ${batchIDFromBC}`;
-                document.getElementById('pBatch').classList.remove('hidden');
-                document.getElementById('pDateBlock').classList.remove('hidden');
-                document.getElementById('creatorBlock').classList.remove('hidden');
-                if (certificationUrl) certBtn.classList.remove('hidden');
-                
-                // Cuộn xuống xem kết quả
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
-                // KHÔNG KHỚP
                 document.getElementById('batchError').classList.remove('hidden');
-                document.getElementById('resultContent').classList.add('hidden');
             }
         };
 
     } catch (err) {
         console.error(err);
-        showError("Lỗi kết nối Blockchain.");
+        showError("Lỗi đồng bộ dữ liệu Blockchain. Vui lòng kiểm tra ABI.");
     }
 });
 
