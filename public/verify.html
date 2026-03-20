@@ -106,12 +106,32 @@
                 </div>
             </div>
 
+            <div id="creatorInfoBlock" class="glass-card rounded-3xl p-6 shadow-xl shadow-slate-200/40 border-l-4 border-sky-500 hidden">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-industry"></i> Đơn vị sản xuất (Creator)
+                </h4>
+                <div class="space-y-3">
+                    <div>
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Tên công ty</span>
+                        <span id="cCompany" class="text-sm font-bold text-slate-800">CÔNG TY TNHH VERIGLOW VIỆT NAM</span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Địa chỉ sản xuất</span>
+                        <span id="cAddress" class="text-sm text-slate-600 leading-snug">Khu Công Nghệ Cao, Phường Tân Phú, TP. Thủ Đức, TP. Hồ Chí Minh</span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 uppercase font-bold mb-1">Địa chỉ ví Blockchain</span>
+                        <span id="pOwner" class="text-[10px] font-mono text-sky-600 break-all">0x...</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="glass-card rounded-3xl p-6 shadow-xl shadow-slate-200/40">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-clock-rotate-left"></i> Hành trình sản phẩm
                 </h4>
                 <div id="pHistory" class="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
-                    </div>
+                </div>
             </div>
 
             <a id="certBtn" href="#" target="_blank" class="hidden flex items-center justify-between w-full p-5 bg-slate-900 text-white rounded-3xl hover:bg-black transition-all group shadow-xl">
@@ -129,7 +149,7 @@
 
             <p class="text-center text-[10px] text-slate-400 pb-8">
                 &copy; 2024 VeriGlow Platform. Bảo mật thông tin bởi Smart Contract.<br>
-                Address: <span id="contractAddr" class="font-mono">---</span>
+                Contract: <span id="contractAddr" class="font-mono">---</span>
             </p>
         </div>
 
@@ -188,21 +208,28 @@ const abi = [
   }
 ];
 
+// Danh sach mapping dia chi vi -> Ten Cong Ty (Bo sung neu can)
+const COMPANY_MAP = {
+    "0x8920E674E18671676D269A66236357C021D15354": {
+        name: "Công ty TNHH Mỹ phẩm VeriGlow",
+        address: "Khu Công Nghệ Cao, Phường Tân Phú, TP. Thủ Đức, TP. HCM"
+    }
+};
+
 window.addEventListener("load", async () => {
     document.getElementById('contractAddr').innerText = contractAddress.substring(0,6) + '...' + contractAddress.substring(38);
     
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     let id = Number(urlParams.get('id'));
+    
     if ((!id || Number.isNaN(id)) && code) {
         const digits = code.match(/\d+/g);
-        if (digits) {
-            id = Number(digits.join(''));
-        }
+        if (digits) id = Number(digits.join(''));
     }
 
     if (!id) {
-        showError("ID sản phẩm không hợp lệ hoặc đã bị thay đổi.");
+        showError("ID sản phẩm không hợp lệ.");
         return;
     }
 
@@ -211,110 +238,101 @@ window.addEventListener("load", async () => {
         const contract = new web3.eth.Contract(abi, contractAddress);
         const result = await contract.methods.verifyProduct(id).call();
 
-        // Support both array and named return formats
-        const name = result.name ?? result[0];
-        const batchID = result.batchID ?? result[1];
-        const manufactureDate = result.manufactureDate ?? result[2];
-        const origin = result.origin ?? result[3];
-        const history = result.history ?? result[5] ?? [];
-        const ingredients = result.ingredients ?? result[7] ?? [];
-        const productImageUrl = result.productImageUrl ?? result[8] ?? '';
-        const certificationUrl = result.certificationUrl ?? result[9] ?? '';
+        // Trich xuat du lieu
+        const name = result.name || result[0];
+        const batchID = result.batchID || result[1];
+        const manufactureDate = result.manufactureDate || result[2];
+        const origin = result.origin || result[3];
+        const owner = result.owner || result[6];
+        const history = result.history || result[5] || [];
+        const ingredients = result.ingredients || result[7] || [];
+        const productImageUrl = result.productImageUrl || result[8] || '';
+        const certificationUrl = result.certificationUrl || result[9] || '';
 
-        // Cap nhat giao dien
-        document.getElementById('pName').innerText = name || '---';
+        // Check Creator Mapping
+        if (owner && COMPANY_MAP[owner]) {
+            document.getElementById('cCompany').innerText = COMPANY_MAP[owner].name;
+            document.getElementById('cAddress').innerText = COMPANY_MAP[owner].address;
+        }
+
+        // Cap nhat giao dien text
+        document.getElementById('pName').innerText = name || 'Sản phẩm chưa đặt tên';
         document.getElementById('pBatch').innerText = `BATCH ID: ${batchID || '---'}`;
-        document.getElementById('pDate').innerText = manufactureDate
+        document.getElementById('pDate').innerText = manufactureDate > 0
             ? new Date(Number(manufactureDate) * 1000).toLocaleDateString('vi-VN')
             : '--/--/----';
-        document.getElementById('pOrigin').innerText = origin || '---';
-        document.getElementById('pIngredients').innerText = ingredients.length ? ingredients.join(', ') : '---';
+        document.getElementById('pOrigin').innerText = origin || 'N/A';
+        document.getElementById('pIngredients').innerText = ingredients.length ? ingredients.join(', ') : 'Chưa cập nhật thành phần';
+        document.getElementById('pOwner').innerText = owner;
 
-        // Xu ly anh
+        // Anh san pham
+        const imgEl = document.getElementById('productImg');
         if (productImageUrl && productImageUrl.startsWith('ipfs://')) {
-            const imgHash = productImageUrl.replace('ipfs://', '');
-            document.getElementById('productImg').src = `https://ipfs.io/ipfs/${imgHash}`;
+            imgEl.src = `https://ipfs.io/ipfs/${productImageUrl.replace('ipfs://', '')}`;
+        } else if (productImageUrl.startsWith('http')) {
+            imgEl.src = productImageUrl;
         } else {
-            document.getElementById('productImg').src = 'https://ui-avatars.com/api/?name=No+Image&background=e2e8f0&color=64748b';
+            imgEl.src = 'https://ui-avatars.com/api/?name=Product&background=e2e8f0';
         }
 
         // Chung nhan
-        if (certificationUrl && certificationUrl.startsWith('ipfs://')) {
-            const certHash = certificationUrl.replace('ipfs://', '');
-            document.getElementById('certBtn').href = `https://ipfs.io/ipfs/${certHash}`;
-        } else {
-            document.getElementById('certBtn').href = '#';
+        const certBtn = document.getElementById('certBtn');
+        if (certificationUrl && certificationUrl.trim() !== "") {
+            certBtn.href = certificationUrl.startsWith('ipfs://') 
+                ? `https://ipfs.io/ipfs/${certificationUrl.replace('ipfs://', '')}` 
+                : certificationUrl;
         }
 
-        // Lich su
+        // Timeline Lich su
         const historyContainer = document.getElementById('pHistory');
-        let historyHtml = '';
-        history.forEach((status, index) => {
-            historyHtml += `
-                <div class="flex gap-4 relative z-10">
-                    <div class="w-6 h-6 rounded-full bg-white border-2 border-sky-500 flex-shrink-0 flex items-center justify-center shadow-sm">
-                        <div class="w-2 h-2 rounded-full bg-sky-500"></div>
-                    </div>
-                    <div class="pb-2">
-                        <p class="text-xs font-bold text-slate-700">${status}</p>
-                        <p class="text-[10px] text-slate-400 tracking-tighter">Ghi nhan vao so cai luc #${index + 1}</p>
-                    </div>
-                </div>`;
-        });
-        historyContainer.innerHTML = historyHtml;
+        historyContainer.innerHTML = history.length ? history.map((status, index) => `
+            <div class="flex gap-4 relative z-10">
+                <div class="w-6 h-6 rounded-full bg-white border-2 border-sky-500 flex-shrink-0 flex items-center justify-center shadow-sm">
+                    <div class="w-2 h-2 rounded-full bg-sky-500"></div>
+                </div>
+                <div class="pb-2">
+                    <p class="text-xs font-bold text-slate-700">${status}</p>
+                    <p class="text-[10px] text-slate-400">Ghi nhận Blockchain #${index + 1}</p>
+                </div>
+            </div>`).join('') : '<p class="text-xs text-slate-400">Chưa có lịch sử giao dịch.</p>';
 
+        // XU LY LOGIC XAC THUC (Gated)
         const expectedBatch = (batchID || '').trim().toLowerCase();
         const batchGate = document.getElementById('batchGate');
         const batchInput = document.getElementById('batchInput');
-        const batchError = document.getElementById('batchError');
         const btnVerifyBatch = document.getElementById('btnVerifyBatch');
-
-        const statusCard = document.getElementById('statusCard');
-        const statusIcon = document.getElementById('statusIcon');
-        const statusTitle = document.getElementById('statusTitle');
-        const statusDesc = document.getElementById('statusDesc');
-        const pBatch = document.getElementById('pBatch');
-        const pDateBlock = document.getElementById('pDateBlock');
-        const certBtn = document.getElementById('certBtn');
-
-        function setVerified(isValid) {
-            if (isValid) {
-                statusCard.classList.remove('border-red-500');
-                statusCard.classList.add('border-green-500');
-                statusIcon.classList.remove('bg-red-100', 'text-red-600');
-                statusIcon.classList.add('bg-green-100', 'text-green-600', 'status-badge');
-                statusTitle.innerText = 'Sản phẩm chính hãng';
-                statusDesc.innerText = 'Đã xác minh bởi mạng lưới VeriGlow Blockchain';
-                pBatch.classList.remove('hidden');
-                pDateBlock.classList.remove('hidden');
-                certBtn.classList.remove('hidden');
-            } else {
-                statusCard.classList.remove('border-green-500');
-                statusCard.classList.add('border-red-500');
-                statusIcon.classList.remove('bg-green-100', 'text-green-600', 'status-badge');
-                statusIcon.classList.add('bg-red-100', 'text-red-600');
-                statusTitle.innerText = 'Sản phẩm có dấu hiệu làm giả';
-                statusDesc.innerText = 'Mã BATCH không khớp với dữ liệu Blockchain.';
-                pBatch.classList.add('hidden');
-                pDateBlock.classList.add('hidden');
-                certBtn.classList.add('hidden');
-            }
-        }
 
         document.getElementById('loadingState').classList.add('hidden');
         batchGate.classList.remove('hidden');
 
         btnVerifyBatch.onclick = () => {
             const input = (batchInput.value || '').trim().toLowerCase();
-            const isValid = !!input && input === expectedBatch;
-            batchError.classList.toggle('hidden', isValid);
-            setVerified(isValid);
-            document.getElementById('resultContent').classList.remove('hidden');
+            const isValid = input === expectedBatch && input !== "";
+            
+            if (isValid) {
+                document.getElementById('batchError').classList.add('hidden');
+                document.getElementById('resultContent').classList.remove('hidden');
+                
+                // Style Thanh Cong
+                const statusCard = document.getElementById('statusCard');
+                statusCard.className = "glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-green-100 border-t-4 border-green-500 text-center";
+                document.getElementById('statusIcon').className = "w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl status-badge";
+                document.getElementById('statusTitle').innerText = "Sản phẩm chính hãng";
+                document.getElementById('statusDesc').innerText = "Thông tin đã được đối soát khớp 100% với Blockchain.";
+                
+                // Show hidden details
+                document.getElementById('pBatch').classList.remove('hidden');
+                document.getElementById('pDateBlock').classList.remove('hidden');
+                document.getElementById('creatorInfoBlock').classList.remove('hidden');
+                if (certificationUrl) certBtn.classList.remove('hidden');
+            } else {
+                document.getElementById('batchError').classList.remove('hidden');
+            }
         };
 
     } catch (err) {
         console.error(err);
-        showError("Lỗi kết nối Blockchain. Vui lòng kiểm tra lại ID sản phẩm.");
+        showError("Không thể tải dữ liệu từ Blockchain. Vui lòng thử lại.");
     }
 });
 
