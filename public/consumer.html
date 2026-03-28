@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     
-    <!-- Thư viện tạo QR Code - Đã thêm để sửa lỗi QRCode is not defined -->
+    <!-- Thư viện tạo QR Code - Bắt chước từ distributor -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
     <style>
@@ -35,10 +35,7 @@
             border-color: #22d3ee;
         }
         
-        .glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-        }
+        .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); }
         
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeInScale 0.5s ease-out forwards; }
@@ -54,7 +51,7 @@
             box-shadow: 0 4px 15px rgba(14, 165, 233, 0.35);
         }
         
-        /* Timeline Hành Trình Sản Phẩm */
+        /* Timeline */
         .timeline-item {
             position: relative;
             padding-left: 34px;
@@ -81,6 +78,25 @@
             border: 3px solid white;
             border-radius: 50%;
             box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.25);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
         }
     </style>
 </head>
@@ -123,7 +139,7 @@
         </header>
 
         <div class="p-8 md:p-12 max-w-7xl mx-auto">
-            <!-- Tab Tủ đồ của tôi -->
+            <!-- Tab Tủ đồ -->
             <div id="my-purchases" class="tab-content active">
                 <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
             </div>
@@ -132,7 +148,7 @@
             <div id="verify-trace" class="tab-content">
                 <div class="max-w-lg mx-auto bg-white rounded-3xl shadow-2xl border border-slate-100 p-8">
                     <div id="reader" class="rounded-3xl overflow-hidden border-2 border-dashed border-slate-200 aspect-video"></div>
-                    <p class="text-center text-slate-400 text-sm mt-6 font-medium">Đưa mã QR sản phẩm vào khung hình để xác thực</p>
+                    <p class="text-center text-slate-400 text-sm mt-6 font-medium">Đưa mã QR sản phẩm vào khung hình</p>
                 </div>
             </div>
         </div>
@@ -150,29 +166,34 @@
     </div>
 
     <!-- Modal Giấy Chứng Nhận -->
-    <div id="certModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[90] hidden">
-        <div class="bg-white rounded-3xl max-w-2xl w-full mx-4 overflow-hidden">
-            <div class="p-6 border-b flex justify-between items-center">
-                <h4 class="font-semibold text-xl">Giấy chứng nhận sản phẩm</h4>
-                <button onclick="closeCertModal()" class="text-4xl leading-none text-slate-400 hover:text-slate-600">×</button>
+    <div id="certModal" class="modal">
+        <div class="modal-content max-w-2xl">
+            <div class="flex justify-between items-center px-6 py-4 border-b">
+                <h4 class="font-semibold text-lg">Giấy chứng nhận sản phẩm</h4>
+                <button onclick="closeCertModal()" class="text-3xl text-slate-400 hover:text-slate-600">&times;</button>
             </div>
-            <div class="p-8">
-                <img id="certImage" src="" class="w-full rounded-2xl shadow-2xl" alt="Giấy chứng nhận">
+            <div class="p-6">
+                <img id="certImage" src="" alt="Giấy chứng nhận" class="w-full rounded-2xl shadow-xl">
             </div>
         </div>
     </div>
 
-    <!-- Modal QR Code -->
-    <div id="qrModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[90] hidden">
-        <div class="bg-white rounded-3xl p-10 max-w-sm w-full mx-4 text-center">
-            <h4 class="font-semibold text-xl mb-6">Mã QR Truy Xuất Nguồn Gốc</h4>
-            <canvas id="modalQRCode" class="mx-auto rounded-2xl shadow-inner"></canvas>
-            <p class="text-xs text-slate-400 mt-8">Quét mã để kiểm tra thông tin trên Blockchain</p>
+    <!-- Modal Xem Mã QR - Bắt chước từ distributor -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content max-w-md">
+            <div class="flex justify-between items-center px-6 py-4 border-b">
+                <h4 class="font-semibold text-lg">Mã QR - Thông tin sản phẩm</h4>
+                <button onclick="closeQrModal()" class="text-3xl text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <div class="p-8 text-center">
+                <canvas id="modalQRCode" class="mx-auto rounded-2xl"></canvas>
+                <p class="text-xs text-slate-400 mt-6">Quét mã QR để xem thông tin đầy đủ trên trang Verify</p>
+            </div>
         </div>
     </div>
 
 <script>
-// ==================== CẤU HÌNH SMART CONTRACT ====================
+// ==================== CẤU HÌNH ====================
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
 
 const abi = [
@@ -189,7 +210,6 @@ function formatUrl(url) {
     return url;
 }
 
-// Khởi tạo Web3
 window.addEventListener("load", async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
@@ -205,11 +225,7 @@ window.addEventListener("load", async () => {
 
 async function loadProducts() {
     const grid = document.getElementById('productGrid');
-    grid.innerHTML = `
-        <div class="col-span-full text-center py-20">
-            <div class="w-10 h-10 border-4 border-sky-200 border-t-sky-600 rounded-full animate-spin mx-auto"></div>
-            <p class="mt-6 text-slate-400">Đang tải tủ đồ của bạn...</p>
-        </div>`;
+    grid.innerHTML = `<div class="col-span-full text-center py-20 text-slate-400">Đang tải sản phẩm của bạn...</div>`;
 
     try {
         const count = Number(await contract.methods.productCount().call());
@@ -223,11 +239,8 @@ async function loadProducts() {
                 html += `
                     <div onclick="openDetail(${i})" class="product-card cursor-pointer group">
                         <div class="relative">
-                            <img src="${formatUrl(p.productImageUrl)}" 
-                                 class="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105">
-                            <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-md text-xs font-bold px-4 py-1.5 rounded-2xl shadow text-emerald-600">
-                                VERIFIED
-                            </div>
+                            <img src="${formatUrl(p.productImageUrl)}" class="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105">
+                            <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-md text-xs font-bold px-4 py-1.5 rounded-2xl shadow text-emerald-600">VERIFIED</div>
                         </div>
                         <div class="p-6">
                             <h4 class="font-semibold text-xl text-slate-800 line-clamp-2 group-hover:text-sky-600 transition-colors">${p.name}</h4>
@@ -239,14 +252,9 @@ async function loadProducts() {
                     </div>`;
             }
         }
-        grid.innerHTML = found ? html : `
-            <div class="col-span-full text-center py-24">
-                <i class="fa-solid fa-box-open text-7xl text-slate-200"></i>
-                <p class="mt-6 text-slate-400 text-lg">Bạn chưa sở hữu sản phẩm nào</p>
-            </div>`;
+        grid.innerHTML = found ? html : `<div class="col-span-full text-center py-24 text-slate-400">Bạn chưa sở hữu sản phẩm nào</div>`;
     } catch (e) {
-        console.error(e);
-        grid.innerHTML = `<div class="col-span-full text-center py-20 text-red-400">Lỗi kết nối với Blockchain</div>`;
+        grid.innerHTML = `<div class="col-span-full text-center py-20 text-red-400">Lỗi kết nối Blockchain</div>`;
     }
 }
 
@@ -264,9 +272,7 @@ async function openDetail(id) {
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
                     <div class="text-slate-700 font-medium">${log}</div>
-                    <div class="text-xs text-slate-400 mt-1">
-                        ${idx === 0 ? 'Sản phẩm được tạo bởi Nhà sản xuất' : 'Chuyển giao quyền sở hữu'}
-                    </div>
+                    <div class="text-xs text-slate-400 mt-1">${idx === 0 ? 'Sản phẩm được tạo bởi Nhà sản xuất' : 'Chuyển giao quyền sở hữu'}</div>
                 </div>
             `).join('');
         } else {
@@ -280,19 +286,16 @@ async function openDetail(id) {
                     <div class="mt-8">
                         <button onclick="showCertModal('${certUrl}')" 
                                 class="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-500 to-sky-500 text-white font-semibold rounded-2xl hover:brightness-105 transition-all">
-                            <i class="fa-solid fa-file-shield"></i>
-                            Xem Giấy Chứng Nhận
+                            <i class="fa-solid fa-file-shield"></i> Xem Giấy Chứng Nhận
                         </button>
                     </div>
                 </div>
-
                 <div class="lg:col-span-3 space-y-8">
                     <div>
                         <span class="px-4 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">BLOCKCHAIN VERIFIED</span>
                         <h1 class="text-4xl font-bold text-slate-900 mt-4 leading-tight">${fullData.name}</h1>
                         <p class="font-mono text-slate-500 mt-2">ID: #${id} • Lô: ${fullData.batchID}</p>
                     </div>
-
                     <div class="grid grid-cols-2 gap-5">
                         <div class="bg-slate-50 p-6 rounded-3xl">
                             <p class="text-xs uppercase font-bold text-slate-400">Ngày sản xuất</p>
@@ -303,26 +306,22 @@ async function openDetail(id) {
                             <p class="text-2xl font-semibold text-slate-800 mt-1">${fullData.origin}</p>
                         </div>
                     </div>
-
                     <div>
                         <p class="uppercase text-xs font-bold text-slate-400 mb-3">Nhà sản xuất</p>
                         <p class="font-semibold text-lg">${fullData.manufacturerName}</p>
                         <p class="text-slate-600">${fullData.factoryAddress}</p>
                     </div>
-
                     <div>
                         <p class="uppercase text-xs font-bold text-slate-400 mb-4">Hành trình của sản phẩm</p>
                         <div class="timeline bg-white p-6 rounded-3xl border border-slate-100">
                             ${historyHTML}
                         </div>
                     </div>
-
                     <div class="bg-emerald-50 border border-emerald-100 rounded-3xl p-6">
                         <p class="text-emerald-700 text-xs font-bold uppercase">Chủ sở hữu hiện tại</p>
                         <p class="font-mono text-sm mt-2 break-all text-slate-700">${verifyData.owner}</p>
                         <p class="text-emerald-600 text-xs mt-1">• Đây là sản phẩm bạn đang sở hữu</p>
                     </div>
-
                     <button onclick="showQrModal('https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}')" 
                             class="w-full py-5 bg-slate-900 hover:bg-black text-white font-semibold rounded-2xl flex items-center justify-center gap-3 transition-all">
                         <i class="fa-solid fa-qrcode text-xl"></i>
@@ -335,37 +334,30 @@ async function openDetail(id) {
         document.getElementById('detailModal').classList.remove('hidden');
     } catch (e) {
         console.error(e);
-        alert("Không thể tải thông tin sản phẩm. Vui lòng thử lại!");
+        alert("Không thể tải thông tin sản phẩm!");
     }
 }
 
-// ==================== MODAL FUNCTIONS ====================
+// ==================== MODAL FUNCTIONS (BẮT CHƯỚC DISTRIBUTOR) ====================
 function showCertModal(url) {
-    if (!url || url.includes('placeholder')) {
-        alert("Sản phẩm này chưa có giấy chứng nhận.");
-        return;
-    }
+    if (!url || url.includes('placeholder')) return alert("Sản phẩm chưa có giấy chứng nhận.");
     document.getElementById('certImage').src = url;
-    document.getElementById('certModal').classList.remove('hidden');
+    document.getElementById('certModal').style.display = 'flex';
 }
 
 function closeCertModal() {
-    document.getElementById('certModal').classList.add('hidden');
+    document.getElementById('certModal').style.display = 'none';
 }
 
 function showQrModal(url) {
-    document.getElementById('qrModal').classList.remove('hidden');
+    document.getElementById('qrModal').style.display = 'flex';
     setTimeout(() => {
-        QRCode.toCanvas(document.getElementById('modalQRCode'), url, { 
-            width: 280, 
-            margin: 2,
-            color: { dark: "#0f172a", light: "#ffffff" }
-        });
-    }, 300);
+        QRCode.toCanvas(document.getElementById('modalQRCode'), url, { width: 280, margin: 2 });
+    }, 150);
 }
 
 function closeQrModal() {
-    document.getElementById('qrModal').classList.add('hidden');
+    document.getElementById('qrModal').style.display = 'none';
 }
 
 function closeModal() {
@@ -386,19 +378,14 @@ function showTab(id) {
     }
 }
 
+// QR Scanner
 function startScanner() {
     if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 260, height: 260 } },
-        (decodedText) => {
-            const match = decodedText.match(/\d+/);
-            if (match) {
-                openDetail(match[0]);
-                stopScanner();
-            }
-        }
-    ).catch(() => {});
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+        const id = text.match(/\d+/);
+        if (id) openDetail(id[0]);
+        stopScanner();
+    }).catch(() => {});
 }
 
 function stopScanner() {
@@ -406,10 +393,10 @@ function stopScanner() {
 }
 
 // Đóng modal khi click nền
-document.getElementById('certModal').addEventListener('click', e => {
+document.getElementById('certModal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('certModal')) closeCertModal();
 });
-document.getElementById('qrModal').addEventListener('click', e => {
+document.getElementById('qrModal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('qrModal')) closeQrModal();
 });
 </script>
