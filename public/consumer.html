@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     
-    <!-- Thư viện tạo QR Code - Bắt chước từ distributor -->
+    <!-- THƯ VIỆN TẠO QR CODE - ĐẶT Ở ĐÂY ĐỂ TRÁNH LỖI -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
     <style>
@@ -139,12 +139,10 @@
         </header>
 
         <div class="p-8 md:p-12 max-w-7xl mx-auto">
-            <!-- Tab Tủ đồ -->
             <div id="my-purchases" class="tab-content active">
                 <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
             </div>
 
-            <!-- Tab Quét QR -->
             <div id="verify-trace" class="tab-content">
                 <div class="max-w-lg mx-auto bg-white rounded-3xl shadow-2xl border border-slate-100 p-8">
                     <div id="reader" class="rounded-3xl overflow-hidden border-2 border-dashed border-slate-200 aspect-video"></div>
@@ -178,7 +176,7 @@
         </div>
     </div>
 
-    <!-- Modal Xem Mã QR - Bắt chước từ distributor -->
+    <!-- Modal Xem Mã QR -->
     <div id="qrModal" class="modal">
         <div class="modal-content max-w-md">
             <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -338,7 +336,7 @@ async function openDetail(id) {
     }
 }
 
-// ==================== MODAL FUNCTIONS (BẮT CHƯỚC DISTRIBUTOR) ====================
+// ==================== MODAL FUNCTIONS ====================
 function showCertModal(url) {
     if (!url || url.includes('placeholder')) return alert("Sản phẩm chưa có giấy chứng nhận.");
     document.getElementById('certImage').src = url;
@@ -349,11 +347,26 @@ function closeCertModal() {
     document.getElementById('certModal').style.display = 'none';
 }
 
+// Hàm hiển thị QR - Đã sửa theo cách ổn định nhất
 function showQrModal(url) {
     document.getElementById('qrModal').style.display = 'flex';
+    
+    // Đợi modal hiện rồi mới vẽ QR để tránh lỗi
     setTimeout(() => {
-        QRCode.toCanvas(document.getElementById('modalQRCode'), url, { width: 280, margin: 2 });
-    }, 150);
+        const canvas = document.getElementById('modalQRCode');
+        if (typeof QRCode !== 'undefined') {
+            QRCode.toCanvas(canvas, url, { 
+                width: 280, 
+                margin: 2,
+                color: { dark: "#0f172a", light: "#ffffff" }
+            }, function (error) {
+                if (error) console.error('QR Code error:', error);
+            });
+        } else {
+            console.error("QRCode library not loaded");
+            alert("Không thể tải thư viện QR Code. Vui lòng tải lại trang.");
+        }
+    }, 200);
 }
 
 function closeQrModal() {
@@ -382,8 +395,8 @@ function showTab(id) {
 function startScanner() {
     if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-        const id = text.match(/\d+/);
-        if (id) openDetail(id[0]);
+        const match = text.match(/\d+/);
+        if (match) openDetail(match[0]);
         stopScanner();
     }).catch(() => {});
 }
