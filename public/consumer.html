@@ -5,12 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VeriGlow | Consumer Dashboard</title>
     
+    <!-- 1. Tailwind & Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- 2. Web3 -->
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    
+    <!-- 3. HTML5 QR Scanner -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     
-    <!-- THƯ VIỆN TẠO QR CODE - ĐẶT Ở ĐÂY ĐỂ TRÁNH LỖI -->
+    <!-- 4. QR Code Generator - Đặt ở đây để đảm bảo load trước -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
     <style>
@@ -51,7 +56,6 @@
             box-shadow: 0 4px 15px rgba(14, 165, 233, 0.35);
         }
         
-        /* Timeline */
         .timeline-item {
             position: relative;
             padding-left: 34px;
@@ -80,7 +84,6 @@
             box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.25);
         }
         
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -152,11 +155,10 @@
         </div>
     </main>
 
-    <!-- Modal Chi Tiết Sản Phẩm -->
+    <!-- Modal Chi Tiết -->
     <div id="detailModal" class="fixed inset-0 bg-black/70 backdrop-blur-xl z-[80] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-5xl rounded-3xl shadow-2xl relative max-h-[94vh] overflow-hidden flex flex-col">
-            <button onclick="closeModal()" 
-                    class="absolute top-6 right-6 z-10 w-11 h-11 bg-white shadow-lg rounded-2xl flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all">
+            <button onclick="closeModal()" class="absolute top-6 right-6 z-10 w-11 h-11 bg-white shadow-lg rounded-2xl flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all">
                 <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
             <div id="modalContent" class="flex-1 overflow-y-auto p-8 md:p-12"></div>
@@ -176,7 +178,7 @@
         </div>
     </div>
 
-    <!-- Modal Xem Mã QR -->
+    <!-- Modal QR Code -->
     <div id="qrModal" class="modal">
         <div class="modal-content max-w-md">
             <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -347,26 +349,24 @@ function closeCertModal() {
     document.getElementById('certModal').style.display = 'none';
 }
 
-// Hàm hiển thị QR - Đã sửa theo cách ổn định nhất
 function showQrModal(url) {
     document.getElementById('qrModal').style.display = 'flex';
     
-    // Đợi modal hiện rồi mới vẽ QR để tránh lỗi
     setTimeout(() => {
         const canvas = document.getElementById('modalQRCode');
-        if (typeof QRCode !== 'undefined') {
+        if (typeof QRCode !== "undefined" && QRCode.toCanvas) {
             QRCode.toCanvas(canvas, url, { 
                 width: 280, 
                 margin: 2,
                 color: { dark: "#0f172a", light: "#ffffff" }
-            }, function (error) {
-                if (error) console.error('QR Code error:', error);
+            }, (error) => {
+                if (error) console.error("QR Code generation error:", error);
             });
         } else {
-            console.error("QRCode library not loaded");
-            alert("Không thể tải thư viện QR Code. Vui lòng tải lại trang.");
+            console.error("QRCode library failed to load");
+            alert("Không thể tạo mã QR. Vui lòng tải lại trang (F5).");
         }
-    }, 200);
+    }, 300);
 }
 
 function closeQrModal() {
@@ -391,7 +391,6 @@ function showTab(id) {
     }
 }
 
-// QR Scanner
 function startScanner() {
     if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
