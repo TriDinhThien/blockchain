@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
-
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body {
@@ -79,7 +79,6 @@
     </style>
 </head>
 <body class="flex text-slate-900">
-
     <!-- Sidebar -->
     <aside class="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-slate-200 flex flex-col z-50 hidden md:flex">
         <div class="p-8 flex items-center gap-3">
@@ -107,13 +106,11 @@
             <h2 id="pageTitle" class="text-xl font-bold text-slate-800">Sản phẩm sở hữu</h2>
             <div id="statusDot" class="w-3 h-3 rounded-full bg-slate-300"></div>
         </header>
-
         <div class="p-10 max-w-6xl mx-auto">
             <!-- Tab Tủ đồ của tôi -->
             <div id="my-purchases" class="tab-content active">
                 <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
             </div>
-
             <!-- Tab Quét QR -->
             <div id="verify-trace" class="tab-content">
                 <div class="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
@@ -163,7 +160,7 @@
     </div>
 
 <script>
-const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
+const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6"; // ← Thay bằng address contract mới sau khi deploy
 
 const abi = [
     {"inputs":[],"name":"productCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
@@ -172,7 +169,6 @@ const abi = [
         {"internalType":"string","name":"batchID","type":"string"},
         {"internalType":"string","name":"manufactureDate","type":"string"},
         {"internalType":"string","name":"origin","type":"string"},
-        {"internalType":"string[]","name":"ingredients","type":"string[]"},
         {"internalType":"bool","name":"isAuthentic","type":"bool"},
         {"internalType":"address","name":"owner","type":"address"},
         {"internalType":"string","name":"productImageUrl","type":"string"},
@@ -180,7 +176,17 @@ const abi = [
         {"internalType":"string","name":"manufacturerName","type":"string"},
         {"internalType":"string","name":"factoryAddress","type":"string"}
     ],"stateMutability":"view","type":"function"},
-    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
+    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[
+        {"internalType":"string","name":"name","type":"string"},
+        {"internalType":"string","name":"batchID","type":"string"},
+        {"internalType":"string","name":"manufactureDate","type":"string"},
+        {"internalType":"string","name":"origin","type":"string"},
+        {"internalType":"address","name":"owner","type":"address"},
+        {"internalType":"string","name":"manufacturerName","type":"string"},
+        {"internalType":"string","name":"factoryAddress","type":"string"},
+        {"internalType":"string[]","name":"ingredients","type":"string[]"},
+        {"internalType":"string[]","name":"visibleHistory","type":"string[]"}
+    ],"stateMutability":"view","type":"function"}
 ];
 
 let web3, contract, account, html5QrCode;
@@ -208,12 +214,10 @@ window.addEventListener("load", async () => {
 async function loadProducts() {
     const grid = document.getElementById('productGrid');
     grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400">Đang tải sản phẩm của bạn...</div>';
-
     try {
         const count = await contract.methods.productCount().call();
         let html = '';
         let found = 0;
-
         for (let i = 1; i <= count; i++) {
             const p = await contract.methods.products(i).call();
             if (p.owner.toLowerCase() === account) {
@@ -245,18 +249,19 @@ async function openDetail(id) {
         let imgUrl = formatUrl(fullData.productImageUrl);
         let certUrl = formatUrl(fullData.certificationUrl);
 
-        // Tạo HTML cho thành phần
+        // Thành phần sản phẩm
         let ingredientsHTML = '';
-        if (fullData.ingredients && fullData.ingredients.length > 0) {
+        if (verifyData.ingredients && verifyData.ingredients.length > 0) {
             ingredientsHTML = `
                 <div class="mt-6">
                     <p class="text-xs font-bold text-slate-400 uppercase mb-3">Thành phần sản phẩm</p>
-                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 text-sm leading-relaxed">
-                        ${fullData.ingredients.map(ing => `• ${ing}`).join('<br>')}
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 text-sm leading-relaxed text-slate-700">
+                        ${verifyData.ingredients.join(', ')}
                     </div>
                 </div>`;
         }
 
+        // Lịch sử
         let historyHTML = '';
         if (verifyData.visibleHistory && verifyData.visibleHistory.length > 0) {
             historyHTML = verifyData.visibleHistory.map((log, index) => `
@@ -288,14 +293,12 @@ async function openDetail(id) {
                         </button>
                     </div>
                 </div>
-
                 <div class="lg:col-span-3 space-y-8">
                     <div>
                         <span class="inline-block px-3 py-1 bg-sky-100 text-sky-700 text-xs font-bold rounded-full">BLOCKCHAIN VERIFIED</span>
                         <h1 class="text-3xl font-bold text-slate-900 mt-3">${fullData.name}</h1>
                         <p class="text-slate-500 font-mono text-sm mt-1">ID: #${id} • Lô: ${fullData.batchID}</p>
                     </div>
-
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-50 p-5 rounded-2xl">
                             <p class="text-xs text-slate-400 font-bold uppercase">Ngày sản xuất</p>
@@ -307,6 +310,7 @@ async function openDetail(id) {
                         </div>
                     </div>
 
+                    <!-- Thành phần sản phẩm -->
                     ${ingredientsHTML}
 
                     <div>
@@ -314,16 +318,13 @@ async function openDetail(id) {
                         <p class="font-bold text-slate-800">${fullData.manufacturerName}</p>
                         <p class="text-sm text-slate-600">${fullData.factoryAddress}</p>
                     </div>
-
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase mb-4">Hành trình của sản phẩm</p>
                         <div class="space-y-5 text-sm">
                             ${historyHTML}
                         </div>
                     </div>
-
                     ${currentOwnerHTML}
-
                     <button onclick="showQrModal('https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}')" 
                             class="w-full py-4 bg-slate-900 hover:bg-black text-white font-semibold rounded-2xl flex items-center justify-center gap-3 transition-all">
                         <i class="fa-solid fa-qrcode"></i> Xem mã QR truy xuất nguồn gốc
@@ -331,7 +332,6 @@ async function openDetail(id) {
                 </div>
             </div>
         `;
-
         document.getElementById('detailModal').classList.remove('hidden');
     } catch (e) {
         console.error(e);
@@ -348,7 +348,6 @@ function showCertModal(url) {
     document.getElementById('certImage').src = url;
     document.getElementById('certModal').style.display = 'flex';
 }
-
 function closeCertModal() {
     document.getElementById('certModal').style.display = 'none';
 }
@@ -363,23 +362,18 @@ function showQrModal(url) {
         });
     }, 200);
 }
-
 function closeQrModal() {
     document.getElementById('qrModal').style.display = 'none';
 }
-
 function closeModal() {
     document.getElementById('detailModal').classList.add('hidden');
 }
-
 function showTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-
     document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
     if (id === 'my-purchases') document.querySelectorAll('.sidebar-item')[0].classList.add('active');
     if (id === 'verify-trace') document.querySelectorAll('.sidebar-item')[1].classList.add('active');
-
     if (id === 'verify-trace') startScanner();
     else stopScanner();
 }
@@ -399,7 +393,6 @@ function startScanner() {
         }
     ).catch(err => console.log(err));
 }
-
 function stopScanner() {
     if (html5QrCode) html5QrCode.stop();
 }
