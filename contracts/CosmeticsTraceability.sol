@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 contract CosmeticsTraceability {
+    
     struct Product {
         string name;
         string batchID;
@@ -10,17 +11,20 @@ contract CosmeticsTraceability {
         bool isAuthentic;
         string[] history;
         address owner;
-        string[] ingredients;
+        string[] ingredients;           // Thành phần sản phẩm
         string productImageUrl;
         string certificationUrl;
         string manufacturerName;
         string factoryAddress;
         address[] previousOwners;
-        // Lưu trữ vị trí lịch sử tại thời điểm chuyển giao cho từng chủ cũ
-        mapping(address => uint) historySnapshot; 
+        // Không để mapping bên trong struct
     }
 
     mapping(uint => Product) public products;
+    
+    // Mapping riêng để lưu snapshot lịch sử
+    mapping(uint => mapping(address => uint)) public historySnapshots;
+
     uint public productCount = 0;
 
     event ProductCreated(uint id, string name);
@@ -39,8 +43,10 @@ contract CosmeticsTraceability {
         string memory _factoryAddress
     ) public {
         productCount++;
+        uint id = productCount;
         
-        Product storage p = products[productCount];
+        Product storage p = products[id];
+        
         p.name = _name;
         p.batchID = _batchID;
         p.manufactureDate = _manufactureDate;
@@ -56,7 +62,10 @@ contract CosmeticsTraceability {
         p.history.push("Created by Manufacturer");
         p.previousOwners.push(msg.sender);
         
-        emit ProductCreated(productCount, _name);
+        // Manufacturer thấy toàn bộ lịch sử
+        historySnapshots[id][msg.sender] = 0;
+
+        emit ProductCreated(id, _name);
     }
 
     function transferOwnership(uint _id, address _newOwner) public {
@@ -67,8 +76,8 @@ contract CosmeticsTraceability {
         Product storage p = products[_id];
         address oldOwner = p.owner;
         
-        // Lưu lại mốc lịch sử hiện tại cho chủ cũ trước khi chuyển giao
-        p.historySnapshot[oldOwner] = p.history.length;
+        // Lưu snapshot cho chủ cũ
+        historySnapshots[_id][oldOwner] = p.history.length;
         
         p.owner = _newOwner;
         p.previousOwners.push(_newOwner);
@@ -86,6 +95,7 @@ contract CosmeticsTraceability {
         address owner,
         string memory manufacturerName,
         string memory factoryAddress,
+        string[] memory ingredients,      // ← Thêm thành phần
         string[] memory visibleHistory
     ) {
         require(_id <= productCount && _id > 0, "Invalid ID");
@@ -94,18 +104,15 @@ contract CosmeticsTraceability {
         uint limit = p.history.length;
         bool isCurrentOwner = (p.owner == msg.sender);
         
-        // Nếu không phải chủ sở hữu hiện tại, kiểm tra xem có phải chủ cũ không
         if (!isCurrentOwner) {
-            if (p.historySnapshot[msg.sender] > 0) {
-                // Nếu là chủ cũ, giới hạn lịch sử tại thời điểm họ chuyển đi
-                limit = p.historySnapshot[msg.sender];
+            uint snapshot = historySnapshots[_id][msg.sender];
+            if (snapshot > 0) {
+                limit = snapshot;                    // Chủ cũ chỉ xem đến lúc chuyển đi
             } else {
-                // Nếu là người lạ hoàn toàn, chỉ xem được dòng đầu tiên (Manufacturer Created)
-                limit = 1;
+                limit = 1;                           // Người lạ chỉ xem dòng đầu tiên
             }
         }
 
-        // Tạo mảng lịch sử tạm thời để trả về theo giới hạn
         string[] memory filteredHistory = new string[](limit);
         for (uint i = 0; i < limit; i++) {
             filteredHistory[i] = p.history[i];
@@ -119,6 +126,7 @@ contract CosmeticsTraceability {
             p.owner,
             p.manufacturerName,
             p.factoryAddress,
+            p.ingredients,
             filteredHistory
         );
     }
@@ -126,9 +134,9 @@ contract CosmeticsTraceability {
     function toAsciiString(address x) internal pure returns (string memory) {
         bytes memory s = new bytes(40);
         for (uint i = 0; i < 20; i++) {
-            bytes1 b = bytes1(uint8(uint(uint160(x)) / (2**(8*(19 - i)))));
+            bytes1 b = bytes1(uint8(uint160(x) >> (8 * (19 - i))));
             bytes1 hi = bytes1(uint8(b) / 16);
-            bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+            bytes1 lo = bytes1(uint8(b) % 16);
             s[2*i] = char(hi);
             s[2*i+1] = char(lo);
         }
