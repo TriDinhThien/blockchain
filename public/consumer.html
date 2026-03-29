@@ -59,6 +59,7 @@
             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
         }
         
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -82,8 +83,8 @@
     <!-- Sidebar -->
     <aside class="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-slate-200 flex flex-col z-50 hidden md:flex">
         <div class="p-8 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl overflow-hidden shadow-lg border border-white">
-                <img src="2.png" alt="VeriGlow Logo" class="w-full h-full object-cover">
+            <div class="w-10 h-10 rounded-xl bg-sky-600 flex items-center justify-center text-white shadow-lg">
+                <i class="fa-solid fa-leaf text-lg"></i>
             </div>
             <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-sky-600 to-indigo-600 bg-clip-text text-transparent">VeriGlow</span>
         </div>
@@ -108,10 +109,12 @@
         </header>
 
         <div class="p-10 max-w-6xl mx-auto">
+            <!-- Tab Tủ đồ của tôi -->
             <div id="my-purchases" class="tab-content active">
                 <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
             </div>
 
+            <!-- Tab Quét QR -->
             <div id="verify-trace" class="tab-content">
                 <div class="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                     <div id="reader" class="rounded-2xl overflow-hidden"></div>
@@ -132,7 +135,7 @@
         </div>
     </div>
 
-    <!-- Modal Giấy Chứng Nhận -->
+    <!-- Modal Xem Giấy Chứng Nhận -->
     <div id="certModal" class="modal">
         <div class="modal-content max-w-2xl">
             <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -145,7 +148,7 @@
         </div>
     </div>
 
-    <!-- Modal QR Code -->
+    <!-- Modal Xem Mã QR -->
     <div id="qrModal" class="modal">
         <div class="modal-content max-w-md">
             <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -169,24 +172,15 @@ const abi = [
         {"internalType":"string","name":"batchID","type":"string"},
         {"internalType":"string","name":"manufactureDate","type":"string"},
         {"internalType":"string","name":"origin","type":"string"},
+        {"internalType":"string[]","name":"ingredients","type":"string[]"},
         {"internalType":"bool","name":"isAuthentic","type":"bool"},
         {"internalType":"address","name":"owner","type":"address"},
         {"internalType":"string","name":"productImageUrl","type":"string"},
         {"internalType":"string","name":"certificationUrl","type":"string"},
         {"internalType":"string","name":"manufacturerName","type":"string"},
-        {"internalType":"string","name":"factoryAddress","type":"string"},
-        {"internalType":"string[]","name":"ingredients","type":"string[]"}
+        {"internalType":"string","name":"factoryAddress","type":"string"}
     ],"stateMutability":"view","type":"function"},
-    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[
-        {"internalType":"string","name":"name","type":"string"},
-        {"internalType":"string","name":"batchID","type":"string"},
-        {"internalType":"string","name":"manufactureDate","type":"string"},
-        {"internalType":"string","name":"origin","type":"string"},
-        {"internalType":"address","name":"owner","type":"address"},
-        {"internalType":"string","name":"manufacturerName","type":"string"},
-        {"internalType":"string","name":"factoryAddress","type":"string"},
-        {"internalType":"string[]","name":"visibleHistory","type":"string[]"}
-    ],"stateMutability":"view","type":"function"}
+    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
 ];
 
 let web3, contract, account, html5QrCode;
@@ -239,7 +233,6 @@ async function loadProducts() {
         }
         grid.innerHTML = found > 0 ? html : '<div class="col-span-full text-center py-20 text-slate-400 font-medium">Bạn chưa sở hữu sản phẩm nào.</div>';
     } catch (e) {
-        console.error(e);
         grid.innerHTML = '<div class="col-span-full text-center py-10 text-red-400">Lỗi kết nối Blockchain.</div>';
     }
 }
@@ -252,16 +245,14 @@ async function openDetail(id) {
         let imgUrl = formatUrl(fullData.productImageUrl);
         let certUrl = formatUrl(fullData.certificationUrl);
 
-        // Thành phần sản phẩm (an toàn)
+        // Tạo HTML cho thành phần
         let ingredientsHTML = '';
-        if (fullData.ingredients && Array.isArray(fullData.ingredients) && fullData.ingredients.length > 0) {
+        if (fullData.ingredients && fullData.ingredients.length > 0) {
             ingredientsHTML = `
                 <div class="mt-6">
                     <p class="text-xs font-bold text-slate-400 uppercase mb-3">Thành phần sản phẩm</p>
-                    <div class="flex flex-wrap gap-2">
-                        ${fullData.ingredients.map(ing => `
-                            <span class="inline-block px-4 py-2 bg-slate-100 text-slate-700 text-sm rounded-2xl">${ing}</span>
-                        `).join('')}
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 text-sm leading-relaxed">
+                        ${fullData.ingredients.map(ing => `• ${ing}`).join('<br>')}
                     </div>
                 </div>`;
         }
@@ -316,13 +307,13 @@ async function openDetail(id) {
                         </div>
                     </div>
 
+                    ${ingredientsHTML}
+
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase mb-2">Nhà sản xuất</p>
                         <p class="font-bold text-slate-800">${fullData.manufacturerName}</p>
                         <p class="text-sm text-slate-600">${fullData.factoryAddress}</p>
                     </div>
-
-                    ${ingredientsHTML}
 
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase mb-4">Hành trình của sản phẩm</p>
@@ -348,7 +339,7 @@ async function openDetail(id) {
     }
 }
 
-// Modal Functions
+// ==================== MODAL FUNCTIONS ====================
 function showCertModal(url) {
     if (!url || url.includes('placeholder')) {
         alert("Sản phẩm này chưa có giấy chứng nhận.");
