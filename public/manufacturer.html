@@ -38,6 +38,27 @@
             border-color: #0ea5e9;
             box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
         }
+       
+        #productDetailSidebar {
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+        }
     </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen flex text-slate-900">
@@ -81,8 +102,8 @@
                 <i class="fa-solid fa-arrows-rotate"></i> Làm mới
             </button>
         </header>
-
         <div class="p-10 overflow-y-auto">
+           
             <!-- Tab 1: Danh sách sản phẩm -->
             <div id="list-products" class="tab-content active">
                 <div class="mb-8 flex items-center gap-4">
@@ -209,7 +230,7 @@
         <div id="sidebarContent" class="flex-1 overflow-y-auto p-6 space-y-8"></div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal xem Giấy chứng nhận -->
     <div id="certModal" class="modal">
         <div class="modal-content max-w-2xl">
             <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -222,6 +243,7 @@
         </div>
     </div>
 
+    <!-- Modal xem Mã QR -->
     <div id="qrModal" class="modal">
         <div class="modal-content max-w-md">
             <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -236,28 +258,66 @@
     </div>
 
 <script>
-// ==================== CẤU HÌNH ====================
-const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5"; // ← Thay bằng address contract mới sau khi deploy
+// ==================== CẤU HÌNH SMART CONTRACT ====================
+const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
 
-const abi = [ /* ABI bạn cung cấp trước đó (đã có ingredients) */ ];
+const abi = [
+    {"inputs":[{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_batchID","type":"string"},{"internalType":"string","name":"_manufactureDate","type":"string"},{"internalType":"string","name":"_origin","type":"string"},{"internalType":"string[]","name":"_ingredients","type":"string[]"},{"internalType":"string","name":"_productImageUrl","type":"string"},{"internalType":"string","name":"_certificationUrl","type":"string"},{"internalType":"string","name":"_manufacturerName","type":"string"},{"internalType":"string","name":"_factoryAddress","type":"string"}],"name":"createProduct","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[
+        {"internalType":"string","name":"name","type":"string"},
+        {"internalType":"string","name":"batchID","type":"string"},
+        {"internalType":"string","name":"manufactureDate","type":"string"},
+        {"internalType":"string","name":"origin","type":"string"},
+        {"internalType":"address","name":"owner","type":"address"},
+        {"internalType":"string","name":"manufacturerName","type":"string"},
+        {"internalType":"string","name":"factoryAddress","type":"string"},
+        {"internalType":"string[]","name":"ingredients","type":"string[]"},
+        {"internalType":"string[]","name":"visibleHistory","type":"string[]"}
+    ],"stateMutability":"view","type":"function"},
+    {"inputs":[],"name":"productCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"},{"internalType":"address","name":"_newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"products","outputs":[
+        {"internalType":"string","name":"name","type":"string"},
+        {"internalType":"string","name":"batchID","type":"string"},
+        {"internalType":"string","name":"manufactureDate","type":"string"},
+        {"internalType":"string","name":"origin","type":"string"},
+        {"internalType":"bool","name":"isAuthentic","type":"bool"},
+        {"internalType":"address","name":"owner","type":"address"},
+        {"internalType":"string","name":"productImageUrl","type":"string"},
+        {"internalType":"string","name":"certificationUrl","type":"string"},
+        {"internalType":"string","name":"manufacturerName","type":"string"},
+        {"internalType":"string","name":"factoryAddress","type":"string"}
+    ],"stateMutability":"view","type":"function"}
+];
 
 let web3, contract, account;
 let currentFilter = 'inStock';
 
 // ==================== KHỞI TẠO ====================
 window.addEventListener("load", async () => {
-    if (!window.ethereum) return alert("Vui lòng cài MetaMask!");
+    if (!window.ethereum) return alert("Vui lòng cài đặt MetaMask!");
     web3 = new Web3(window.ethereum);
     try {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         account = accounts[0];
         document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
         contract = new web3.eth.Contract(abi, contractAddress);
+        await switchToSepolia();
+        document.getElementById('btnInStock').classList.add('active');
         loadProducts();
     } catch (err) {
         console.error(err);
     }
 });
+
+async function switchToSepolia() {
+    try {
+        const chainId = await web3.eth.getChainId();
+        if (chainId !== 11155111) {
+            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0xaa36a7' }] });
+        }
+    } catch (e) {}
+}
 
 // ==================== TAB ====================
 function showTab(tabId) {
@@ -271,9 +331,15 @@ function showTab(tabId) {
         'transfer-ownership': 'Chuyển giao quyền'
     };
     document.getElementById('pageTitle').innerText = titles[tabId];
-
+    
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
+}
+
+// ==================== UPLOAD IPFS (giả lập) ====================
+async function uploadFileToIPFS(file) {
+    if (!file) return "";
+    return `ipfs://demo-${Date.now()}`;
 }
 
 // ==================== TẠO SẢN PHẨM ====================
@@ -297,13 +363,20 @@ async function createProduct() {
 
         const ingredients = ingredientsStr ? ingredientsStr.split(',').map(i => i.trim()) : [];
 
+        const imgFile = document.getElementById("productImage").files[0];
+        const certFile = document.getElementById("certification").files[0];
+        const productImageUrl = imgFile ? await uploadFileToIPFS(imgFile) : "";
+        const certificationUrl = certFile ? await uploadFileToIPFS(certFile) : "";
+
         await contract.methods.createProduct(
-            name, batchID, manufactureDate, origin, ingredients, "", "", manufacturerName, factoryAddress
+            name, batchID, manufactureDate, origin, ingredients,
+            productImageUrl, certificationUrl, manufacturerName, factoryAddress
         ).send({ from: account });
 
-        alert("✅ Sản phẩm đã được tạo thành công!");
-        showTab('list-products');
+        alert("✅ Sản phẩm đã được tạo thành công trên Blockchain!");
+        document.getElementById("create-product").querySelectorAll('input, textarea').forEach(el => el.value = '');
         loadProducts();
+        showTab('list-products');
     } catch (err) {
         alert("❌ Lỗi: " + err.message);
     } finally {
@@ -340,7 +413,7 @@ async function loadProducts() {
                     </td>
                     <td class="px-8 py-6">
                         <div class="text-sm font-semibold">${p.batchID}</div>
-                        <div class="text-[10px] text-slate-400">${p.factoryAddress}</div>
+                        <div class="text-[10px] text-slate-400 truncate w-48">${p.factoryAddress}</div>
                     </td>
                     <td class="px-8 py-6 text-sm text-slate-500">${p.manufactureDate}</td>
                     <td class="px-8 py-6">${statusHTML}</td>
@@ -386,7 +459,7 @@ async function showProductDetail(id) {
         content.innerHTML = `
             <div class="space-y-8">
                 ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-3xl shadow-2xl" style="height:280px;object-fit:cover;">` : 
-                    `<div class="h-72 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400"><i class="fa-solid fa-image text-6xl"></i></div>`}
+                    `<div class="h-72 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400"><i class="fa-solid fa-image text-6xl"></i><p class="mt-3">Chưa có ảnh sản phẩm</p></div>`}
                 
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div><span class="text-slate-500 text-xs block">Tên sản phẩm</span><strong>${verify.name}</strong></div>
@@ -399,13 +472,24 @@ async function showProductDetail(id) {
 
                 <div class="bg-sky-50 rounded-3xl p-6">
                     <div class="text-sky-700 text-xs font-bold mb-3">NHÀ SẢN XUẤT</div>
-                    <div class="font-semibold">${verify.manufacturerName}</div>
+                    <div class="font-semibold text-slate-800">${verify.manufacturerName}</div>
                     <div class="text-sm text-slate-600">${verify.factoryAddress}</div>
                 </div>
 
-                <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-2xl flex items-center justify-center gap-3 text-slate-700 font-semibold">
-                    <i class="fa-solid fa-qrcode"></i> Xem mã QR
-                </button>
+                <div class="bg-indigo-50 rounded-3xl p-6">
+                    <div class="text-indigo-700 text-xs font-bold mb-3">GIẤY CHỨNG NHẬN</div>
+                    ${certUrl ? 
+                        `<button onclick="showCertModal('${certUrl}')" class="w-full py-4 bg-white hover:bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-center gap-3 text-indigo-700 font-semibold">
+                            <i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận
+                        </button>` : 
+                        `<div class="h-28 bg-white rounded-2xl flex items-center justify-center text-slate-400 border border-dashed border-indigo-200">Chưa có giấy chứng nhận</div>`}
+                </div>
+
+                <div class="text-center pt-6 border-t">
+                    <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-2xl flex items-center justify-center gap-3 text-slate-700 font-semibold">
+                        <i class="fa-solid fa-qrcode"></i> Xem mã QR
+                    </button>
+                </div>
             </div>
         `;
     } catch (err) {
@@ -413,12 +497,31 @@ async function showProductDetail(id) {
     }
 }
 
-// ==================== CHUYỂN GIAO & MODAL ====================
+// ==================== MODAL & CHUYỂN GIAO ====================
+function showCertModal(url) {
+    document.getElementById('certImage').src = url;
+    document.getElementById('certModal').style.display = 'flex';
+}
+function closeCertModal() {
+    document.getElementById('certModal').style.display = 'none';
+}
+function showQrModal(url) {
+    document.getElementById('qrModal').style.display = 'flex';
+    setTimeout(() => {
+        QRCode.toCanvas(document.getElementById('modalQRCode'), url, { width: 280, margin: 2 });
+    }, 150);
+}
+function closeQrModal() {
+    document.getElementById('qrModal').style.display = 'none';
+}
+function closeSidebar() {
+    document.getElementById('productDetailSidebar').classList.add('translate-x-full');
+}
+
 async function transferOwnership() {
     const id = document.getElementById("transferId").value.trim();
     const newOwner = document.getElementById("newOwner").value.trim();
     if (!id || !newOwner) return alert("Vui lòng nhập đầy đủ thông tin!");
-    
     try {
         await contract.methods.transferOwnership(id, newOwner).send({ from: account });
         alert("✅ Chuyển giao thành công!");
@@ -428,14 +531,7 @@ async function transferOwnership() {
     }
 }
 
-function showQrModal(url) {
-    document.getElementById('qrModal').style.display = 'flex';
-    setTimeout(() => QRCode.toCanvas(document.getElementById('modalQRCode'), url, { width: 280 }), 200);
-}
-function closeQrModal() { document.getElementById('qrModal').style.display = 'none'; }
-function closeSidebar() { document.getElementById('productDetailSidebar').classList.add('translate-x-full'); }
-
-// Khởi tạo tab
+// Khởi động
 showTab('list-products');
 </script>
 </body>
