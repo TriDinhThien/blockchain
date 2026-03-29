@@ -8,24 +8,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
-
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+        
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .sidebar-item.active { background: #0ea5e9; color: white; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); }
-       
+        
         #sideDrawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; }
         #sideDrawer.open { transform: translateX(0); }
+        
         #overlay { transition: opacity 0.3s ease; display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 40; }
         #overlay.active { display: block; }
+        
         .filter-btn.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+        
         .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #0ea5e9; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Modal */
+        
         .modal {
             display: none;
             position: fixed;
@@ -70,7 +74,7 @@
                 <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-sky-600 to-indigo-600 bg-clip-text text-transparent">VeriGlow</span>
             </div>
         </div>
-       
+        
         <nav class="mt-4 flex-1 px-6 space-y-2">
             <button onclick="showTab('list-products')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all hover:bg-slate-50 text-slate-600 font-medium">
                 <i class="fa-solid fa-boxes-stacked"></i> <span>Kho sản phẩm</span>
@@ -91,7 +95,7 @@
                 <i class="fa-solid fa-arrows-rotate"></i> Làm mới
             </button>
         </header>
-
+        
         <div class="p-10">
             <!-- Tab Danh sách sản phẩm -->
             <div id="list-products" class="tab-content active">
@@ -122,11 +126,11 @@
                         <i class="fa-solid fa-truck-moving text-orange-500"></i> Bàn giao quyền sở hữu
                     </h3>
                     <div class="space-y-4">
-                        <input id="transferId" type="number" placeholder="ID sản phẩm (Ví dụ: 1)" 
+                        <input id="transferId" type="number" placeholder="ID sản phẩm (Ví dụ: 1)"
                                class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:ring-2 focus:ring-orange-500">
-                        <input id="newOwner" type="text" placeholder="Địa chỉ ví nhận (0x...)" 
+                        <input id="newOwner" type="text" placeholder="Địa chỉ ví nhận (0x...)"
                                class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none font-mono focus:ring-2 focus:ring-orange-500">
-                        <button onclick="transferOwnership()" 
+                        <button onclick="transferOwnership()"
                                 class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-xl transition-all mt-4">
                             Xác nhận xuất kho
                         </button>
@@ -136,7 +140,7 @@
         </div>
     </main>
 
-    <!-- ==================== MODAL XEM GIẤY CHỨNG NHẬN ==================== -->
+    <!-- Modal Giấy chứng nhận -->
     <div id="certModal" class="modal">
         <div class="modal-content max-w-2xl">
             <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -149,16 +153,24 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL XEM MÃ QR ==================== -->
+    <!-- ==================== MODAL QR CODE (ĐÃ HOÀN THIỆN) ==================== -->
     <div id="qrModal" class="modal">
         <div class="modal-content max-w-md">
             <div class="flex justify-between items-center px-6 py-4 border-b">
                 <h4 class="font-semibold text-lg">Mã QR - Thông tin sản phẩm</h4>
                 <button onclick="closeQrModal()" class="text-3xl text-slate-400 hover:text-slate-600">&times;</button>
             </div>
-            <div class="p-8 text-center">
-                <canvas id="modalQRCode" class="mx-auto rounded-2xl"></canvas>
-                <p class="text-xs text-slate-400 mt-6">Quét mã QR để xem thông tin đầy đủ trên trang Verify</p>
+            <div class="p-8 text-center space-y-6">
+                <canvas id="modalQRCode" class="mx-auto rounded-2xl shadow-lg"></canvas>
+                
+                <div id="qrProductInfo" class="text-sm font-medium text-slate-700 bg-slate-50 rounded-xl p-3"></div>
+                
+                <button onclick="downloadQRCode()" 
+                        class="w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-download"></i> Tải mã QR về máy
+                </button>
+                
+                <p class="text-xs text-slate-400">Quét mã QR để xem thông tin đầy đủ trên trang Verify</p>
             </div>
         </div>
     </div>
@@ -166,8 +178,7 @@
 <script>
 // ==================== CẤU HÌNH ====================
 const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
-
-const abi = [
+const abi = [ /* ABI giữ nguyên như code cũ của bạn */ 
     {"inputs":[{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_batchID","type":"string"},{"internalType":"string","name":"_manufactureDate","type":"string"},{"internalType":"string","name":"_origin","type":"string"},{"internalType":"string[]","name":"_ingredients","type":"string[]"},{"internalType":"string","name":"_productImageUrl","type":"string"},{"internalType":"string","name":"_certificationUrl","type":"string"},{"internalType":"string","name":"_manufacturerName","type":"string"},{"internalType":"string","name":"_factoryAddress","type":"string"}],"name":"createProduct","outputs":[],"stateMutability":"nonpayable","type":"function"},
     {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"},{"internalType":"address","name":"_newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
     {"inputs":[],"name":"productCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
@@ -177,7 +188,9 @@ const abi = [
 let web3, contract, account;
 let allProducts = [];
 let currentFilter = 'all';
+let currentQRUrl = "";
 
+// ==================== KHỞI TẠO ====================
 window.addEventListener("load", async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
@@ -191,11 +204,11 @@ window.addEventListener("load", async () => {
     }
 });
 
-// ==================== TẢI SẢN PHẨM ====================
+// ==================== TẢI & HIỂN THỊ SẢN PHẨM ====================
 async function loadMyProducts() {
     const tbody = document.getElementById('productListBody');
     tbody.innerHTML = '<tr><td colspan="4" class="px-8 py-10 text-center"><div class="loading-spinner mx-auto"></div></td></tr>';
-
+    
     try {
         const count = Number(await contract.methods.productCount().call());
         allProducts = [];
@@ -229,7 +242,7 @@ function renderTable() {
             </td>
             <td class="px-8 py-6 text-sm font-semibold text-slate-600">${p.batchID}</td>
             <td class="px-8 py-6">
-                ${p.owner.toLowerCase() === account
+                ${p.owner.toLowerCase() === account 
                     ? '<span class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold italic border border-green-100 uppercase">Trong kho</span>'
                     : '<span class="px-3 py-1 bg-slate-100 text-slate-400 rounded-full text-[10px] font-bold italic border border-slate-200 uppercase">Đã xuất đi</span>'}
             </td>
@@ -266,28 +279,21 @@ async function transferOwnership() {
     }
 }
 
-// ==================== MỞ DRAWER CHI TIẾT (ĐÃ CẬP NHẬT) ====================
+// ==================== MỞ DRAWER ====================
 function openDrawer(id) {
     const product = allProducts.find(p => p.id == id);
     if (!product) return;
 
-    const drawer = document.getElementById('sideDrawer');
-    const overlay = document.getElementById('overlay');
-    const content = document.getElementById('drawerContent');
-
     let imgUrl = product.productImageUrl ? product.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
     let certUrl = product.certificationUrl ? product.certificationUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
 
+    const content = document.getElementById('drawerContent');
     content.innerHTML = `
         <div class="space-y-8">
-            <!-- Ảnh sản phẩm -->
             <div class="aspect-square bg-slate-50 rounded-3xl overflow-hidden border border-slate-100 shadow-inner flex items-center justify-center">
-                ${imgUrl ? 
-                    `<img src="${imgUrl}" class="w-full h-full object-cover">` : 
-                    `<i class="fa-solid fa-image text-slate-200 text-6xl"></i>`}
+                ${imgUrl ? `<img src="${imgUrl}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-image text-slate-200 text-6xl"></i>`}
             </div>
 
-            <!-- Thông tin cơ bản -->
             <div class="space-y-1">
                 <h4 class="text-2xl font-black text-slate-900">${product.name}</h4>
                 <p class="text-sky-600 font-bold text-sm italic">ID sản phẩm: #${id}</p>
@@ -304,7 +310,6 @@ function openDrawer(id) {
                 </div>
             </div>
 
-            <!-- HÀNH TRÌNH SẢN PHẨM -->
             <div class="bg-emerald-50 border border-emerald-100 rounded-3xl p-6">
                 <div class="text-emerald-700 text-xs font-bold mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-route"></i> HÀNH TRÌNH SẢN PHẨM
@@ -313,30 +318,26 @@ function openDrawer(id) {
                 <div class="text-sm text-slate-600">${product.factoryAddress}</div>
             </div>
 
-            <!-- Giấy chứng nhận -->
             <div class="bg-indigo-50 rounded-3xl p-6">
                 <div class="text-indigo-700 text-xs font-bold mb-3">GIẤY CHỨNG NHẬN</div>
                 ${certUrl ? 
-                    `<button onclick="showCertModal('${certUrl}')" 
-                             class="w-full py-4 bg-white hover:bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-center gap-3 text-indigo-700 font-semibold transition-all">
+                    `<button onclick="showCertModal('${certUrl}')" class="w-full py-4 bg-white hover:bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-center gap-3 text-indigo-700 font-semibold transition-all">
                         <i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận
                     </button>` : 
                     `<div class="h-28 bg-white rounded-2xl flex items-center justify-center text-slate-400 border border-dashed">Chưa có giấy chứng nhận</div>`}
             </div>
 
-            <!-- Nút xem QR -->
             <div class="pt-4">
-                <button onclick="showQrModal('https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}')" 
+                <button onclick="showQrModal('https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}', '${product.name} (#${id})')"
                         class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-2xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
                     <i class="fa-solid fa-qrcode"></i> Xem mã QR truy xuất
                 </button>
-                <p class="text-center text-[10px] text-slate-400 mt-3">Quét mã QR để kiểm tra nguồn gốc sản phẩm</p>
             </div>
         </div>
     `;
 
-    drawer.classList.add('open');
-    overlay.classList.add('active');
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('overlay').classList.add('active');
 }
 
 function closeDrawer() {
@@ -354,10 +355,26 @@ function closeCertModal() {
     document.getElementById('certModal').style.display = 'none';
 }
 
-function showQrModal(url) {
+// ==================== QR CODE FUNCTIONS (TỐI ƯU) ====================
+function showQrModal(url, productInfo) {
+    currentQRUrl = url;
     document.getElementById('qrModal').style.display = 'flex';
+    
+    document.getElementById('qrProductInfo').innerHTML = `
+        <strong>${productInfo}</strong><br>
+        <span class="text-xs text-slate-500 break-all">${url}</span>
+    `;
+
+    const canvas = document.getElementById('modalQRCode');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     setTimeout(() => {
-        QRCode.toCanvas(document.getElementById('modalQRCode'), url, { width: 280, margin: 2 });
+        QRCode.toCanvas(canvas, url, {
+            width: 320,
+            margin: 2,
+            color: { dark: '#1e2937', light: '#ffffff' }
+        });
     }, 150);
 }
 
@@ -365,15 +382,24 @@ function closeQrModal() {
     document.getElementById('qrModal').style.display = 'none';
 }
 
+function downloadQRCode() {
+    if (!currentQRUrl) return;
+    const canvas = document.getElementById('modalQRCode');
+    const link = document.createElement('a');
+    link.download = `QR-VeriGlow-${currentQRUrl.split('id=')[1] || 'product'}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
 // Tab switch
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-   
+    
     const titles = { 'list-products': 'Kho sản phẩm', 'transfer-ownership': 'Chuyển giao quyền' };
     document.getElementById('pageTitle').innerText = titles[tabId];
-   
+    
     const idx = Object.keys(titles).indexOf(tabId);
     document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
 }
