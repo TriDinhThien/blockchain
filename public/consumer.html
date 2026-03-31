@@ -97,26 +97,29 @@
             </div>
     </div>
 
-    <div id="certModal" class="modal" onclick="this.classList.remove('active')">
-        <div class="modal-content relative p-2" onclick="event.stopPropagation()">
+    <div id="certModal" class="modal">
+        <div class="modal-content relative p-2">
             <img id="modalCertImg" src="" class="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl">
+            <button onclick="document.getElementById('certModal').classList.remove('active')" class="absolute -top-10 right-0 text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
     </div>
 
-    <div id="qrModal" class="modal" onclick="this.classList.remove('active')">
-        <div class="modal-content p-10 text-center bg-white rounded-[2.5rem]" onclick="event.stopPropagation()">
-            <h3 class="text-lg font-bold mb-6 text-slate-800 font-mono tracking-tight">QR CODE VERIFIED</h3>
+    <div id="qrModal" class="modal">
+        <div class="modal-content p-10 text-center bg-white rounded-[2.5rem]">
+            <h3 class="text-lg font-bold mb-6 text-slate-800 font-mono tracking-tight uppercase">QR Authenticity</h3>
             <canvas id="modalQrCanvas" class="mx-auto rounded-2xl shadow-sm border-8 border-slate-50"></canvas>
-            <p class="mt-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Digital Certificate of Authenticity</p>
+            <p class="mt-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Mã định danh sản phẩm Blockchain</p>
+            <button onclick="document.getElementById('qrModal').classList.remove('active')" class="mt-6 text-slate-400 hover:text-slate-600 text-xs font-bold uppercase">Đóng</button>
         </div>
     </div>
 
 <script>
-const contractAddress = "0xA78423a9320aa5e70Cf27aC4C4f5E75d2A2b46F6";
+// VUI LÒNG DÁN ADDRESS VÀ ABI MỚI NHẤT CỦA BẠN VÀO ĐÂY
+const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5"; 
 const abi = [
     {"inputs":[],"name":"productCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-    {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"products","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"bool","name":"isAuthentic","type":"bool"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"productImageUrl","type":"string"},{"internalType":"string","name":"certificationUrl","type":"string"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"}],"stateMutability":"view","type":"function"},
-    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
+    {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"products","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"bool","name":"isAuthentic","type":"bool"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"productImageUrl","type":"string"},{"internalType":"string","name":"certificationUrl","type":"string"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"}],"stateMutability":"view","type":"function"},
+    {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
 ];
 
 let web3, contract, account, html5QrCode;
@@ -145,7 +148,7 @@ window.addEventListener("load", async () => {
 
 async function loadProducts() {
     const grid = document.getElementById('productGrid');
-    grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400">Đang đồng bộ Blockchain...</p></div>';
+    grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400 italic">Đang tải tủ đồ từ Blockchain...</p></div>';
 
     try {
         const count = Number(await contract.methods.productCount().call());
@@ -156,7 +159,7 @@ async function loadProducts() {
             const p = await contract.methods.products(i).call();
             if (p.owner.toLowerCase() === account) {
                 found++;
-                // Giao diện Thẻ sản phẩm giống Distributor
+                // UI Thẻ sản phẩm đồng bộ với Distributor
                 html += `
                     <div onclick="showProductDetail(${i})" class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer relative">
                         <div class="h-56 overflow-hidden bg-slate-50 relative">
@@ -170,7 +173,7 @@ async function loadProducts() {
                             <h4 class="font-bold text-slate-800 mb-4 line-clamp-1 group-hover:text-sky-600 transition-colors">${p.name}</h4>
                             <div class="flex items-center justify-between pt-4 border-t border-slate-50">
                                 <div class="flex flex-col text-[10px]">
-                                    <span class="text-slate-400 font-medium">Lô hàng</span>
+                                    <span class="text-slate-400 font-medium italic">Mã lô hàng</span>
                                     <span class="text-slate-700 font-bold font-mono">${p.batchID}</span>
                                 </div>
                                 <span class="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">Chính hãng</span>
@@ -179,9 +182,9 @@ async function loadProducts() {
                     </div>`;
             }
         }
-        grid.innerHTML = found > 0 ? html : '<div class="col-span-full py-32 text-center"><i class="fa-solid fa-box-open text-5xl text-slate-100 mb-6 block"></i><p class="text-slate-400 font-medium italic">Bạn chưa sở hữu sản phẩm nào trên hệ thống này.</p></div>';
+        grid.innerHTML = found > 0 ? html : '<div class="col-span-full py-32 text-center"><i class="fa-solid fa-box-open text-5xl text-slate-100 mb-6 block"></i><p class="text-slate-400 font-medium">Bạn chưa sở hữu sản phẩm nào.</p></div>';
     } catch (e) {
-        grid.innerHTML = '<div class="col-span-full text-center py-20 text-red-400 font-medium">Lỗi kết nối Blockchain.</div>';
+        grid.innerHTML = '<div class="col-span-full text-center py-20 text-red-400">Không thể kết nối với Blockchain.</div>';
     }
 }
 
@@ -199,27 +202,27 @@ async function showProductDetail(id) {
         const certUrl = formatUrl(prod.certificationUrl);
         const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`;
         
-        // Logic hiển thị lịch sử và thành phần
+        // Logic xử lý mảng từ Blockchain
         const history = verify.visibleHistory || [];
-        const ingredients = prod.ingredients || []; // Lấy từ products(id)
+        const ingredients = verify.ingredients || [];
 
         content.innerHTML = `
             <div class="space-y-8 animate-fadeIn">
                 <div class="relative group">
                     <img src="${imgUrl}" class="w-full rounded-[2.5rem] shadow-xl h-72 object-cover border-4 border-white ring-1 ring-slate-100">
                     <div class="absolute -bottom-4 right-6 bg-white px-5 py-2 rounded-2xl shadow-lg border border-slate-100">
-                        <p class="text-[10px] text-slate-400 font-bold uppercase">Mã định danh</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Blockchain ID</p>
                         <p class="text-sm font-mono font-bold text-slate-800">#${id}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                        <p class="text-slate-400 text-[10px] uppercase font-bold tracking-tighter mb-1">Batch Number</p>
+                        <p class="text-slate-400 text-[10px] uppercase font-bold tracking-tighter mb-1">Batch ID</p>
                         <p class="text-sm font-bold text-slate-700">${verify.batchID}</p>
                     </div>
                     <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                        <p class="text-slate-400 text-[10px] uppercase font-bold tracking-tighter mb-1">Ngày SX</p>
+                        <p class="text-slate-400 text-[10px] uppercase font-bold tracking-tighter mb-1">Ngày sản xuất</p>
                         <p class="text-sm font-bold text-slate-700">${verify.manufactureDate}</p>
                     </div>
                 </div>
@@ -232,37 +235,36 @@ async function showProductDetail(id) {
                         <div class="font-bold text-slate-800 text-lg">${verify.manufacturerName}</div>
                         <div class="text-[11px] text-slate-500 mt-2 font-medium leading-relaxed">${verify.factoryAddress}</div>
                     </div>
-                    <i class="fa-solid fa-medal absolute -right-4 -bottom-4 text-sky-200/30 text-8xl rotate-12"></i>
                 </div>
 
                 ${ingredients.length > 0 ? `
                 <div class="space-y-4">
-                    <p class="text-slate-800 text-xs font-bold uppercase tracking-widest ml-1">Bảng thành phần niêm yết</p>
+                    <p class="text-slate-800 text-xs font-bold uppercase tracking-widest ml-1">Thành phần niêm yết</p>
                     <div class="flex flex-wrap gap-2">${ingredients.map(i => `<span class="bg-white border border-slate-200 px-3.5 py-2 rounded-2xl text-[11px] text-slate-600 shadow-sm font-semibold">${i}</span>`).join('')}</div>
                 </div>` : ''}
 
-                <div class="space-y-6">
+                <div class="space-y-6 pb-10">
                     <p class="text-slate-800 text-xs font-bold uppercase tracking-widest ml-1 flex items-center gap-2">
-                        <i class="fa-solid fa-timeline text-sky-500"></i> Lịch sử Blockchain
+                        <i class="fa-solid fa-timeline text-sky-500"></i> Nhật ký hành trình
                     </p>
                     <div class="relative pl-7 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
                         ${history.map((log, idx) => `
                         <div class="relative">
                             <div class="absolute -left-[21px] top-1 w-3.5 h-3.5 rounded-full ${idx === history.length-1 ? 'bg-emerald-500 ring-4 ring-emerald-100' : 'bg-slate-200'} border-2 border-white"></div>
                             <div class="text-[13px] font-bold text-slate-700">${log}</div>
-                            <div class="text-[10px] text-slate-400 mt-1 font-medium italic">${idx === 0 ? 'Sản phẩm được đúc (mint) bởi Manufacturer' : idx === 1 ? 'Sản phẩm đã bàn giao cho Distributor' : 'Sản phẩm đã thuộc quyền sở hữu của bạn'}</div>
+                            <div class="text-[10px] text-slate-400 mt-1 italic font-medium">Trạng thái: Đã xác thực</div>
                         </div>`).join('')}
                     </div>
                 </div>
 
-                <div class="pt-6 grid grid-cols-2 gap-4">
-                    <button onclick="openCertModal('${certUrl}')" class="py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-2xl flex flex-col items-center gap-2 transition-all border border-indigo-100 group">
-                        <i class="fa-solid fa-file-shield text-xl group-hover:scale-110 transition-transform"></i>
-                        <span class="text-[10px] font-bold uppercase">Giấy chứng nhận</span>
+                <div class="pt-6 grid grid-cols-2 gap-4 sticky bottom-0 bg-white pb-4">
+                    <button onclick="openCertModal('${certUrl}')" class="py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-2xl flex flex-col items-center gap-2 transition-all border border-indigo-100">
+                        <i class="fa-solid fa-file-shield text-xl"></i>
+                        <span class="text-[10px] font-bold uppercase">Chứng nhận</span>
                     </button>
-                    <button onclick="showQrModal('${verifyUrl}')" class="py-4 bg-slate-900 hover:bg-black text-white rounded-2xl flex flex-col items-center gap-2 transition-all shadow-xl shadow-slate-200 group">
-                        <i class="fa-solid fa-qrcode text-xl group-hover:scale-110 transition-transform"></i>
-                        <span class="text-[10px] font-bold uppercase">Mã truy xuất</span>
+                    <button onclick="showQrModal('${verifyUrl}')" class="py-4 bg-slate-900 hover:bg-black text-white rounded-2xl flex flex-col items-center gap-2 transition-all shadow-lg">
+                        <i class="fa-solid fa-qrcode text-xl"></i>
+                        <span class="text-[10px] font-bold uppercase">Truy xuất QR</span>
                     </button>
                 </div>
             </div>
@@ -282,7 +284,7 @@ function openCertModal(url) {
 
 function showQrModal(url) {
     const canvas = document.getElementById('modalQrCanvas');
-    QRCode.toCanvas(canvas, url, { width: 280, margin: 2, color: { dark: '#1e293b', light: '#ffffff' } }, (err) => {
+    QRCode.toCanvas(canvas, url, { width: 280, margin: 2, color: { dark: '#0f172a' } }, (err) => {
         if (!err) document.getElementById('qrModal').classList.add('active');
     });
 }
@@ -320,9 +322,11 @@ function startScanner() {
 
 function stopScanner() { if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop(); }
 
-// Đóng modal khi click nền
-document.getElementById('certModal').addEventListener('click', (e) => e.currentTarget.classList.remove('active'));
-document.getElementById('qrModal').addEventListener('click', (e) => e.currentTarget.classList.remove('active'));
+// Đóng modal khi click ra ngoài
+window.onclick = function(event) {
+    if (event.target == document.getElementById('certModal')) document.getElementById('certModal').classList.remove('active');
+    if (event.target == document.getElementById('qrModal')) document.getElementById('qrModal').classList.remove('active');
+}
 </script>
 </body>
 </html>
