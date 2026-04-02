@@ -134,7 +134,7 @@
             transform: scale(1.2);
         }
 
-        /* ==================== MOBILE OPTIMIZATION - ĐÃ SỬA SCROLL CHO PHẦN ĐĂNG KÝ SẢN PHẨM ==================== */
+        /* ==================== MOBILE OPTIMIZATION - ĐÃ SỬA SCROLL CHO PHẦN ĐĂNG KÝ ==================== */
         .mobile-nav-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -154,21 +154,20 @@
                 font-size: 1.5rem !important;
             }
 
-            /* Khu vực chính - BẮT BUỘC SCROLL MƯỢT, đặc biệt cho form đăng ký */
+            /* ==================== PHẦN QUAN TRỌNG: SCROLL MƯỢT CHO FORM ĐĂNG KÝ ==================== */
             .p-10.overflow-y-auto.flex-1 {
-                padding: 20px 20px 160px 20px !important;     /* Tăng bottom padding rất nhiều để form dài vẫn scroll được khi keyboard hiện */
-                overflow-y: scroll !important;
-                -webkit-overflow-scrolling: touch !important;   /* Scroll mượt trên iPhone */
-                scroll-behavior: smooth;
-                min-height: 0 !important;                       /* Fix flex scroll bug */
+                padding: 20px 20px 220px 20px !important;   /* Tăng rất nhiều bottom padding để form dài vẫn cuộn được khi bàn phím hiện */
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important; /* Scroll mượt trên iOS */
+                scroll-behavior: smooth !important;
+                flex: 1 1 auto !important;                    /* Bắt buộc flex scroll hoạt động */
+                min-height: 0 !important;                     /* Fix bug flex container không scroll */
+                height: auto !important;
             }
 
-            /* Form Đăng ký - Tất cả ô nhập liệu đồng đều, text không bị cắt */
+            /* Form Đăng ký - đồng đều & đẹp */
             #create-product .glass > .p-10 {
                 padding: 20px !important;
-            }
-            #create-product .grid.grid-cols-1.md\\:grid-cols-2.gap-6 {
-                gap: 16px !important;
             }
             #create-product input,
             #create-product textarea,
@@ -230,7 +229,7 @@
             }
         }
 
-        /* Đảm bảo mọi input luôn full width */
+        /* Đảm bảo input luôn full width */
         input, textarea, select {
             width: 100% !important;
             box-sizing: border-box !important;
@@ -337,7 +336,8 @@
                 </button>
             </header>
            
-            <div class="p-10 overflow-y-auto flex-1">
+            <!-- Khu vực scroll chính - ĐÃ TĂNG CƯỜNG SCROLL -->
+            <div id="main-scroll-area" class="p-10 overflow-y-auto flex-1">
                 <!-- List Products -->
                 <div id="list-products" class="tab-content active">
                     <div class="mb-8 flex items-center gap-4">
@@ -352,7 +352,7 @@
                     <div id="productGridBody" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
                 </div>
 
-                <!-- Create Product (đã fix scroll) -->
+                <!-- Create Product -->
                 <div id="create-product" class="tab-content max-w-5xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl overflow-hidden">
                         <div class="bg-gradient-to-r from-sky-700 to-emerald-600 p-10 text-white flex justify-between items-center">
@@ -461,7 +461,7 @@
     </div>
 
 <script>
-/* ==================== TOÀN BỘ CODE JS GIỮ NGUYÊN (KHÔNG SỬA) ==================== */
+/* ==================== TOÀN BỘ CODE JS GIỮ NGUYÊN ==================== */
 const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
 const abi = [
     {"inputs":[{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_batchID","type":"string"},{"internalType":"string","name":"_manufactureDate","type":"string"},{"internalType":"string","name":"_origin","type":"string"},{"internalType":"string[]","name":"_ingredients","type":"string[]"},{"internalType":"string","name":"_productImageUrl","type":"string"},{"internalType":"string","name":"_certificationUrl","type":"string"},{"internalType":"string","name":"_manufacturerName","type":"string"},{"internalType":"string","name":"_factoryAddress","type":"string"}],"name":"createProduct","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -512,6 +512,14 @@ function showTab(tabId) {
     document.getElementById('pageTitle').innerText = titles[tabId];
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
+    
+    // Force scroll reset khi chuyển sang tab Đăng ký sản phẩm
+    if (tabId === 'create-product') {
+        setTimeout(() => {
+            const scrollArea = document.getElementById('main-scroll-area');
+            if (scrollArea) scrollArea.scrollTop = 0;
+        }, 100);
+    }
 }
 
 async function createProduct() {
@@ -699,7 +707,7 @@ function showFunctionInfo(type) {
     modal.classList.add('active');
 }
 
-/* Mobile bottom nav active */
+/* Mobile bottom nav */
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
