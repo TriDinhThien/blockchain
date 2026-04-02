@@ -12,12 +12,13 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
+            min-height: 100vh;
         }
 
         .glass {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(24px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
         }
 
         .tab-btn {
@@ -46,20 +47,20 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="flex items-center justify-center p-6">
 
     <div class="w-full max-w-md">
-        <div class="glass rounded-3xl shadow-2xl p-10 border border-white/60">
+        <div class="glass rounded-3xl shadow-2xl p-10 border border-white/70">
             
             <!-- Header -->
-            <div class="flex items-center justify-center gap-3 mb-8">
+            <div class="flex flex-col items-center mb-10">
                 <img src="2.png" alt="VeriGlow Logo" 
-                     class="w-14 h-14 rounded-3xl object-cover shadow-xl ring-2 ring-emerald-200">
-                <h1 class="text-4xl font-bold bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent tracking-tight">
+                     class="w-20 h-20 rounded-3xl object-cover shadow-2xl ring-4 ring-white mb-4">
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent tracking-tighter">
                     VeriGlow
                 </h1>
+                <p class="text-slate-500 text-sm mt-1">Blockchain Traceability System</p>
             </div>
-            <p class="text-center text-slate-500 mb-10 text-sm">Hệ thống truy xuất nguồn gốc Blockchain</p>
 
             <!-- Tabs -->
             <div class="flex bg-slate-100 rounded-2xl p-1 mb-10">
@@ -123,7 +124,7 @@
 
             <!-- Google Sign In -->
             <div class="mt-8">
-                <div class="text-center text-slate-400 text-xs mb-4 tracking-widest">HOẶC</div>
+                <div class="text-center text-slate-400 text-xs mb-4 tracking-widest">HOẶC TIẾP TỤC VỚI</div>
                 <div id="g_id_signin" class="flex justify-center"></div>
             </div>
 
@@ -154,7 +155,7 @@ function switchTab(type) {
     }
 }
 
-// Register Form
+// Register
 document.getElementById("registerForm").addEventListener("submit", e => {
     e.preventDefault();
     const username = document.getElementById("regUsername").value.trim();
@@ -174,7 +175,7 @@ document.getElementById("registerForm").addEventListener("submit", e => {
     switchTab("login");
 });
 
-// Login Form
+// Login
 document.getElementById("loginForm").addEventListener("submit", e => {
     e.preventDefault();
     const username = document.getElementById("loginUsername").value.trim();
@@ -221,7 +222,7 @@ function handleCredentialResponse(response) {
     redirectByRole("consumer");
 }
 
-// Session & Redirect
+// Helper functions
 function saveSession(user) {
     sessionStorage.setItem("currentUser", JSON.stringify(user));
 }
