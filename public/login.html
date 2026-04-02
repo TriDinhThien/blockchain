@@ -135,103 +135,120 @@
     </div>
 
 <script>
-// Tab Switch
-function switchTab(type) {
-    const loginForm = document.getElementById("loginForm");
-    const registerForm = document.getElementById("registerForm");
-    const loginTab = document.getElementById("loginTab");
-    const registerTab = document.getElementById("registerTab");
+// Đảm bảo script chạy sau khi DOM load
+document.addEventListener('DOMContentLoaded', function() {
 
-    if (type === "login") {
-        loginForm.classList.remove("hidden");
-        registerForm.classList.add("hidden");
-        loginTab.classList.add("active");
-        registerTab.classList.remove("active");
-    } else {
-        loginForm.classList.add("hidden");
-        registerForm.classList.remove("hidden");
-        loginTab.classList.remove("active");
-        registerTab.classList.add("active");
-    }
-}
+    // Tab Switch
+    function switchTab(type) {
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+        const loginTab = document.getElementById("loginTab");
+        const registerTab = document.getElementById("registerTab");
 
-// Register
-document.getElementById("registerForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const username = document.getElementById("regUsername").value.trim();
-    const email = document.getElementById("regEmail").value.trim();
-    const password = document.getElementById("regPassword").value;
-    const role = document.getElementById("regRole").value;
-
-    if (!role) return alert("Vui lòng chọn vai trò!");
-    if (localStorage.getItem("user_" + username)) {
-        return alert("Tên đăng nhập đã tồn tại!");
+        if (type === "login") {
+            loginForm.classList.remove("hidden");
+            registerForm.classList.add("hidden");
+            loginTab.classList.add("active");
+            registerTab.classList.remove("active");
+        } else {
+            loginForm.classList.add("hidden");
+            registerForm.classList.remove("hidden");
+            loginTab.classList.remove("active");
+            registerTab.classList.add("active");
+        }
     }
 
-    const user = { username, email, password, role };
-    localStorage.setItem("user_" + username, JSON.stringify(user));
-    
-    alert("✅ Tạo tài khoản thành công!");
-    switchTab("login");
-});
+    // Register
+    document.getElementById("registerForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const username = document.getElementById("regUsername").value.trim();
+        const email = document.getElementById("regEmail").value.trim();
+        const password = document.getElementById("regPassword").value;
+        const role = document.getElementById("regRole").value;
 
-// Login
-document.getElementById("loginForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const username = document.getElementById("loginUsername").value.trim();
-    const password = document.getElementById("loginPassword").value;
+        if (!role) return alert("Vui lòng chọn vai trò!");
+        if (localStorage.getItem("user_" + username)) {
+            return alert("Tên đăng nhập đã tồn tại!");
+        }
 
-    const stored = localStorage.getItem("user_" + username);
-    if (!stored) return alert("Tài khoản không tồn tại!");
-
-    const user = JSON.parse(stored);
-    if (user.password !== password) return alert("Sai mật khẩu!");
-
-    saveSession(user);
-    redirectByRole(user.role);
-});
-
-// Google Sign In
-window.onload = function() {
-    google.accounts.id.initialize({
-        client_id: "YOUR_GOOGLE_CLIENT_ID",   // ← Thay bằng Client ID Google của bạn
-        callback: handleCredentialResponse,
-        auto_select: false,
-        cancel_on_tap_outside: true
+        const user = { username, email, password, role };
+        localStorage.setItem("user_" + username, JSON.stringify(user));
+        
+        alert("✅ Tạo tài khoản thành công!");
+        switchTab("login");
     });
 
-    google.accounts.id.renderButton(
-        document.getElementById("g_id_signin"),
-        { 
-            theme: "outline", 
-            size: "large", 
-            width: "100%", 
-            text: "continue_with" 
+    // Login
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const username = document.getElementById("loginUsername").value.trim();
+        const password = document.getElementById("loginPassword").value;
+
+        const stored = localStorage.getItem("user_" + username);
+        if (!stored) return alert("Tài khoản không tồn tại!");
+
+        const user = JSON.parse(stored);
+        if (user.password !== password) return alert("Sai mật khẩu!");
+
+        saveSession(user);
+        redirectByRole(user.role);
+    });
+
+    // Google Sign In - Chỉ khởi tạo khi script đã load
+    function initGoogleSignIn() {
+        if (typeof google === 'undefined' || !google.accounts) {
+            console.warn("Google Identity Services chưa load");
+            return;
         }
-    );
-};
 
-function handleCredentialResponse(response) {
-    google.accounts.id.disableAutoSelect();
-    const user = {
-        username: "google_user",
-        email: "user@gmail.com",
-        role: "consumer"
-    };
-    saveSession(user);
-    redirectByRole("consumer");
-}
+        google.accounts.id.initialize({
+            client_id: "YOUR_GOOGLE_CLIENT_ID",   // ← Thay bằng Client ID thật của bạn
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+        });
 
-// Helper functions
-function saveSession(user) {
-    sessionStorage.setItem("currentUser", JSON.stringify(user));
-}
+        google.accounts.id.renderButton(
+            document.getElementById("g_id_signin"),
+            { 
+                theme: "outline", 
+                size: "large", 
+                width: "100%", 
+                text: "continue_with" 
+            }
+        );
+    }
 
-function redirectByRole(role) {
-    if (role === "manufacturer") window.location = "manufacturer.html";
-    else if (role === "distributor") window.location = "distributor.html";
-    else window.location = "consumer.html";
-}
+    // Google Callback
+    function handleCredentialResponse(response) {
+        google.accounts.id.disableAutoSelect();
+        const user = {
+            username: "google_user",
+            email: "user@gmail.com",
+            role: "consumer"
+        };
+        saveSession(user);
+        redirectByRole("consumer");
+    }
+
+    // Helper functions
+    function saveSession(user) {
+        sessionStorage.setItem("currentUser", JSON.stringify(user));
+    }
+
+    function redirectByRole(role) {
+        if (role === "manufacturer") window.location = "manufacturer.html";
+        else if (role === "distributor") window.location = "distributor.html";
+        else window.location = "consumer.html";
+    }
+
+    // Khởi tạo Google sau khi trang load
+    window.addEventListener('load', function() {
+        // Đợi một chút để Google script load
+        setTimeout(initGoogleSignIn, 800);
+    });
+
+});
 </script>
 </body>
 </html>
