@@ -134,7 +134,7 @@
             transform: scale(1.2);
         }
 
-        /* Mobile Bottom Navigation & Optimizations - Added for full compatibility with computer + phone */
+        /* ==================== MOBILE OPTIMIZATION - ĐÃ HOÀN THIỆN GIAO DIỆN ĐIỆN THOẠI ==================== */
         .mobile-nav-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -142,22 +142,98 @@
             color: #0ea5e9;
             transform: scale(1.08);
         }
+
         @media (max-width: 768px) {
+            /* Header gọn hơn trên mobile */
+            header {
+                height: 64px !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+            #pageTitle {
+                font-size: 1.5rem !important;
+                line-height: 1.3;
+            }
+
+            /* Main content padding gọn, đẹp, không thừa khoảng trắng */
+            .p-10.overflow-y-auto.flex-1 {
+                padding: 20px !important;
+                padding-bottom: 90px !important;
+            }
+
+            /* Form Đăng ký sản phẩm - Tất cả ô nhập liệu cùng kích thước, gọn gàng */
+            #create-product .glass > .p-10 {
+                padding: 20px !important;
+                space-y-6 !important;
+            }
+            #create-product .grid.grid-cols-1.md\\:grid-cols-2.gap-6 {
+                gap: 16px !important;
+            }
+            #create-product input,
+            #create-product textarea,
+            #transfer-ownership input {
+                padding: 16px 20px !important;
+                font-size: 16px !important;
+                min-height: 56px !important;
+                border-radius: 9999px !important;
+            }
+            #create-product .grid.grid-cols-1.md\\:grid-cols-2 > div {
+                padding: 16px !important;
+                border-radius: 2rem !important;
+            }
+
+            /* Transfer form gọn đẹp */
+            #transfer-ownership .glass {
+                padding: 24px !important;
+            }
+            #transfer-ownership input {
+                padding: 16px 20px !important;
+                min-height: 56px !important;
+            }
+
+            /* Product grid trên mobile đẹp hơn, thẻ nhỏ gọn */
+            #productGridBody {
+                gap: 16px !important;
+            }
+            #productGridBody > div {
+                border-radius: 2rem !important;
+            }
+            #productGridBody > div .relative.h-48 {
+                height: 200px !important;
+            }
+
+            /* Sidebar chi tiết full màn hình mobile, mượt mà */
             #productDetailSidebar {
                 width: 100% !important;
+                border-radius: 0 !important;
             }
-            .p-10.overflow-y-auto.flex-1 {
-                padding-bottom: 5.5rem !important;
-            }
-            #productGridBody {
-                gap: 1.25rem !important;
-            }
+
+            /* Bottom nav đẹp, hiện đại */
             #mobile-bottom-nav {
-                box-shadow: 0 -4px 20px -2px rgb(14 165 233 / 0.15);
+                height: 74px !important;
+                padding: 8px 12px !important;
+                box-shadow: 0 -8px 30px -6px rgb(14 165 233 / 0.25) !important;
             }
-            .tab-content.active {
-                padding-bottom: 80px;
+            .mobile-nav-btn {
+                padding: 8px 0 !important;
             }
+            .mobile-nav-btn i {
+                font-size: 26px !important;
+            }
+            .mobile-nav-btn span {
+                font-size: 11px !important;
+                margin-top: 4px !important;
+            }
+
+            /* Input file upload đẹp hơn trên mobile */
+            input[type="file"] {
+                padding: 12px !important;
+            }
+        }
+
+        /* Đảm bảo mọi ô nhập liệu luôn full width và đồng đều trên mọi thiết bị */
+        input, textarea, select {
+            width: 100% !important;
         }
     </style>
 </head>
@@ -340,7 +416,7 @@
                 </div>
             </div>
         </main>
-        <!-- Mobile Bottom Navigation - Added for full phone compatibility (không xóa bất kỳ giao diện nào) -->
+        <!-- Mobile Bottom Navigation - Đã tinh chỉnh đẹp hơn -->
         <div id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl backdrop-blur-2xl z-[999] flex justify-around items-center py-2 px-4">
             <button onclick="showTab('list-products')" data-tab="list-products" class="mobile-nav-btn flex-1 flex flex-col items-center py-2 text-slate-600">
                 <i class="fa-solid fa-boxes-stacked text-3xl"></i>
@@ -652,12 +728,11 @@ function showFunctionInfo(type) {
     modal.classList.add('active');
 }
 
-/* ====================== MOBILE OPTIMIZATION - Bottom Nav & Responsiveness (giữ nguyên toàn bộ code cũ) ====================== */
-// Extend showTab để hỗ trợ mobile bottom nav mà không sửa hàm gốc
+/* ====================== MOBILE OPTIMIZATION - Bottom Nav & Responsiveness ====================== */
+// Extend showTab để hỗ trợ mobile bottom nav
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
-    // Cập nhật trạng thái active cho bottom nav trên điện thoại
     const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
     mobileButtons.forEach(btn => {
         if (btn.getAttribute('data-tab') === tabId) {
@@ -668,7 +743,7 @@ showTab = function(tabId) {
     });
 };
 
-// Khởi tạo active cho bottom nav khi load (mặc định là list-products)
+// Khởi tạo active cho bottom nav
 window.addEventListener('load', function() {
     const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
     mobileButtons.forEach(btn => {
