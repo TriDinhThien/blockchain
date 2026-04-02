@@ -134,7 +134,7 @@
             transform: scale(1.2);
         }
 
-        /* ==================== MOBILE OPTIMIZATION - ĐÃ SỬA SCROLL CHO PHẦN ĐĂNG KÝ ==================== */
+        /* ==================== SCROLL FIX - ĐÃ HOÀN THIỆN HOÀN TOÀN ==================== */
         .mobile-nav-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -143,8 +143,15 @@
             transform: scale(1.08);
         }
 
+        #main-scroll-area {
+            flex: 1 1 0 !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth;
+        }
+
         @media (max-width: 768px) {
-            /* Header gọn */
             header {
                 height: 64px !important;
                 padding-left: 16px !important;
@@ -153,83 +160,23 @@
             #pageTitle {
                 font-size: 1.5rem !important;
             }
-
-            /* ==================== PHẦN QUAN TRỌNG: SCROLL MƯỢT CHO FORM ĐĂNG KÝ ==================== */
-            .p-10.overflow-y-auto.flex-1 {
-                padding: 20px 20px 220px 20px !important;   /* Tăng rất nhiều bottom padding để form dài vẫn cuộn được khi bàn phím hiện */
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important; /* Scroll mượt trên iOS */
-                scroll-behavior: smooth !important;
-                flex: 1 1 auto !important;                    /* Bắt buộc flex scroll hoạt động */
-                min-height: 0 !important;                     /* Fix bug flex container không scroll */
-                height: auto !important;
-            }
-
-            /* Form Đăng ký - đồng đều & đẹp */
-            #create-product .glass > .p-10 {
-                padding: 20px !important;
+            #main-scroll-area {
+                padding: 20px 20px 280px 20px !important;
             }
             #create-product input,
             #create-product textarea,
             #transfer-ownership input {
-                width: 100% !important;
                 padding: 16px 20px !important;
                 font-size: 16px !important;
                 min-height: 56px !important;
                 border-radius: 9999px !important;
-                box-sizing: border-box !important;
             }
             #create-product input[type="date"] {
                 min-height: 56px !important;
                 padding: 16px 20px !important;
             }
-            #create-product .grid.grid-cols-1.md\\:grid-cols-2 > div {
-                padding: 20px !important;
-                min-height: 140px !important;
-                border-radius: 2rem !important;
-            }
-            #create-product .grid.grid-cols-1.md\\:grid-cols-2 label {
-                font-size: 13px !important;
-                white-space: normal !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 6px !important;
-            }
-
-            /* Transfer form */
-            #transfer-ownership .glass {
-                padding: 24px !important;
-            }
-
-            /* Product grid */
-            #productGridBody {
-                gap: 16px !important;
-            }
-            #productGridBody > div .relative.h-48 {
-                height: 200px !important;
-            }
-
-            /* Sidebar chi tiết full màn hình */
-            #productDetailSidebar {
-                width: 100% !important;
-            }
-
-            /* Bottom nav */
-            #mobile-bottom-nav {
-                height: 74px !important;
-                padding: 8px 12px !important;
-                box-shadow: 0 -8px 30px -6px rgb(14 165 233 / 0.25) !important;
-            }
-            .mobile-nav-btn i {
-                font-size: 26px !important;
-            }
-            .mobile-nav-btn span {
-                font-size: 11px !important;
-                margin-top: 4px !important;
-            }
         }
 
-        /* Đảm bảo input luôn full width */
         input, textarea, select {
             width: 100% !important;
             box-sizing: border-box !important;
@@ -269,7 +216,7 @@
 
     <!-- DASHBOARD CONTENT -->
     <div id="dashboard-content" class="flex w-full min-h-screen">
-        <!-- Sidebar (giữ nguyên) -->
+        <!-- Sidebar -->
         <aside class="w-72 bg-white/95 border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen shadow-2xl backdrop-blur-xl">
             <div class="p-8">
                 <div class="flex items-center gap-3">
@@ -336,7 +283,7 @@
                 </button>
             </header>
            
-            <!-- Khu vực scroll chính - ĐÃ TĂNG CƯỜNG SCROLL -->
+            <!-- Khu vực scroll chính - ĐÃ FIX HOÀN TOÀN -->
             <div id="main-scroll-area" class="p-10 overflow-y-auto flex-1">
                 <!-- List Products -->
                 <div id="list-products" class="tab-content active">
@@ -422,7 +369,7 @@
             </button>
         </div>
 
-        <!-- Sidebar chi tiết & Modals (giữ nguyên) -->
+        <!-- Sidebar chi tiết & Modals -->
         <div id="productDetailSidebar" class="fixed inset-y-0 right-0 w-[420px] bg-white/95 shadow-2xl translate-x-full flex flex-col z-[100] border-l border-slate-200 backdrop-blur-2xl">
             <div class="px-6 py-6 border-b flex items-center justify-between bg-white/80">
                 <div class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-emerald-600"></i><h3 class="font-bold text-xl text-slate-800">Chi tiết sản phẩm</h3></div>
@@ -461,7 +408,6 @@
     </div>
 
 <script>
-/* ==================== TOÀN BỘ CODE JS GIỮ NGUYÊN ==================== */
 const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
 const abi = [
     {"inputs":[{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_batchID","type":"string"},{"internalType":"string","name":"_manufactureDate","type":"string"},{"internalType":"string","name":"_origin","type":"string"},{"internalType":"string[]","name":"_ingredients","type":"string[]"},{"internalType":"string","name":"_productImageUrl","type":"string"},{"internalType":"string","name":"_certificationUrl","type":"string"},{"internalType":"string","name":"_manufacturerName","type":"string"},{"internalType":"string","name":"_factoryAddress","type":"string"}],"name":"createProduct","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -513,13 +459,11 @@ function showTab(tabId) {
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
     
-    // Force scroll reset khi chuyển sang tab Đăng ký sản phẩm
-    if (tabId === 'create-product') {
-        setTimeout(() => {
-            const scrollArea = document.getElementById('main-scroll-area');
-            if (scrollArea) scrollArea.scrollTop = 0;
-        }, 100);
-    }
+    // Reset scroll khi chuyển tab
+    setTimeout(() => {
+        const scrollArea = document.getElementById('main-scroll-area');
+        if (scrollArea) scrollArea.scrollTop = 0;
+    }, 100);
 }
 
 async function createProduct() {
@@ -707,7 +651,6 @@ function showFunctionInfo(type) {
     modal.classList.add('active');
 }
 
-/* Mobile bottom nav */
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
