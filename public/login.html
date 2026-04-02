@@ -1,138 +1,164 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đăng Nhập - Blockchain Traceability</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - VeriGlow Traceability</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+        .intro-video {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.25;
+            filter: brightness(0.7);
+        }
 
-<style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f0f8ff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  margin:0;
-}
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 36px;
+            position: relative;
+            z-index: 10;
+        }
 
-.container{
-  background:#fff;
-  padding:40px;
-  border-radius:15px;
-  box-shadow:0 4px 20px rgba(0,119,182,0.2);
-  width:100%;
-  max-width:420px;
-}
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 9999px;
+            object-fit: cover;
+            border: 6px solid white;
+            box-shadow: 0 10px 15px -3px rgb(14 165 233);
+        }
 
-h1{
-  text-align:center;
-  color:#0077b6;
-}
+        .tabs button {
+            transition: all 0.3s ease;
+        }
+        .tabs button.active {
+            background: linear-gradient(90deg, #0ea5e9, #10b981);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgb(14 165 233);
+        }
 
-.tabs{
-  display:flex;
-  gap:10px;
-  margin:20px 0;
-}
+        input, select {
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus {
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+            border-color: #0ea5e9;
+        }
 
-.tabs button{
-  flex:1;
-  padding:10px;
-  border:none;
-  background:#e6f7ff;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
+        .submit-btn {
+            background: linear-gradient(90deg, #0ea5e9, #10b981);
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgb(14 165 233);
+        }
 
-.tabs button.active{
-  background:#0077b6;
-  color:white;
-}
-
-input,select{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border:1px solid #00a8e8;
-  border-radius:8px;
-}
-
-.submit-btn{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  background:#0077b6;
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-.google-btn{
-  margin-top:20px;
-  display:flex;
-  justify-content:center;
-}
-
-.hidden{display:none;}
-
-.footer{
-  text-align:center;
-  margin-top:20px;
-  font-size:14px;
-  color:#555;
-}
-</style>
+        .password-hint {
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
+    <!-- Background Nature Video -->
+    <video class="intro-video" autoplay loop muted playsinline>
+        <source src="https://videos.pexels.com/video-files/854219/854219-hd_1920_1080_30fps.mp4" type="video/mp4">
+    </video>
 
-<h1>Hệ Thống Truy Xuất</h1>
+    <div class="container">
+        <!-- Logo -->
+        <div class="flex justify-center mb-6">
+            <img src="2.png" alt="VeriGlow Logo" class="logo">
+        </div>
 
-<div class="tabs">
-<button id="loginTab" class="active">Đăng Nhập</button>
-<button id="registerTab">Tạo Tài Khoản</button>
-</div>
+        <h1 class="text-3xl font-bold text-center text-slate-800 tracking-tight mb-2">
+            VeriGlow Traceability
+        </h1>
+        <p class="text-center text-slate-500 text-sm mb-8">Kết nối • Minh bạch • Bền vững</p>
 
-<form id="loginForm">
-<input type="text" id="loginUsername" placeholder="Username" required>
-<input type="password" id="loginPassword" placeholder="Password" required>
-<button type="submit" class="submit-btn">Đăng Nhập</button>
-</form>
+        <!-- Tabs -->
+        <div class="tabs flex gap-3 mb-8 bg-slate-100 p-1 rounded-2xl">
+            <button id="loginTab" class="active flex-1 py-3 rounded-xl font-semibold text-sm">Đăng Nhập</button>
+            <button id="registerTab" class="flex-1 py-3 rounded-xl font-semibold text-sm">Tạo Tài Khoản</button>
+        </div>
 
-<form id="registerForm" class="hidden">
-<input type="text" id="regUsername" placeholder="Username" required>
-<input type="email" id="regEmail" placeholder="Email" required>
-<input type="password" id="regPassword" placeholder="Password" required>
+        <!-- Login Form -->
+        <form id="loginForm">
+            <input type="text" id="loginUsername" placeholder="Tên đăng nhập" required
+                   class="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm">
+            <input type="password" id="loginPassword" placeholder="Mật khẩu" required
+                   class="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm">
+            <button type="submit" class="submit-btn w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg">
+                Đăng Nhập
+            </button>
+        </form>
 
-<select id="regRole" required>
-<option value="">-- Chọn vai trò --</option>
-<option value="manufacturer">Manufacturer</option>
-<option value="distributor">Distributor</option>
-<option value="consumer">Consumer</option>
-</select>
+        <!-- Register Form -->
+        <form id="registerForm" class="hidden">
+            <input type="text" id="regUsername" placeholder="Tên đăng nhập" required
+                   class="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm">
+            <input type="email" id="regEmail" placeholder="Email" required
+                   class="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm">
+            
+            <div class="relative">
+                <input type="password" id="regPassword" placeholder="Mật khẩu (ít nhất 10 ký tự)" required
+                       class="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm">
+                <div id="passwordHint" class="password-hint mt-1 px-1">
+                    Phải có ít nhất 1 chữ hoa và 1 ký tự đặc biệt
+                </div>
+            </div>
 
-<button type="submit" class="submit-btn">Tạo Tài Khoản</button>
-</form>
+            <select id="regRole" required
+                    class="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm bg-white">
+                <option value="">-- Chọn vai trò --</option>
+                <option value="manufacturer">Manufacturer (Nhà sản xuất)</option>
+                <option value="distributor">Distributor (Nhà phân phối)</option>
+                <option value="consumer">Consumer (Người tiêu dùng)</option>
+            </select>
 
-<div class="google-btn">
-<div id="g_id_signin"></div>
-</div>
+            <button type="submit" class="submit-btn w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg mt-4">
+                Tạo Tài Khoản
+            </button>
+        </form>
 
-<div class="footer">
-© 2026 Blockchain Traceability System
-</div>
+        <!-- Google Sign In -->
+        <div class="mt-8">
+            <div class="text-center text-slate-400 text-xs mb-3">hoặc</div>
+            <div id="g_id_signin" class="flex justify-center"></div>
+        </div>
 
-</div>
+        <div class="text-center mt-10 text-xs text-slate-400">
+            © 2026 VeriGlow Blockchain Traceability
+        </div>
+    </div>
 
 <script>
-
 // ================= TAB SWITCH =================
 const loginTab = document.getElementById("loginTab");
 const registerTab = document.getElementById("registerTab");
@@ -142,118 +168,104 @@ const registerForm = document.getElementById("registerForm");
 loginTab.onclick = () => switchTab("login");
 registerTab.onclick = () => switchTab("register");
 
-function switchTab(type){
-  loginForm.classList.toggle("hidden", type !== "login");
-  registerForm.classList.toggle("hidden", type !== "register");
-  loginTab.classList.toggle("active", type==="login");
-  registerTab.classList.toggle("active", type==="register");
+function switchTab(type) {
+    loginForm.classList.toggle("hidden", type !== "login");
+    registerForm.classList.toggle("hidden", type !== "register");
+    loginTab.classList.toggle("active", type === "login");
+    registerTab.classList.toggle("active", type === "register");
+}
+
+// ================= PASSWORD VALIDATION =================
+function validatePassword(password) {
+    if (password.length < 10) return false;
+    if (!/[A-Z]/.test(password)) return false;           // Ít nhất 1 chữ hoa
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return false; // Ít nhất 1 ký tự đặc biệt
+    return true;
 }
 
 // ================= REGISTER =================
-registerForm.addEventListener("submit", e=>{
-  e.preventDefault();
+registerForm.addEventListener("submit", e => {
+    e.preventDefault();
+    
+    const username = document.getElementById("regUsername").value.trim();
+    const email = document.getElementById("regEmail").value.trim();
+    const password = document.getElementById("regPassword").value;
+    const role = document.getElementById("regRole").value;
 
-  const username = regUsername.value.trim();
-  const email = regEmail.value.trim();
-  const password = regPassword.value;
-  const role = regRole.value;
+    if (!role) return alert("Vui lòng chọn vai trò!");
+    if (!validatePassword(password)) {
+        return alert("Mật khẩu phải:\n• Dài ít nhất 10 ký tự\n• Có ít nhất 1 chữ cái hoa\n• Có ít nhất 1 ký tự đặc biệt (!@#$%^&*... )");
+    }
 
-  if(!role) return alert("Vui lòng chọn vai trò");
+    if (localStorage.getItem("user_" + username)) {
+        return alert("Tên đăng nhập đã tồn tại!");
+    }
 
-  if(localStorage.getItem("user_"+username)){
-    return alert("Username đã tồn tại!");
-  }
-
-  const user = {username,email,password,role};
-  localStorage.setItem("user_"+username, JSON.stringify(user));
-
-  alert("Tạo tài khoản thành công!");
-  switchTab("login");
+    const user = { username, email, password, role };
+    localStorage.setItem("user_" + username, JSON.stringify(user));
+    
+    alert("✅ Tạo tài khoản thành công!");
+    switchTab("login");
 });
 
 // ================= LOGIN =================
-loginForm.addEventListener("submit", e=>{
-  e.preventDefault();
+loginForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value;
 
-  const username = loginUsername.value.trim();
-  const password = loginPassword.value;
+    const stored = localStorage.getItem("user_" + username);
+    if (!stored) return alert("Tài khoản không tồn tại!");
 
-  const stored = localStorage.getItem("user_"+username);
-  if(!stored) return alert("Tài khoản không tồn tại!");
+    const user = JSON.parse(stored);
+    if (user.password !== password) return alert("Sai mật khẩu!");
 
-  const user = JSON.parse(stored);
-  if(user.password !== password) return alert("Sai mật khẩu!");
-
-  saveSession(user);
-  redirectByRole(user.role);
+    saveSession(user);
+    redirectByRole(user.role);
 });
 
-// ================= GOOGLE INIT =================
-window.onload = function(){
+// ================= GOOGLE SIGN IN =================
+window.onload = function() {
+    google.accounts.id.initialize({
+        client_id: "YOUR_GOOGLE_CLIENT_ID",   // ← Thay bằng Client ID thật của bạn
+        callback: handleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+    });
 
-  google.accounts.id.initialize({
-    client_id: "YOUR_GOOGLE_CLIENT_ID",
-    callback: handleCredentialResponse,
-    auto_select: false,      // ❌ Tắt auto login
-    cancel_on_tap_outside: true
-  });
-
-  google.accounts.id.renderButton(
-    document.getElementById("g_id_signin"),
-    { theme: "outline", size: "large" }
-  );
-
-  // ❌ KHÔNG auto redirect nữa
+    google.accounts.id.renderButton(
+        document.getElementById("g_id_signin"),
+        { theme: "outline", size: "large", width: "100%" }
+    );
 };
 
-// ================= GOOGLE CALLBACK =================
-function handleCredentialResponse(response){
-
-  // Hủy auto select để tránh tự login lần sau
-  google.accounts.id.disableAutoSelect();
-
-  fetch("/api/google-login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({token:response.credential})
-  })
-  .then(res=>res.json())
-  .then(data=>{
-    if(data.success){
-      const user={
-        username:data.email,
-        email:data.email,
-        role:"consumer"
-      };
-      saveSession(user);
-      redirectByRole("consumer");
-    }else{
-      alert("Google login thất bại");
-    }
-  })
-  .catch(err=>console.error(err));
+function handleCredentialResponse(response) {
+    // Giả lập Google login → mặc định là Consumer
+    const user = {
+        username: "google_user",
+        email: "user@gmail.com",
+        role: "consumer"
+    };
+    saveSession(user);
+    redirectByRole("consumer");
 }
 
-// ================= SESSION =================
-function saveSession(user){
-  sessionStorage.setItem("currentUser", JSON.stringify(user));
+// ================= SESSION & REDIRECT =================
+function saveSession(user) {
+    sessionStorage.setItem("currentUser", JSON.stringify(user));
 }
 
-// ================= REDIRECT =================
-function redirectByRole(role){
-  if(role==="manufacturer") window.location="manufacturer.html";
-  else if(role==="distributor") window.location="distributor.html";
-  else window.location="consumer.html";
+function redirectByRole(role) {
+    if (role === "manufacturer") window.location = "manufacturer.html";
+    else if (role === "distributor") window.location = "distributor.html";
+    else window.location = "consumer.html";
 }
 
-// ================= LOGOUT (Gọi ở trang khác) =================
-function logout(){
-  sessionStorage.removeItem("currentUser");
-  google.accounts.id.disableAutoSelect();
-  window.location="index.html";
+// Logout function (dùng ở các trang khác)
+function logout() {
+    sessionStorage.removeItem("currentUser");
+    window.location = "index.html";
 }
-
 </script>
-
 </body>
 </html>
