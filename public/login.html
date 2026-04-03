@@ -9,30 +9,35 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
    
     <!-- Firebase SDK v12.11.0 -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyCXS7P36IXbu2wg63hXhEMPtbSacXjmekU",
-            authDomain: "veriglow-traceability.firebaseapp.com",
-            projectId: "veriglow-traceability",
-            storageBucket: "veriglow-traceability.firebasestorage.app",
-            messagingSenderId: "133403846027",
-            appId: "1:133403846027:web:c64ab22e3214604f47fb8e",
-            measurementId: "G-8PNN9581QK"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        // Export để script thường sử dụng
-        window.firebaseAuth = auth;
-        window.firebaseDB = db;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-    </script>
+   <!-- Firebase SDK v12.11.0 -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyCXS7P36IXbu2wg63hXhEMPtbSacXjmekU",
+        authDomain: "veriglow-traceability.firebaseapp.com",
+        projectId: "veriglow-traceability",
+        storageBucket: "veriglow-traceability.firebasestorage.app",
+        messagingSenderId: "133403846027",
+        appId: "1:133403846027:web:c64ab22e3214604f47fb8e",
+        measurementId: "G-8PNN9581QK"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // Export tất cả hàm cần dùng ra window
+    window.firebaseAuth = auth;
+    window.firebaseDB = db;
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    window.setDoc = setDoc;
+    window.doc = doc;
+    window.getDoc = getDoc;
+</script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
