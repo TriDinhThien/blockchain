@@ -7,41 +7,37 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-   
+    
     <!-- Firebase SDK v12.11.0 -->
-   <!-- Firebase SDK v12.11.0 -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    
-    const firebaseConfig = {
-        apiKey: "AIzaSyCXS7P36IXbu2wg63hXhEMPtbSacXjmekU",
-        authDomain: "veriglow-traceability.firebaseapp.com",
-        projectId: "veriglow-traceability",
-        storageBucket: "veriglow-traceability.firebasestorage.app",
-        messagingSenderId: "133403846027",
-        appId: "1:133403846027:web:c64ab22e3214604f47fb8e",
-        measurementId: "G-8PNN9581QK"
-    };
-    
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    
-    // Export tất cả hàm cần dùng ra window
-    window.firebaseAuth = auth;
-    window.firebaseDB = db;
-    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-    window.setDoc = setDoc;
-    window.doc = doc;
-    window.getDoc = getDoc;
-</script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+        // 🔥 Config từ firebaseauth.js (veriglow project)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAQH-F90Hv_f1uMOENv7hCm_bGU9f0aGs",
+            authDomain: "veriglow.firebaseapp.com",
+            projectId: "veriglow",
+            storageBucket: "veriglow.firebasestorage.app",
+            messagingSenderId: "400350869290",
+            appId: "1:400350869290:web:a4bff84794214a1dcb5053"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Export để script thường sử dụng
+        window.firebaseAuth = auth;
+        window.firebaseDB = db;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    </script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-      
+       
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
@@ -74,9 +70,6 @@
             transform: translateY(-2px);
             box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.4);
         }
-        #authMessage {
-            transition: all 0.4s ease;
-        }
         @media (max-width: 640px) {
             .glass {
                 padding: 28px 20px;
@@ -87,6 +80,7 @@
     </style>
 </head>
 <body class="flex items-center justify-center p-4 sm:p-6">
+
     <!-- Intro Screen -->
     <div id="intro-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 transition-all duration-700">
         <div class="text-center z-10 px-6 max-w-xs sm:max-w-sm">
@@ -109,7 +103,7 @@
                 <h1 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">VeriGlow</h1>
             </div>
             <p class="text-center text-slate-500 mb-8 text-sm">Hệ thống truy xuất nguồn gốc Blockchain</p>
-            
+
             <!-- Tabs -->
             <div class="flex bg-slate-100 rounded-2xl p-1 mb-8">
                 <button id="loginTab" onclick="switchTab('login')" class="tab-btn active flex-1 py-4 rounded-xl font-semibold text-sm">Đăng Nhập</button>
@@ -128,6 +122,9 @@
             <!-- Register Form -->
             <form id="registerForm" class="hidden space-y-5">
                 <input type="text" id="regUsername" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Tên đăng nhập" required>
+                <!-- Thông tin bổ sung từ firebaseauth.js -->
+                <input type="text" id="fName" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Họ" required>
+                <input type="text" id="lName" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Tên" required>
                 <input type="email" id="regEmail" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Email" required>
                 <input type="password" id="regPassword" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Mật khẩu" required>
                 <select id="regRole" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm bg-white">
@@ -139,14 +136,15 @@
                 <button type="submit" class="submit-btn w-full py-4 bg-gradient-to-r from-sky-600 to-emerald-600 text-white font-semibold rounded-2xl text-base shadow-lg">Tạo Tài Khoản</button>
             </form>
 
-            <!-- Message Container (dùng chung cho showMessage) -->
-            <div id="authMessage" class="mt-6 px-5 py-4 text-center text-sm font-medium rounded-2xl border border-emerald-200 bg-emerald-50 hidden"></div>
-
             <!-- Google Sign In -->
             <div class="mt-8">
                 <div class="text-center text-slate-400 text-xs mb-4">hoặc</div>
                 <div id="g_id_signin" class="flex justify-center"></div>
             </div>
+
+            <!-- Message từ firebaseauth.js -->
+            <div id="singUpMessage" style="display: none;" class="mt-4 text-center text-sm font-medium bg-emerald-50 text-emerald-700 rounded-2xl py-3 px-4"></div>
+            <div id="signInMessage" style="display: none;" class="mt-4 text-center text-sm font-medium bg-emerald-50 text-emerald-700 rounded-2xl py-3 px-4"></div>
 
             <div class="text-center mt-10 text-[10px] text-slate-400">
                 © 2026 VeriGlow Blockchain Traceability System
@@ -155,163 +153,154 @@
     </div>
 
 <script>
+// Tab Switch
+function switchTab(type) {
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const loginTab = document.getElementById("loginTab");
+    const registerTab = document.getElementById("registerTab");
+
+    if (type === "login") {
+        loginForm.classList.remove("hidden");
+        registerForm.classList.add("hidden");
+        loginTab.classList.add("active");
+        registerTab.classList.remove("active");
+    } else {
+        loginForm.classList.add("hidden");
+        registerForm.classList.remove("hidden");
+        loginTab.classList.remove("active");
+        registerTab.classList.add("active");
+    }
+}
+
+// Show Message function từ firebaseauth.js
 function showMessage(message, divId) {
-        var messageDiv = document.getElementById(divId);
-        if (!messageDiv) return;
+    var messageDiv = document.getElementById(divId);
+    if (messageDiv) {
         messageDiv.style.display = "block";
-        messageDiv.classList.remove("hidden");
         messageDiv.innerHTML = message;
         setTimeout(function() {
-            messageDiv.style.opacity = 0;
-            setTimeout(() => {
-                messageDiv.style.display = "none";
-                messageDiv.style.opacity = 1;
-                messageDiv.classList.add("hidden");
-            }, 600);
+            messageDiv.style.opacity = "0";
+            setTimeout(() => { messageDiv.style.display = "none"; messageDiv.style.opacity = "1"; }, 600);
         }, 5000);
     }
+}
 
-    // ====================== TAB SWITCH ======================
-    function switchTab(type) {
-        const loginForm = document.getElementById("loginForm");
-        const registerForm = document.getElementById("registerForm");
-        const loginTab = document.getElementById("loginTab");
-        const registerTab = document.getElementById("registerTab");
-        
-        if (type === "login") {
-            loginForm.classList.remove("hidden");
-            registerForm.classList.add("hidden");
-            loginTab.classList.add("active");
-            registerTab.classList.remove("active");
+// Register với Firebase (tích hợp đầy đủ firebaseauth.js)
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById("regUsername").value.trim();
+    const firstName = document.getElementById("fName").value.trim();
+    const lastName = document.getElementById("lName").value.trim();
+    const email = document.getElementById("regEmail").value.trim();
+    const password = document.getElementById("regPassword").value;
+    const role = document.getElementById("regRole").value;
+
+    if (!role) return alert("Vui lòng chọn vai trò!");
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+        const user = userCredential.user;
+
+        const userData = {
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            role: role,
+            uid: user.uid,
+            createdAt: new Date()
+        };
+
+        await setDoc(doc(window.firebaseDB, "users", user.uid), userData);
+
+        showMessage("Account created successfully! Please login.", "singUpMessage");
+        switchTab("login");   // Chuyển sang tab Đăng Nhập như firebaseauth.js
+    } catch (error) {
+        const errorCode = error.code;
+        if (errorCode === "auth/email-already-in-use") {
+            showMessage("Email already in use. Please try another email.", "singUpMessage");
         } else {
-            loginForm.classList.add("hidden");
-            registerForm.classList.remove("hidden");
-            loginTab.classList.remove("active");
-            registerTab.classList.add("active");
+            showMessage('unable to create account. Please try again later.', "singUpMessage");
         }
     }
+});
 
-    // ====================== REGISTER FORM (ĐÃ SỬA LỖI) ======================
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        
-        const username = document.getElementById("regUsername").value.trim();
-        const email = document.getElementById("regEmail").value.trim();
-        const password = document.getElementById("regPassword").value;
-        const role = document.getElementById("regRole").value;
+// Login với Firebase (tích hợp đầy đủ firebaseauth.js + giữ role redirect)
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        if (!role) {
-            showMessage("Vui lòng chọn vai trò!", "authMessage");
-            return;
+    const email = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    try {
+        const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+        const user = userCredential.user;
+
+        // Lưu theo firebaseauth.js
+        localStorage.setItem("loggedInUserId", user.uid);
+
+        const userDoc = await getDoc(doc(window.firebaseDB, "users", user.uid));
+        if (!userDoc.exists()) return alert("Không tìm thấy thông tin tài khoản!");
+
+        const role = userDoc.data().role;
+        const sessionData = { email: user.email, role: role, uid: user.uid, firstName: userDoc.data().firstName, lastName: userDoc.data().lastName };
+
+        sessionStorage.setItem("currentUser", JSON.stringify(sessionData));
+
+        showMessage("Login successful!", "signInMessage");
+        redirectByRole(role);
+    } catch (error) {
+        const errorCode = error.code;
+        if (errorCode === "auth/invalid-credential") {
+            showMessage('Incorrect email or password. Please try again.', "signInMessage");
+        } else {
+            showMessage('Unable to login. Please try again later.', "signInMessage");
         }
-        if (password.length < 6) {
-            showMessage("Mật khẩu phải có ít nhất 6 ký tự!", "authMessage");
-            return;
-        }
+    }
+});
 
-        try {
-            const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-            const user = userCredential.user;
+function saveSession(user) {
+    sessionStorage.setItem("currentUser", JSON.stringify(user));
+}
 
-            await setDoc(doc(window.firebaseDB, "users", user.uid), {
-                username: username,
-                email: email,
-                role: role,
-                createdAt: new Date()
-            });
+function redirectByRole(role) {
+    if (role === "manufacturer") window.location = "manufacturer.html";
+    else if (role === "distributor") window.location = "distributor.html";
+    else window.location = "consumer.html";
+}
 
-            showMessage("✅ Tài khoản đã tạo thành công! Vui lòng đăng nhập.", "authMessage");
-            switchTab("login");
-        } catch (error) {
-            console.error("Firebase Error:", error); // Để debug dễ hơn
-
-            const errorCode = error.code;
-            if (errorCode === "auth/email-already-in-use") {
-                showMessage("Email này đã tồn tại. Vui lòng dùng email khác.", "authMessage");
-            } else if (errorCode === "auth/weak-password") {
-                showMessage("Mật khẩu quá yếu. Phải có ít nhất 6 ký tự.", "authMessage");
-            } else if (errorCode === "auth/invalid-email") {
-                showMessage("Email không hợp lệ. Vui lòng kiểm tra lại.", "authMessage");
-            } else {
-                showMessage("Không thể tạo tài khoản. Vui lòng thử lại sau.", "authMessage");
-            }
-        }
+// Google Sign In (giữ nguyên)
+window.onload = function() {
+    google.accounts.id.initialize({
+        client_id: "YOUR_GOOGLE_CLIENT_ID",
+        callback: handleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
     });
+    google.accounts.id.renderButton(
+        document.getElementById("g_id_signin"),
+        { theme: "outline", size: "large", width: "100%", text: "continue_with" }
+    );
+};
 
-    // ====================== LOGIN FORM ======================
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById("loginUsername").value.trim();
-        const password = document.getElementById("loginPassword").value;
+function handleCredentialResponse(response) {
+    google.accounts.id.disableAutoSelect();
+    const user = { username: "google_user", email: "user@gmail.com", role: "consumer" };
+    saveSession(user);
+    redirectByRole("consumer");
+}
 
-        try {
-            const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
-            const user = userCredential.user;
-
-            const userDoc = await getDoc(doc(window.firebaseDB, "users", user.uid));
-            if (!userDoc.exists()) {
-                showMessage("Không tìm thấy thông tin tài khoản!", "authMessage");
-                return;
-            }
-
-            const role = userDoc.data().role;
-
-            saveSession({ email: user.email, role: role, uid: user.uid });
-            localStorage.setItem("loggedInUserId", user.uid);
-
-            showMessage("✅ Đăng nhập thành công!", "authMessage");
-            redirectByRole(role);
-        } catch (error) {
-            console.error("Firebase Login Error:", error);
-            const errorCode = error.code;
-            if (errorCode === "auth/invalid-credential" || errorCode === "auth/user-not-found" || errorCode === "auth/wrong-password") {
-                showMessage("Email hoặc mật khẩu không đúng. Vui lòng thử lại.", "authMessage");
-            } else {
-                showMessage("Không thể đăng nhập. Vui lòng thử lại sau.", "authMessage");
-            }
-        }
-    });
-
-    function saveSession(user) {
-        sessionStorage.setItem("currentUser", JSON.stringify(user));
-    }
-
-    function redirectByRole(role) {
-        if (role === "manufacturer") window.location = "manufacturer.html";
-        else if (role === "distributor") window.location = "distributor.html";
-        else window.location = "consumer.html";
-    }
-
-    // ====================== GOOGLE SIGN IN ======================
-    window.onload = function() {
-        google.accounts.id.initialize({
-            client_id: "YOUR_GOOGLE_CLIENT_ID",
-            callback: handleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true
-        });
-        google.accounts.id.renderButton(
-            document.getElementById("g_id_signin"),
-            { theme: "outline", size: "large", width: "100%", text: "continue_with" }
-        );
-    };
-
-    function handleCredentialResponse(response) {
-        google.accounts.id.disableAutoSelect();
-        const user = { username: "google_user", email: "user@gmail.com", role: "consumer" };
-        saveSession(user);
-        localStorage.setItem("loggedInUserId", "google_user_uid");
-        redirectByRole("consumer");
-    }
-
-    // ====================== ENTER DASHBOARD ======================
-    function enterDashboard() {
-        const intro = document.getElementById('intro-screen');
-        intro.style.opacity = '0';
-        setTimeout(() => {
-            intro.style.display = 'none';
-            document.getElementById('main-content').classList.remove('hidden');
-        }, 700);
-    }
+// Enter Dashboard
+function enterDashboard() {
+    const intro = document.getElementById('intro-screen');
+    intro.style.opacity = '0';
+    setTimeout(() => {
+        intro.style.display = 'none';
+        document.getElementById('main-content').classList.remove('hidden');
+    }, 700);
+}
 </script>
+</body>
+</html>
