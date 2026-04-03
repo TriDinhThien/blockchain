@@ -150,8 +150,7 @@
     </div>
 
 <script>
-    // ====================== SHOW MESSAGE (từ code firebaseauth.js bạn đưa) ======================
-    function showMessage(message, divId) {
+function showMessage(message, divId) {
         var messageDiv = document.getElementById(divId);
         if (!messageDiv) return;
         messageDiv.style.display = "block";
@@ -187,7 +186,7 @@
         }
     }
 
-    // ====================== REGISTER FORM ======================
+    // ====================== REGISTER FORM (ĐÃ SỬA LỖI) ======================
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         
@@ -200,12 +199,15 @@
             showMessage("Vui lòng chọn vai trò!", "authMessage");
             return;
         }
+        if (password.length < 6) {
+            showMessage("Mật khẩu phải có ít nhất 6 ký tự!", "authMessage");
+            return;
+        }
 
         try {
             const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
             const user = userCredential.user;
 
-            // Lưu thông tin vào Firestore (giữ nguyên logic role + username)
             await setDoc(doc(window.firebaseDB, "users", user.uid), {
                 username: username,
                 email: email,
@@ -214,11 +216,17 @@
             });
 
             showMessage("✅ Tài khoản đã tạo thành công! Vui lòng đăng nhập.", "authMessage");
-            switchTab("login");   // Chuyển sang tab Đăng Nhập như code gốc
+            switchTab("login");
         } catch (error) {
+            console.error("Firebase Error:", error); // Để debug dễ hơn
+
             const errorCode = error.code;
             if (errorCode === "auth/email-already-in-use") {
-                showMessage("Email đã tồn tại. Vui lòng dùng email khác.", "authMessage");
+                showMessage("Email này đã tồn tại. Vui lòng dùng email khác.", "authMessage");
+            } else if (errorCode === "auth/weak-password") {
+                showMessage("Mật khẩu quá yếu. Phải có ít nhất 6 ký tự.", "authMessage");
+            } else if (errorCode === "auth/invalid-email") {
+                showMessage("Email không hợp lệ. Vui lòng kiểm tra lại.", "authMessage");
             } else {
                 showMessage("Không thể tạo tài khoản. Vui lòng thử lại sau.", "authMessage");
             }
@@ -236,7 +244,6 @@
             const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
             const user = userCredential.user;
 
-            // Lấy role từ Firestore
             const userDoc = await getDoc(doc(window.firebaseDB, "users", user.uid));
             if (!userDoc.exists()) {
                 showMessage("Không tìm thấy thông tin tài khoản!", "authMessage");
@@ -245,15 +252,15 @@
 
             const role = userDoc.data().role;
 
-            // Lưu session (giữ nguyên chức năng cũ)
             saveSession({ email: user.email, role: role, uid: user.uid });
-            localStorage.setItem("loggedInUserId", user.uid);   // Thêm theo code firebaseauth.js
+            localStorage.setItem("loggedInUserId", user.uid);
 
             showMessage("✅ Đăng nhập thành công!", "authMessage");
             redirectByRole(role);
         } catch (error) {
+            console.error("Firebase Login Error:", error);
             const errorCode = error.code;
-            if (errorCode === "auth/invalid-credential") {
+            if (errorCode === "auth/invalid-credential" || errorCode === "auth/user-not-found" || errorCode === "auth/wrong-password") {
                 showMessage("Email hoặc mật khẩu không đúng. Vui lòng thử lại.", "authMessage");
             } else {
                 showMessage("Không thể đăng nhập. Vui lòng thử lại sau.", "authMessage");
@@ -271,7 +278,7 @@
         else window.location = "consumer.html";
     }
 
-    // ====================== GOOGLE SIGN IN (giữ nguyên) ======================
+    // ====================== GOOGLE SIGN IN ======================
     window.onload = function() {
         google.accounts.id.initialize({
             client_id: "YOUR_GOOGLE_CLIENT_ID",
@@ -289,7 +296,7 @@
         google.accounts.id.disableAutoSelect();
         const user = { username: "google_user", email: "user@gmail.com", role: "consumer" };
         saveSession(user);
-        localStorage.setItem("loggedInUserId", "google_user_uid"); // placeholder
+        localStorage.setItem("loggedInUserId", "google_user_uid");
         redirectByRole("consumer");
     }
 
@@ -303,5 +310,3 @@
         }, 700);
     }
 </script>
-</body>
-</html>
