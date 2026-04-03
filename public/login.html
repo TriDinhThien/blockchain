@@ -11,7 +11,7 @@
     <!-- Firebase SDK v12.11.0 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -28,8 +28,11 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Export để script thường sử dụng
         window.firebaseAuth = auth;
         window.firebaseDB = db;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
     </script>
 
     <style>
@@ -163,7 +166,7 @@ function switchTab(type) {
     }
 }
 
-// ================= REGISTER WITH FIREBASE =================
+// Register với Firebase
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -175,12 +178,11 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     if (!role) return alert("Vui lòng chọn vai trò!");
 
     try {
-        // Tạo tài khoản trên Firebase Auth
-        const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
         const user = userCredential.user;
 
-        // Lưu thông tin bổ sung vào Firestore
-        await firebaseDB.collection("users").doc(user.uid).set({
+        // Lưu thông tin người dùng vào Firestore
+        await setDoc(doc(window.firebaseDB, "users", user.uid), {
             username: username,
             email: email,
             role: role,
@@ -194,27 +196,23 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     }
 });
 
-// ================= LOGIN WITH FIREBASE =================
+// Login với Firebase
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const usernameOrEmail = document.getElementById("loginUsername").value.trim(); // Hiện tại dùng email
+    const email = document.getElementById("loginUsername").value.trim();   // Hiện dùng email
     const password = document.getElementById("loginPassword").value;
 
     try {
-        const userCredential = await firebaseAuth.signInWithEmailAndPassword(usernameOrEmail, password);
+        const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
         const user = userCredential.user;
 
-        // Lấy role từ Firestore
-        const doc = await firebaseDB.collection("users").doc(user.uid).get();
-        if (!doc.exists) return alert("Không tìm thấy thông tin tài khoản!");
+        const userDoc = await getDoc(doc(window.firebaseDB, "users", user.uid));
+        if (!userDoc.exists()) return alert("Không tìm thấy thông tin tài khoản!");
 
-        const role = doc.data().role;
+        const role = userDoc.data().role;
 
-        // Lưu session
         saveSession({ email: user.email, role: role, uid: user.uid });
-
-        // Redirect theo role
         redirectByRole(role);
     } catch (error) {
         alert("Đăng nhập thất bại: " + error.message);
@@ -231,7 +229,7 @@ function redirectByRole(role) {
     else window.location = "consumer.html";
 }
 
-// Google Sign In (giữ nguyên)
+// Google Sign In
 window.onload = function() {
     google.accounts.id.initialize({
         client_id: "YOUR_GOOGLE_CLIENT_ID",
