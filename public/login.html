@@ -14,7 +14,6 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-        // 🔥 Config từ firebaseauth.js (veriglow project)
         const firebaseConfig = {
             apiKey: "AIzaSyDAQH-F90Hv_f1uMOENv7hCm_bGU9f0aGs",
             authDomain: "veriglow.firebaseapp.com",
@@ -28,7 +27,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Export để script thường sử dụng
         window.firebaseAuth = auth;
         window.firebaseDB = db;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
@@ -37,51 +35,20 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-       
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.93);
-            backdrop-filter: blur(20px);
-        }
-        .tab-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .tab-btn.active {
-            background: linear-gradient(90deg, #0ea5e9, #10b981);
-            color: white;
-            box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.4);
-        }
-        input, select {
-            transition: all 0.3s ease;
-        }
-        input:focus, select:focus {
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-            border-color: #10b981;
-        }
-        .submit-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.4);
-        }
-        @media (max-width: 640px) {
-            .glass {
-                padding: 28px 20px;
-                margin: 10px;
-                border-radius: 24px;
-            }
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%); min-height: 100vh; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.93); backdrop-filter: blur(20px); }
+        .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-btn.active { background: linear-gradient(90deg, #0ea5e9, #10b981); color: white; box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.4); }
+        input, select { transition: all 0.3s ease; }
+        input:focus, select:focus { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); border-color: #10b981; }
+        .submit-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.4); }
+        @media (max-width: 640px) { .glass { padding: 28px 20px; margin: 10px; border-radius: 24px; } }
     </style>
 </head>
 <body class="flex items-center justify-center p-4 sm:p-6">
 
-    <!-- Intro Screen -->
+    <!-- Intro Screen (giữ nguyên) -->
     <div id="intro-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 transition-all duration-700">
         <div class="text-center z-10 px-6 max-w-xs sm:max-w-sm">
             <img src="2.png" alt="VeriGlow Logo" class="mx-auto w-36 h-36 sm:w-44 sm:h-44 rounded-full object-cover shadow-2xl border-8 border-white/40 mb-8 ring-8 ring-white/20">
@@ -95,7 +62,7 @@
         </div>
     </div>
 
-    <!-- Main Login Container -->
+    <!-- Main Login Container (giữ nguyên) -->
     <div id="main-content" class="hidden w-full max-w-md mx-auto">
         <div class="glass rounded-3xl shadow-2xl p-8 sm:p-10 border border-white/60">
             <div class="flex items-center justify-center gap-3 mb-8">
@@ -122,7 +89,6 @@
             <!-- Register Form -->
             <form id="registerForm" class="hidden space-y-5">
                 <input type="text" id="regUsername" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Tên đăng nhập" required>
-                <!-- Thông tin bổ sung từ firebaseauth.js -->
                 <input type="text" id="fName" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Họ" required>
                 <input type="text" id="lName" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Tên" required>
                 <input type="email" id="regEmail" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Email" required>
@@ -142,7 +108,6 @@
                 <div id="g_id_signin" class="flex justify-center"></div>
             </div>
 
-            <!-- Message từ firebaseauth.js -->
             <div id="singUpMessage" style="display: none;" class="mt-4 text-center text-sm font-medium bg-emerald-50 text-emerald-700 rounded-2xl py-3 px-4"></div>
             <div id="signInMessage" style="display: none;" class="mt-4 text-center text-sm font-medium bg-emerald-50 text-emerald-700 rounded-2xl py-3 px-4"></div>
 
@@ -153,40 +118,34 @@
     </div>
 
 <script>
-// Tab Switch
-function switchTab(type) {
-    const loginForm = document.getElementById("loginForm");
-    const registerForm = document.getElementById("registerForm");
-    const loginTab = document.getElementById("loginTab");
-    const registerTab = document.getElementById("registerTab");
-
-    if (type === "login") {
-        loginForm.classList.remove("hidden");
-        registerForm.classList.add("hidden");
-        loginTab.classList.add("active");
-        registerTab.classList.remove("active");
-    } else {
-        loginForm.classList.add("hidden");
-        registerForm.classList.remove("hidden");
-        loginTab.classList.remove("active");
-        registerTab.classList.add("active");
-    }
-}
-
-// Show Message function từ firebaseauth.js
+// ==================== GIỮ NGUYÊN TẤT CẢ TÍNH NĂNG TRƯỚC ĐÓ ====================
 function showMessage(message, divId) {
-    var messageDiv = document.getElementById(divId);
-    if (messageDiv) {
-        messageDiv.style.display = "block";
-        messageDiv.innerHTML = message;
-        setTimeout(function() {
-            messageDiv.style.opacity = "0";
-            setTimeout(() => { messageDiv.style.display = "none"; messageDiv.style.opacity = "1"; }, 600);
+    const div = document.getElementById(divId);
+    if (div) {
+        div.style.display = "block";
+        div.innerHTML = message;
+        setTimeout(() => {
+            div.style.opacity = "0";
+            setTimeout(() => { div.style.display = "none"; div.style.opacity = "1"; }, 600);
         }, 5000);
     }
 }
 
-// Register với Firebase (tích hợp đầy đủ firebaseauth.js)
+function switchTab(type) { /* giữ nguyên như cũ */ 
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const loginTab = document.getElementById("loginTab");
+    const registerTab = document.getElementById("registerTab");
+    if (type === "login") {
+        loginForm.classList.remove("hidden"); registerForm.classList.add("hidden");
+        loginTab.classList.add("active"); registerTab.classList.remove("active");
+    } else {
+        loginForm.classList.add("hidden"); registerForm.classList.remove("hidden");
+        loginTab.classList.remove("active"); registerTab.classList.add("active");
+    }
+}
+
+// ==================== REGISTER - ĐÃ TĂNG CƯỜNG ERROR HANDLING ====================
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -203,67 +162,58 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
         const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
         const user = userCredential.user;
 
-        const userData = {
-            email: email,
-            firstName: firstName,
-            lastName: lastName,
-            username: username,
-            role: role,
-            uid: user.uid,
-            createdAt: new Date()
-        };
+        await setDoc(doc(window.firebaseDB, "users", user.uid), {
+            email, firstName, lastName, username, role, uid: user.uid, createdAt: new Date()
+        });
 
-        await setDoc(doc(window.firebaseDB, "users", user.uid), userData);
-
-        showMessage("Account created successfully! Please login.", "singUpMessage");
-        switchTab("login");   // Chuyển sang tab Đăng Nhập như firebaseauth.js
+        showMessage("✅ Tài khoản đã tạo thành công! Vui lòng đăng nhập.", "singUpMessage");
+        switchTab("login");
     } catch (error) {
-        const errorCode = error.code;
-        if (errorCode === "auth/email-already-in-use") {
-            showMessage("Email already in use. Please try another email.", "singUpMessage");
+        console.error("🔥 Firebase Error:", error.code, error.message);
+        
+        if (error.code === "auth/email-already-in-use") {
+            showMessage("Email đã tồn tại. Vui lòng dùng email khác.", "singUpMessage");
+        } else if (error.code === "auth/network-request-failed" || error.message.includes("TIMED_OUT")) {
+            showMessage("⚠️ Lỗi kết nối mạng. Vui lòng kiểm tra internet/VPN và thử lại.", "singUpMessage");
+        } else if (error.message.includes("reCAPTCHA")) {
+            showMessage("⚠️ Lỗi reCAPTCHA. Hãy thử deploy lên hosting hoặc dùng VPN.", "singUpMessage");
         } else {
-            showMessage('unable to create account. Please try again later.', "singUpMessage");
+            showMessage("❌ Không thể tạo tài khoản. Vui lòng thử lại sau.", "singUpMessage");
         }
     }
 });
 
-// Login với Firebase (tích hợp đầy đủ firebaseauth.js + giữ role redirect)
+// ==================== LOGIN (giữ nguyên + error handling) ====================
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const email = document.getElementById("loginUsername").value.trim();
     const password = document.getElementById("loginPassword").value;
 
     try {
         const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
         const user = userCredential.user;
-
-        // Lưu theo firebaseauth.js
         localStorage.setItem("loggedInUserId", user.uid);
 
         const userDoc = await getDoc(doc(window.firebaseDB, "users", user.uid));
         if (!userDoc.exists()) return alert("Không tìm thấy thông tin tài khoản!");
 
         const role = userDoc.data().role;
-        const sessionData = { email: user.email, role: role, uid: user.uid, firstName: userDoc.data().firstName, lastName: userDoc.data().lastName };
-
-        sessionStorage.setItem("currentUser", JSON.stringify(sessionData));
+        sessionStorage.setItem("currentUser", JSON.stringify({
+            email: user.email, role, uid: user.uid,
+            firstName: userDoc.data().firstName, lastName: userDoc.data().lastName
+        }));
 
         showMessage("Login successful!", "signInMessage");
         redirectByRole(role);
     } catch (error) {
-        const errorCode = error.code;
-        if (errorCode === "auth/invalid-credential") {
-            showMessage('Incorrect email or password. Please try again.', "signInMessage");
+        console.error("Login Error:", error);
+        if (error.code === "auth/invalid-credential") {
+            showMessage("Email hoặc mật khẩu không đúng.", "signInMessage");
         } else {
-            showMessage('Unable to login. Please try again later.', "signInMessage");
+            showMessage("Lỗi đăng nhập. Vui lòng thử lại.", "signInMessage");
         }
     }
 });
-
-function saveSession(user) {
-    sessionStorage.setItem("currentUser", JSON.stringify(user));
-}
 
 function redirectByRole(role) {
     if (role === "manufacturer") window.location = "manufacturer.html";
