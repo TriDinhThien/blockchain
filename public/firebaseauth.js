@@ -10,57 +10,29 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-       
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
             min-height: 100vh;
-            overflow-x: hidden;
         }
-        .glass {
-            background: rgba(255, 255, 255, 0.93);
-            backdrop-filter: blur(20px);
-        }
-        .tab-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .glass { background: rgba(255, 255, 255, 0.93); backdrop-filter: blur(20px); }
         .tab-btn.active {
             background: linear-gradient(90deg, #0ea5e9, #10b981);
             color: white;
             box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.4);
         }
-        input, select {
-            transition: all 0.3s ease;
-        }
-        input:focus, select:focus {
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-            border-color: #10b981;
-        }
-        .submit-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.4);
-        }
-        @media (max-width: 640px) {
-            .glass {
-                padding: 28px 20px;
-                margin: 10px;
-                border-radius: 24px;
-            }
-        }
+        .submit-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.4); }
     </style>
 </head>
-<body class="flex items-center justify-center p-4 sm:p-6">
+<body class="flex items-center justify-center p-4">
 
     <div id="intro-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 transition-all duration-700">
-        <div class="text-center z-10 px-6 max-w-xs sm:max-w-sm">
-            <img src="2.png" alt="VeriGlow Logo" class="mx-auto w-36 h-36 sm:w-44 sm:h-44 rounded-full object-cover shadow-2xl border-8 border-white/40 mb-8 ring-8 ring-white/20">
-            <h1 class="text-5xl sm:text-6xl font-bold tracking-[-2px] text-white drop-shadow-xl">VeriGlow</h1>
-            <p class="text-white/90 text-xl sm:text-2xl mt-3 font-light">Blockchain Traceability</p>
-            <p class="text-emerald-200 text-sm mt-2">Minh bạch • An toàn • Kết nối thiên nhiên</p>
-            <button onclick="enterDashboard()" class="mt-12 w-full sm:w-auto px-14 py-6 bg-white text-slate-900 rounded-3xl font-semibold text-xl sm:text-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all flex items-center justify-center gap-4 mx-auto">
+        <div class="text-center z-10 px-6">
+            <img src="2.png" alt="VeriGlow Logo" class="mx-auto w-36 h-36 rounded-full object-cover shadow-2xl border-8 border-white/40 mb-8">
+            <h1 class="text-5xl font-bold text-white drop-shadow-xl">VeriGlow</h1>
+            <p class="text-white/90 text-xl mt-3 font-light">Blockchain Traceability</p>
+            <button onclick="enterDashboard()" class="mt-12 px-14 py-6 bg-white text-slate-900 rounded-3xl font-semibold text-xl shadow-2xl hover:scale-105 transition-all flex items-center gap-4 mx-auto">
                 <span>Tiếp tục đăng nhập</span>
                 <i class="fa-solid fa-arrow-right text-emerald-500"></i>
             </button>
@@ -68,47 +40,37 @@
     </div>
 
     <div id="main-content" class="hidden w-full max-w-md mx-auto">
-        <div class="glass rounded-3xl shadow-2xl p-8 sm:p-10 border border-white/60">
+        <div class="glass rounded-3xl shadow-2xl p-8 border border-white/60">
             <div class="flex items-center justify-center gap-3 mb-8">
-                <img src="2.png" alt="Logo" class="w-12 h-12 sm:w-14 sm:h-14 rounded-3xl object-cover shadow-md">
-                <h1 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">VeriGlow</h1>
+                <img src="2.png" alt="Logo" class="w-12 h-12 rounded-2xl object-cover">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">VeriGlow</h1>
             </div>
-            <p class="text-center text-slate-500 mb-8 text-sm">Hệ thống truy xuất nguồn gốc Blockchain</p>
 
             <div class="flex bg-slate-100 rounded-2xl p-1 mb-8">
                 <button id="loginTab" onclick="switchTab('login')" class="tab-btn active flex-1 py-4 rounded-xl font-semibold text-sm">Đăng Nhập</button>
                 <button id="registerTab" onclick="switchTab('register')" class="tab-btn flex-1 py-4 rounded-xl font-semibold text-sm">Tạo Tài Khoản</button>
             </div>
 
-            <form id="loginForm">
-                <div class="space-y-5">
-                    <input type="text" id="loginUsername" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Email đăng nhập" required>
-                    <input type="password" id="loginPassword" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Mật khẩu" required>
-                    <button type="submit" class="submit-btn w-full py-4 bg-gradient-to-r from-sky-600 to-emerald-600 text-white font-semibold rounded-2xl text-base shadow-lg">Đăng Nhập</button>
-                </div>
+            <form id="loginForm" class="space-y-5">
+                <input type="email" id="loginEmail" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Email" required>
+                <input type="password" id="loginPassword" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Mật khẩu" required>
+                <button type="submit" class="submit-btn w-full py-4 bg-gradient-to-r from-sky-600 to-emerald-600 text-white font-semibold rounded-2xl shadow-lg">Đăng Nhập</button>
             </form>
 
             <form id="registerForm" class="hidden space-y-5">
-                <input type="text" id="regUsername" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Tên hiển thị" required>
+                <input type="text" id="regUsername" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Tên người dùng" required>
                 <input type="email" id="regEmail" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Email" required>
-                <input type="password" id="regPassword" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Mật khẩu (Tối thiểu 6 ký tự)" required>
-                <select id="regRole" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm bg-white">
+                <input type="password" id="regPassword" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm" placeholder="Mật khẩu (6+ ký tự)" required>
+                <select id="regRole" class="w-full px-6 py-4 rounded-2xl border border-slate-200 focus:outline-none text-sm bg-white" required>
                     <option value="">-- Chọn vai trò --</option>
-                    <option value="manufacturer">Manufacturer (Nhà sản xuất)</option>
-                    <option value="distributor">Distributor (Nhà phân phối)</option>
-                    <option value="consumer">Consumer (Người tiêu dùng)</option>
+                    <option value="manufacturer">Nhà sản xuất</option>
+                    <option value="distributor">Nhà phân phối</option>
+                    <option value="consumer">Người tiêu dùng</option>
                 </select>
-                <button type="submit" class="submit-btn w-full py-4 bg-gradient-to-r from-sky-600 to-emerald-600 text-white font-semibold rounded-2xl text-base shadow-lg">Tạo Tài Khoản</button>
+                <button type="submit" class="submit-btn w-full py-4 bg-gradient-to-r from-sky-600 to-emerald-600 text-white font-semibold rounded-2xl shadow-lg">Đăng Ký</button>
             </form>
 
-            <div class="mt-8">
-                <div class="text-center text-slate-400 text-xs mb-4">hoặc</div>
-                <div id="g_id_signin" class="flex justify-center"></div>
-            </div>
-
-            <div class="text-center mt-10 text-[10px] text-slate-400">
-                © 2026 VeriGlow Blockchain Traceability System
-            </div>
+            <div id="g_id_signin" class="mt-8 flex justify-center"></div>
         </div>
     </div>
 
@@ -117,45 +79,22 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-        // Cấu hình Firebase gốc của bạn
+        // CẤU HÌNH CHÍNH XÁC TỪ PROJECT VERIGLOW
         const firebaseConfig = {
-            apiKey: "AIzaSyCXS7P36IXbu2wg63hXhEMPtbSacXjmekU",
-            authDomain: "veriglow-traceability.firebaseapp.com",
-            projectId: "veriglow-traceability",
-            storageBucket: "veriglow-traceability.firebasestorage.app",
-            messagingSenderId: "133403846027",
-            appId: "1:133403846027:web:c64ab22e3214604f47fb8e",
-            measurementId: "G-8PNN9581QK"
+            apiKey: "AIzaSyDAQH-F90Hv_f1uMOENv7hCm_bGU9f0aGs",
+            authDomain: "veriglow.firebaseapp.com",
+            projectId: "veriglow",
+            storageBucket: "veriglow.firebasestorage.app",
+            messagingSenderId: "400350869290",
+            appId: "1:400350869290:web:a4bff84794214a1dcb5053"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ==========================================
-        // 1. CÁC HÀM XỬ LÝ GIAO DIỆN (Đưa ra window để HTML gọi được)
-        // ==========================================
-        
-        window.switchTab = function(type) {
-            const loginForm = document.getElementById("loginForm");
-            const registerForm = document.getElementById("registerForm");
-            const loginTab = document.getElementById("loginTab");
-            const registerTab = document.getElementById("registerTab");
-
-            if (type === "login") {
-                loginForm.classList.remove("hidden");
-                registerForm.classList.add("hidden");
-                loginTab.classList.add("active");
-                registerTab.classList.remove("active");
-            } else {
-                loginForm.classList.add("hidden");
-                registerForm.classList.remove("hidden");
-                loginTab.classList.remove("active");
-                registerTab.classList.add("active");
-            }
-        };
-
-        window.enterDashboard = function() {
+        // UI Functions
+        window.enterDashboard = () => {
             const intro = document.getElementById('intro-screen');
             intro.style.opacity = '0';
             setTimeout(() => {
@@ -164,133 +103,65 @@
             }, 700);
         };
 
-        // ==========================================
-        // 2. CÁC HÀM TIỆN ÍCH (Lưu Session & Điều hướng)
-        // ==========================================
+        window.switchTab = (type) => {
+            document.getElementById("loginForm").classList.toggle("hidden", type === 'register');
+            document.getElementById("registerForm").classList.toggle("hidden", type === 'login');
+            document.getElementById("loginTab").classList.toggle("active", type === 'login');
+            document.getElementById("registerTab").classList.toggle("active", type === 'register');
+        };
 
-        function saveSession(user) {
-            sessionStorage.setItem("currentUser", JSON.stringify(user));
-            // Thêm localStorage giống logic file JS cũ của bạn để tương thích
-            localStorage.setItem("loggedInUserId", user.uid);
-        }
-
-        function redirectByRole(role) {
-            if (role === "manufacturer") window.location.href = "manufacturer.html";
-            else if (role === "distributor") window.location.href = "distributor.html";
-            else window.location.href = "consumer.html";
-        }
-
-        // ==========================================
-        // 3. LOGIC ĐĂNG KÝ (FIREBASE AUTH & FIRESTORE)
-        // ==========================================
-        
+        // Register Logic
         document.getElementById("registerForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-
-            const username = document.getElementById("regUsername").value.trim();
             const email = document.getElementById("regEmail").value.trim();
             const password = document.getElementById("regPassword").value;
+            const username = document.getElementById("regUsername").value.trim();
             const role = document.getElementById("regRole").value;
 
-            if (!role) return alert("Vui lòng chọn vai trò!");
-
             try {
-                // 3.1. Tạo tài khoản Auth
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 3.2. Lưu Data vào Firestore
                 await setDoc(doc(db, "users", user.uid), {
                     username: username,
                     email: email,
                     role: role,
-                    createdAt: new Date().toISOString() // Đổi thành định dạng ISO để dễ quản lý trên Blockchain app
+                    createdAt: new Date().toISOString()
                 });
 
-                alert("✅ Tạo tài khoản thành công! Vui lòng tiến hành đăng nhập.");
-                document.getElementById("registerForm").reset(); // Xóa form
-                window.switchTab("login"); // Tự động về trang login
-
+                alert("Đăng ký thành công! Hãy đăng nhập.");
+                window.switchTab('login');
             } catch (error) {
-                const errorCode = error.code;
-                // Áp dụng logic bắt lỗi tương thích với file js
-                if(errorCode === "auth/email-already-in-use"){
-                    alert("Email này đã được sử dụng. Vui lòng thử một email khác.");
-                } else if(errorCode === "auth/weak-password") {
-                    alert("Mật khẩu quá yếu (Yêu cầu ít nhất 6 ký tự).");
-                } else {
-                    alert("Lỗi tạo tài khoản: " + error.message);
-                }
+                alert("Lỗi đăng ký: " + error.message);
             }
         });
 
-        // ==========================================
-        // 4. LOGIC ĐĂNG NHẬP (FIREBASE AUTH & FIRESTORE)
-        // ==========================================
-
+        // Login Logic
         document.getElementById("loginForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-
-            const email = document.getElementById("loginUsername").value.trim(); 
+            const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value;
 
             try {
-                // 4.1. Xác thực đăng nhập
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-
-                // 4.2. Lấy role của user từ Firestore
-                const userDoc = await getDoc(doc(db, "users", user.uid));
                 
-                if (!userDoc.exists()) {
-                    return alert("Lỗi: Không tìm thấy hồ sơ hệ thống của tài khoản này!");
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    // Lưu cả 2 nơi để đảm bảo tương thích các trang cũ/mới
+                    sessionStorage.setItem("currentUser", JSON.stringify({ ...userData, uid: user.uid }));
+                    localStorage.setItem("loggedInUserId", user.uid);
+                    
+                    alert("Đăng nhập thành công!");
+                    const target = userData.role === "manufacturer" ? "manufacturer.html" : 
+                                 userData.role === "distributor" ? "distributor.html" : "consumer.html";
+                    window.location.href = target;
                 }
-
-                const userData = userDoc.data();
-                const role = userData.role;
-
-                // 4.3. Lưu session và điều hướng
-                saveSession({ email: user.email, role: role, uid: user.uid, username: userData.username });
-                alert("Đăng nhập thành công!");
-                redirectByRole(role);
-
             } catch (error) {
-                const errorCode = error.code;
-                // Áp dụng logic bắt lỗi tương thích với file js
-                if(errorCode === "auth/invalid-credential" || errorCode === "auth/wrong-password" || errorCode === "auth/user-not-found"){
-                    alert('Sai email hoặc mật khẩu. Vui lòng thử lại.');
-                } else {
-                    alert('Hệ thống đang bận. Đăng nhập thất bại: ' + error.message);
-                }
+                alert("Sai email hoặc mật khẩu. Vui lòng thử lại.");
             }
         });
-
-        // ==========================================
-        // 5. GOOGLE SIGN-IN (GIỮ NGUYÊN KHUNG CỦA BẠN)
-        // ==========================================
-        
-        window.onload = function() {
-            if (typeof google !== 'undefined') {
-                google.accounts.id.initialize({
-                    client_id: "YOUR_GOOGLE_CLIENT_ID", // Nhớ thay Client ID ở đây khi cần
-                    callback: handleCredentialResponse,
-                    auto_select: false,
-                    cancel_on_tap_outside: true
-                });
-                google.accounts.id.renderButton(
-                    document.getElementById("g_id_signin"),
-                    { theme: "outline", size: "large", width: "100%", text: "continue_with" }
-                );
-            }
-        };
-
-        function handleCredentialResponse(response) {
-            google.accounts.id.disableAutoSelect();
-            // Khung tạo mock up của bạn (Nên gọi Firebase Provider trong tương lai)
-            const user = { username: "google_user", email: "user@gmail.com", role: "consumer" };
-            saveSession(user);
-            redirectByRole("consumer");
-        }
     </script>
 </body>
 </html>
