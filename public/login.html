@@ -8,30 +8,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
-    <!-- Firebase SDK v12.11.0 -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+<!-- Firebase SDK v12.11.0 -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDAQH-F90Hv_f1uMOENv7hCm_bGU9f0aGs",
-            authDomain: "veriglow.firebaseapp.com",
-            projectId: "veriglow",
-            storageBucket: "veriglow.firebasestorage.app",
-            messagingSenderId: "400350869290",
-            appId: "1:400350869290:web:a4bff84794214a1dcb5053"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyCXS7P36IXbu2wg63hXhEMPtbSacXjmekU",
+        authDomain: "veriglow-traceability.firebaseapp.com",
+        projectId: "veriglow-traceability",
+        storageBucket: "veriglow-traceability.firebasestorage.app",
+        messagingSenderId: "133403846027",
+        appId: "1:133403846027:web:c64ab22e3214604f47fb8e",
+        measurementId: "G-8PNN9581QK"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        window.firebaseAuth = auth;
-        window.firebaseDB = db;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-    </script>
+    // Export tất cả các hàm cần thiết ra window để script thường dùng được
+    window.firebaseAuth = auth;
+    window.firebaseDB = db;
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    window.setDoc = setDoc;           // ← Thêm dòng này
+    window.doc = doc;                 // ← Thêm dòng này
+    window.getDoc = getDoc;           // ← Thêm dòng này
+</script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
