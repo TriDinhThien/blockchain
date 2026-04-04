@@ -35,7 +35,7 @@
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        /* Intro screen - Nature video */
+        /* Intro screen */
         #intro-screen {
             position: fixed;
             inset: 0;
@@ -61,7 +61,11 @@
             animation: introFloat 3s ease-in-out infinite;
         }
 
-        /* Sidebar - Consumer aesthetic */
+        /* Sidebar - Thiết kế lại giống phong cách trước */
+        aside {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(20px);
+        }
         .sidebar-item {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -89,7 +93,7 @@
             border-bottom-right-radius: 9999px;
         }
 
-        /* Product cards - soft & premium */
+        /* Product cards */
         #productGrid > div {
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             border-radius: 2.5rem;
@@ -106,7 +110,6 @@
             border: 1px solid rgba(255,255,255,0.7);
         }
 
-        /* Info icon */
         .info-icon {
             transition: all 0.2s ease;
         }
@@ -147,7 +150,7 @@
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        /* Main area background */
+        /* Main area */
         .p-10.max-w-7xl.mx-auto {
             background: #f0fdf9;
         }
@@ -155,7 +158,7 @@
 </head>
 <body class="flex text-slate-900 min-h-screen overflow-hidden">
 
-    <!-- INTRO SCREEN - Nature video background -->
+    <!-- INTRO SCREEN -->
     <div id="intro-screen">
         <video id="intro-video" autoplay loop muted playsinline>
             <source src="https://videos.pexels.com/video-files/854219/854219-hd_1920_1080_30fps.mp4" type="video/mp4">
@@ -188,7 +191,7 @@
 
     <!-- DASHBOARD CONTENT -->
     <div id="dashboard-content" class="flex w-full min-h-screen">
-        <!-- Sidebar -->
+        <!-- Sidebar - Đã thiết kế lại giống phong cách trước -->
         <aside class="fixed left-0 top-0 bottom-0 w-72 bg-white/95 border-r border-slate-200 flex flex-col z-40 hidden md:flex shadow-2xl backdrop-blur-xl">
             <div class="p-8 flex items-center gap-3">
                 <img src="2.png" alt="Logo" class="w-12 h-12 rounded-3xl object-cover shadow-xl ring-2 ring-emerald-200">
@@ -221,10 +224,15 @@
                 </div>
             </nav>
            
-            <div class="p-6 border-t border-slate-100">
+            <div class="p-6 border-t border-slate-100 mt-auto">
                 <div class="glass rounded-3xl p-5 border border-white/60">
-                    <p class="text-[10px] text-emerald-600 font-bold uppercase mb-2">Ví của bạn</p>
-                    <div id="walletAddr" class="text-[10px] font-mono text-slate-600 break-all bg-white/70 p-3 rounded-2xl border border-slate-100 uppercase tracking-tighter">Đang kết nối...</div>
+                    <div class="flex items-center gap-2 mb-3 text-[10px] font-bold text-emerald-600 uppercase">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        Ví của bạn
+                    </div>
+                    <div id="walletAddr" class="text-xs font-mono text-slate-600 bg-white/70 p-3 rounded-2xl border border-slate-100 break-all">
+                        Đang kết nối...
+                    </div>
                 </div>
             </div>
         </aside>
@@ -315,7 +323,7 @@
     </div>
 
 <script>
-// Contract configuration
+// Toàn bộ script giữ nguyên 100% như code bạn cung cấp
 const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
 const abi = [
     {"inputs":[],"name":"productCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
@@ -323,11 +331,13 @@ const abi = [
     {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
 ];
 let web3, contract, account, html5QrCode;
+
 function formatUrl(url) {
     if (!url || url === "" || url === "undefined") return 'https://placehold.co/400x400?text=VeriGlow';
     if (url.startsWith('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
     return url;
 }
+
 window.addEventListener("load", async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
@@ -344,6 +354,7 @@ window.addEventListener("load", async () => {
         alert("Vui lòng cài đặt MetaMask để sử dụng!");
     }
 });
+
 async function loadProducts() {
     const grid = document.getElementById('productGrid');
     grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400 italic">Đang tải tủ đồ từ Blockchain...</p></div>';
@@ -386,6 +397,7 @@ async function loadProducts() {
         grid.innerHTML = '<div class="col-span-full text-center py-20 text-red-400">Không thể kết nối với Blockchain.</div>';
     }
 }
+
 async function showProductDetail(id) {
     const sidebar = document.getElementById('productDetailSidebar');
     const content = document.getElementById('sidebarContent');
@@ -467,20 +479,24 @@ async function showProductDetail(id) {
         content.innerHTML = `<div class="p-10 text-center text-red-500 font-medium">Lỗi load dữ liệu: ${err.message}</div>`;
     }
 }
+
 function closeSidebar() {
     document.getElementById('productDetailSidebar').classList.add('translate-x-full');
 }
+
 function openCertModal(url) {
     if (!url || url.includes('placehold')) return alert("Sản phẩm không kèm ảnh chứng nhận.");
     document.getElementById('modalCertImg').src = url;
     document.getElementById('certModal').classList.add('active');
 }
+
 function showQrModal(url) {
     const canvas = document.getElementById('modalQrCanvas');
     QRCode.toCanvas(canvas, url, { width: 280, margin: 2, color: { dark: '#0f172a' } }, (err) => {
         if (!err) document.getElementById('qrModal').classList.add('active');
     });
 }
+
 function showTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -496,6 +512,7 @@ function showTab(id) {
         startScanner();
     }
 }
+
 function startScanner() {
     if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
@@ -510,10 +527,11 @@ function startScanner() {
         }
     ).catch(err => console.error(err));
 }
+
 function stopScanner() {
     if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop();
 }
-/* ====================== AESTHETIC FUNCTIONS ====================== */
+
 function enterDashboard() {
     const intro = document.getElementById('intro-screen');
     intro.style.opacity = '0';
@@ -522,6 +540,7 @@ function enterDashboard() {
         document.getElementById('dashboard-content').classList.add('flex');
     }, 800);
 }
+
 function showFunctionInfo(type) {
     const modal = document.getElementById('functionModal');
     const titleEl = document.getElementById('functionTitle');
@@ -543,7 +562,7 @@ function showFunctionInfo(type) {
     descEl.innerHTML = desc;
     modal.classList.add('active');
 }
-// Đóng modal khi click ra ngoài
+
 window.onclick = function(event) {
     if (event.target.id === 'certModal' || event.target.id === 'qrModal') {
         event.target.classList.remove('active');
