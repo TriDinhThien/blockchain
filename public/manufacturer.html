@@ -80,11 +80,23 @@
             border-bottom-right-radius: 9999px;
         }
 
-        /* Product area - nền bạc hà nhạt */
+        /* Tab content */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.95) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Product area */
         #list-products {
             background-color: #f0fdf9;
             min-height: 100%;
-            padding-bottom: 40px;
         }
         #productGridBody {
             background-color: #f0fdf9;
@@ -139,7 +151,7 @@
         }
         .modal.active { display: flex; }
 
-        /* Scroll fix */
+        /* Scroll area */
         #main-scroll-area {
             flex: 1 1 0 !important;
             min-height: 0 !important;
@@ -180,7 +192,7 @@
         }
     </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen flex text-slate-900 overflow-hidden">
+<body class="min-h-screen flex text-slate-900 overflow-hidden">
 
     <!-- INTRO SCREEN -->
     <div id="intro-screen">
@@ -281,7 +293,6 @@
                 </button>
             </header>
           
-            <!-- Khu vực scroll chính -->
             <div id="main-scroll-area" class="p-10 overflow-y-auto flex-1">
                 <!-- List Products -->
                 <div id="list-products" class="tab-content active">
