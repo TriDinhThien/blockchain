@@ -57,11 +57,7 @@
             z-index: 10;
             animation: introFloat 3s ease-in-out infinite;
         }
-        /* Sidebar - Đồng bộ với Distributor Dashboard */
-        aside {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-        }
+        /* Sidebar - Thiết kế giống hệt Distributor */
         .sidebar-item {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -142,7 +138,7 @@
         }
     </style>
 </head>
-<body class="flex text-slate-900 min-h-screen overflow-hidden">
+<body class="bg-[#f8fafc] min-h-screen flex text-slate-900">
     <!-- INTRO SCREEN -->
     <div id="intro-screen">
         <video id="intro-video" autoplay loop muted playsinline>
@@ -176,8 +172,8 @@
 
     <!-- DASHBOARD CONTENT -->
     <div id="dashboard-content" class="flex w-full min-h-screen">
-        <!-- Sidebar - Đã cập nhật giống Distributor -->
-        <aside class="w-72 bg-white/95 border-r border-slate-200 flex flex-col sticky top-0 h-screen shadow-2xl backdrop-blur-xl hidden md:flex">
+        <!-- Sidebar - Thiết kế giống hệt Distributor -->
+        <aside class="w-72 bg-white/95 border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen shadow-2xl backdrop-blur-xl">
             <div class="p-8">
                 <div class="flex items-center gap-3">
                     <img src="2.png" alt="VeriGlow Logo" class="w-12 h-12 rounded-3xl object-cover shadow-xl ring-2 ring-emerald-200">
@@ -212,7 +208,7 @@
                 </div>
             </nav>
          
-            <!-- Phần dưới cùng - Giống Distributor -->
+            <!-- Phần dưới giống hệt Distributor -->
             <div class="p-6 mt-auto border-t border-slate-100">
                 <div class="glass rounded-3xl p-5 border border-white/60">
                     <div class="flex items-center gap-2 mb-3 text-[10px] font-bold text-emerald-600 uppercase">
@@ -227,8 +223,8 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 md:ml-72 min-h-screen">
+        <!-- Main -->
+        <main class="flex-1 flex flex-col min-w-0">
             <header class="h-20 bg-white/90 backdrop-blur-2xl border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30 shadow-sm">
                 <h2 id="pageTitle" class="text-3xl font-semibold text-slate-800 tracking-[-0.5px] flex items-center gap-3">
                     Tủ đồ của tôi
@@ -236,11 +232,11 @@
                 </h2>
                 <button onclick="loadProducts()" 
                         class="flex items-center gap-3 px-8 py-3 bg-white border border-slate-200 rounded-3xl text-sm font-semibold hover:bg-emerald-50 hover:text-emerald-700 transition-all">
-                    <i class="fa-solid fa-arrows-rotate"></i> Làm mới
+                    <i class="fa-solid fa-arrows-rotate"></i> Làm mới dữ liệu
                 </button>
             </header>
           
-            <div class="p-10 max-w-7xl mx-auto">
+            <div class="p-10 overflow-y-auto flex-1">
                 <!-- My Purchases -->
                 <div id="my-purchases" class="tab-content active">
                     <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
@@ -547,12 +543,6 @@ function showFunctionInfo(type) {
     titleEl.innerHTML = title;
     descEl.innerHTML = desc;
     modal.classList.add('active');
-}
-
-window.onclick = function(event) {
-    if (event.target.id === 'certModal' || event.target.id === 'qrModal') {
-        event.target.classList.remove('active');
-    }
 }
 </script>
 </body>
