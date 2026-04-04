@@ -118,116 +118,132 @@
     </div>
 
 <script>
-// ==================== GIỮ NGUYÊN TẤT CẢ TÍNH NĂNG TRƯỚC ĐÓ ====================
-function showMessage(message, divId) {
-    const div = document.getElementById(divId);
-    if (div) {
-        div.style.display = "block";
-        div.innerHTML = message;
-        setTimeout(() => {
-            div.style.opacity = "0";
-            setTimeout(() => { div.style.display = "none"; div.style.opacity = "1"; }, 600);
-        }, 5000);
-    }
-}
-
-function switchTab(type) { /* giữ nguyên như cũ */ 
+// Tab Switch
+function switchTab(type) {
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
     const loginTab = document.getElementById("loginTab");
     const registerTab = document.getElementById("registerTab");
+
     if (type === "login") {
-        loginForm.classList.remove("hidden"); registerForm.classList.add("hidden");
-        loginTab.classList.add("active"); registerTab.classList.remove("active");
+        loginForm.classList.remove("hidden");
+        registerForm.classList.add("hidden");
+        loginTab.classList.add("active");
+        registerTab.classList.remove("active");
     } else {
-        loginForm.classList.add("hidden"); registerForm.classList.remove("hidden");
-        loginTab.classList.remove("active"); registerTab.classList.add("active");
+        loginForm.classList.add("hidden");
+        registerForm.classList.remove("hidden");
+        loginTab.classList.remove("active");
+        registerTab.classList.add("active");
     }
 }
 
-// ==================== REGISTER - ĐÃ TĂNG CƯỜNG ERROR HANDLING ====================
+// ====================== ĐĂNG KÝ ======================
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const username = document.getElementById("regUsername").value.trim();
-    const firstName = document.getElementById("fName").value.trim();
-    const lastName = document.getElementById("lName").value.trim();
     const email = document.getElementById("regEmail").value.trim();
     const password = document.getElementById("regPassword").value;
     const role = document.getElementById("regRole").value;
 
     if (!role) return alert("Vui lòng chọn vai trò!");
+    if (password.length < 6) return alert("Mật khẩu phải có ít nhất 6 ký tự!");
+
+    const btn = e.target.querySelector("button");
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo tài khoản...`;
 
     try {
         const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
         const user = userCredential.user;
 
         await setDoc(doc(window.firebaseDB, "users", user.uid), {
-            email, firstName, lastName, username, role, uid: user.uid, createdAt: new Date()
+            username: username,
+            email: email,
+            role: role,
+            createdAt: new Date().toISOString()
         });
 
-        showMessage("✅ Tài khoản đã tạo thành công! Vui lòng đăng nhập.", "singUpMessage");
-        switchTab("login");
-    } catch (error) {
-        console.error("🔥 Firebase Error:", error.code, error.message);
+        alert("✅ Tạo tài khoản thành công! Đang chuyển hướng...");
         
+        // Tự động đăng nhập ngay sau khi tạo (trơn tru hơn)
+        const loginCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+        const loggedUser = loginCredential.user;
+        
+        const userDoc = await getDoc(doc(window.firebaseDB, "users", loggedUser.uid));
+        const userRole = userDoc.data().role;
+
+        saveSession({ email: loggedUser.email, role: userRole, uid: loggedUser.uid });
+        redirectByRole(userRole);
+
+    } catch (error) {
+        console.error(error);
         if (error.code === "auth/email-already-in-use") {
-            showMessage("Email đã tồn tại. Vui lòng dùng email khác.", "singUpMessage");
-        } else if (error.code === "auth/network-request-failed" || error.message.includes("TIMED_OUT")) {
-            showMessage("⚠️ Lỗi kết nối mạng. Vui lòng kiểm tra internet/VPN và thử lại.", "singUpMessage");
-        } else if (error.message.includes("reCAPTCHA")) {
-            showMessage("⚠️ Lỗi reCAPTCHA. Hãy thử deploy lên hosting hoặc dùng VPN.", "singUpMessage");
+            alert("❌ Email này đã được sử dụng. Vui lòng dùng email khác.");
         } else {
-            showMessage("❌ Không thể tạo tài khoản. Vui lòng thử lại sau.", "singUpMessage");
+            alert("❌ Lỗi: " + error.message);
         }
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
 });
 
-// ==================== LOGIN (giữ nguyên + error handling) ====================
+// ====================== ĐĂNG NHẬP ======================
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+
     const email = document.getElementById("loginUsername").value.trim();
     const password = document.getElementById("loginPassword").value;
+
+    const btn = e.target.querySelector("button");
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang đăng nhập...`;
 
     try {
         const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
         const user = userCredential.user;
-        localStorage.setItem("loggedInUserId", user.uid);
 
         const userDoc = await getDoc(doc(window.firebaseDB, "users", user.uid));
-        if (!userDoc.exists()) return alert("Không tìm thấy thông tin tài khoản!");
+        if (!userDoc.exists()) throw new Error("Không tìm thấy thông tin tài khoản!");
 
         const role = userDoc.data().role;
-        sessionStorage.setItem("currentUser", JSON.stringify({
-            email: user.email, role, uid: user.uid,
-            firstName: userDoc.data().firstName, lastName: userDoc.data().lastName
-        }));
 
-        showMessage("Login successful!", "signInMessage");
+        saveSession({ email: user.email, role: role, uid: user.uid });
         redirectByRole(role);
+
     } catch (error) {
-        console.error("Login Error:", error);
-        if (error.code === "auth/invalid-credential") {
-            showMessage("Email hoặc mật khẩu không đúng.", "signInMessage");
+        console.error(error);
+        if (error.code === "auth/invalid-credential" || error.code === "auth/user-not-found") {
+            alert("❌ Email hoặc mật khẩu không đúng.");
         } else {
-            showMessage("Lỗi đăng nhập. Vui lòng thử lại.", "signInMessage");
+            alert("❌ Đăng nhập thất bại: " + error.message);
         }
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
 });
 
-function redirectByRole(role) {
-    if (role === "manufacturer") window.location = "manufacturer.html";
-    else if (role === "distributor") window.location = "distributor.html";
-    else window.location = "consumer.html";
+function saveSession(user) {
+    sessionStorage.setItem("currentUser", JSON.stringify(user));
 }
 
-// Google Sign In (giữ nguyên)
+function redirectByRole(role) {
+    if (role === "manufacturer") window.location.href = "manufacturer.html";
+    else if (role === "distributor") window.location.href = "distributor.html";
+    else window.location.href = "consumer.html";
+}
+
+// Google Sign In (chỉ placeholder)
 window.onload = function() {
+    // Thay YOUR_GOOGLE_CLIENT_ID bằng client ID thật của bạn
     google.accounts.id.initialize({
         client_id: "YOUR_GOOGLE_CLIENT_ID",
         callback: handleCredentialResponse,
-        auto_select: false,
-        cancel_on_tap_outside: true
     });
     google.accounts.id.renderButton(
         document.getElementById("g_id_signin"),
@@ -236,8 +252,9 @@ window.onload = function() {
 };
 
 function handleCredentialResponse(response) {
-    google.accounts.id.disableAutoSelect();
-    const user = { username: "google_user", email: "user@gmail.com", role: "consumer" };
+    // Sau này bạn sẽ xử lý Firebase Google Auth ở đây
+    alert("Google sign-in chưa được triển khai đầy đủ. Đang dùng mode demo.");
+    const user = { email: "google_user@example.com", role: "consumer", uid: "demo-uid" };
     saveSession(user);
     redirectByRole("consumer");
 }
@@ -252,5 +269,3 @@ function enterDashboard() {
     }, 700);
 }
 </script>
-</body>
-</html>
