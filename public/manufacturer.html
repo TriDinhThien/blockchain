@@ -10,11 +10,11 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-       
+      
         :root {
             --primary: #0ea5e9;
         }
-       
+      
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -91,6 +91,17 @@
             transform: translateY(-12px) scale(1.04);
             box-shadow: 25px 25px 50px -12px rgb(6 182 127 / 0.3);
         }
+
+        /* === THAY ĐỔI NỀN PHÍA DƯỚI CÁC THẺ SẢN PHẨM === */
+        #list-products {
+            background-color: #f0fdf4; /* Màu bạc hà nhạt (mint light) */
+            min-height: 100%;
+            padding-bottom: 40px;
+        }
+        #productGridBody {
+            background-color: #f0fdf4;
+        }
+
         /* Filter buttons */
         .filter-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -133,7 +144,6 @@
             color: #06b67f;
             transform: scale(1.2);
         }
-
         /* ==================== SCROLL FIX - ĐÃ HOÀN THIỆN HOÀN TOÀN ==================== */
         .mobile-nav-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -142,7 +152,6 @@
             color: #0ea5e9;
             transform: scale(1.08);
         }
-
         #main-scroll-area {
             flex: 1 1 0 !important;
             min-height: 0 !important;
@@ -150,7 +159,6 @@
             -webkit-overflow-scrolling: touch !important;
             scroll-behavior: smooth;
         }
-
         @media (max-width: 768px) {
             header {
                 height: 64px !important;
@@ -176,7 +184,6 @@
                 padding: 16px 20px !important;
             }
         }
-
         input, textarea, select {
             width: 100% !important;
             box-sizing: border-box !important;
@@ -187,19 +194,19 @@
     <!-- INTRO SCREEN -->
     <div id="intro-screen">
         <video id="intro-video" autoplay loop muted playsinline>
-            <source src="https://videos.pexels.com/video-files/854219/854219-hd_1920_1080_30fps.mp4" type="video/mp4">
+            <source src="introclip.mp4" type="video/mp4">
             Trình duyệt của bạn không hỗ trợ video.
         </video>
-       
+      
         <div class="intro-content max-w-lg px-6">
             <img src="2.png" alt="VeriGlow Logo"
                  class="mx-auto w-40 h-40 md:w-52 md:h-52 rounded-full object-cover shadow-2xl border-8 border-white/40 mb-8 ring-8 ring-white/20">
-           
+          
             <h1 class="text-6xl md:text-7xl font-bold tracking-[-2px] text-white drop-shadow-xl">
                 VeriGlow
             </h1>
             <p class="text-white/90 text-xl md:text-2xl mt-3 font-light">Kết nối thiên nhiên • Blockchain • Minh bạch</p>
-           
+          
             <div class="mt-12 flex flex-col items-center gap-4">
                 <button onclick="enterDashboard()"
                         class="px-14 py-6 bg-white text-slate-900 rounded-3xl font-semibold text-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all flex items-center gap-4">
@@ -213,7 +220,6 @@
             </div>
         </div>
     </div>
-
     <!-- DASHBOARD CONTENT -->
     <div id="dashboard-content" class="flex w-full min-h-screen">
         <!-- Sidebar -->
@@ -225,7 +231,7 @@
                 </div>
                 <p class="text-emerald-600 text-xs mt-1 pl-1 font-medium">Nature • Blockchain</p>
             </div>
-           
+          
             <nav class="mt-4 flex-1 px-6 space-y-2">
                 <div class="flex items-center gap-2">
                     <button onclick="showTab('list-products')" class="sidebar-item active flex-1 flex items-center gap-3 px-5 py-4 text-slate-600 font-medium">
@@ -255,7 +261,7 @@
                     </button>
                 </div>
             </nav>
-           
+          
             <div class="p-6 mt-auto border-t border-slate-100">
                 <div class="glass rounded-3xl p-5 border border-white/60">
                     <div class="flex items-center gap-2 mb-3 text-[10px] font-bold text-emerald-600 uppercase">
@@ -269,7 +275,6 @@
                 </div>
             </div>
         </aside>
-
         <!-- Main -->
         <main class="flex-1 flex flex-col min-w-0">
             <header class="h-20 bg-white/90 backdrop-blur-2xl border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30 shadow-sm">
@@ -282,7 +287,7 @@
                     Làm mới
                 </button>
             </header>
-           
+          
             <!-- Khu vực scroll chính - ĐÃ FIX HOÀN TOÀN -->
             <div id="main-scroll-area" class="p-10 overflow-y-auto flex-1">
                 <!-- List Products -->
@@ -298,7 +303,6 @@
                     </div>
                     <div id="productGridBody" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
                 </div>
-
                 <!-- Create Product -->
                 <div id="create-product" class="tab-content max-w-5xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl overflow-hidden">
@@ -319,12 +323,12 @@
                                 <div class="space-y-2"><label class="text-xs font-bold text-slate-600 uppercase">Quốc gia xuất xứ</label><input id="origin" type="text" placeholder="Việt Nam" class="w-full px-6 py-4 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400"></div>
                             </div>
                             <div class="space-y-2"><label class="text-xs font-bold text-slate-600 uppercase">Thành phần chi tiết</label><textarea id="ingredients" rows="3" placeholder="Nước, Tinh chất B5, Glycerin, Vitamin C..." class="w-full px-6 py-4 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400"></textarea></div>
-                           
+                          
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="p-6 bg-gradient-to-br from-sky-50 to-white rounded-3xl border border-sky-100"><label class="block text-sky-700 font-bold text-sm mb-3"><i class="fa-solid fa-image mr-2"></i>Ảnh sản phẩm</label><input id="productImage" type="file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-3xl file:border-0 file:bg-sky-600 file:text-white hover:file:bg-sky-700 cursor-pointer"></div>
                                 <div class="p-6 bg-gradient-to-br from-emerald-50 to-white rounded-3xl border border-emerald-100"><label class="block text-emerald-700 font-bold text-sm mb-3"><i class="fa-solid fa-file-shield mr-2"></i>Giấy chứng nhận</label><input id="certification" type="file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-3xl file:border-0 file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer"></div>
                             </div>
-                           
+                          
                             <div class="flex flex-col items-center gap-6 pt-4">
                                 <button id="btnCreate" onclick="createProduct()" class="w-full md:w-fit px-16 py-5 bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-700 hover:to-emerald-700 text-white font-bold rounded-3xl shadow-2xl transition-all flex items-center gap-4 text-lg">
                                     <span>Ký &amp; Xác thực trên Blockchain</span>
@@ -338,7 +342,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Transfer Ownership -->
                 <div id="transfer-ownership" class="tab-content max-w-2xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl p-10">
@@ -352,7 +355,6 @@
                 </div>
             </div>
         </main>
-
         <!-- Mobile Bottom Navigation -->
         <div id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl backdrop-blur-2xl z-[999] flex justify-around items-center py-2 px-4">
             <button onclick="showTab('list-products')" data-tab="list-products" class="mobile-nav-btn flex-1 flex flex-col items-center py-2 text-slate-600">
@@ -368,7 +370,6 @@
                 <span class="text-xs mt-1 font-medium">Chuyển giao</span>
             </button>
         </div>
-
         <!-- Sidebar chi tiết & Modals -->
         <div id="productDetailSidebar" class="fixed inset-y-0 right-0 w-[420px] bg-white/95 shadow-2xl translate-x-full flex flex-col z-[100] border-l border-slate-200 backdrop-blur-2xl">
             <div class="px-6 py-6 border-b flex items-center justify-between bg-white/80">
@@ -377,7 +378,6 @@
             </div>
             <div id="sidebarContent" class="flex-1 overflow-y-auto p-6 space-y-8"></div>
         </div>
-
         <div id="certModal" class="modal" onclick="if(event.target.id==='certModal')this.classList.remove('active')">
             <div class="modal-content relative max-w-4xl">
                 <img id="modalCertImg" src="" class="max-w-full block rounded-3xl">
@@ -406,7 +406,6 @@
             </div>
         </div>
     </div>
-
 <script>
 const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
 const abi = [
@@ -418,7 +417,6 @@ const abi = [
 ];
 let web3, contract, account;
 let currentFilter = 'inStock';
-
 window.addEventListener("load", async () => {
     if (!window.ethereum) return alert("Vui lòng cài MetaMask!");
     web3 = new Web3(window.ethereum);
@@ -430,7 +428,6 @@ window.addEventListener("load", async () => {
     document.getElementById('btnInStock').classList.add('active');
     loadProducts();
 });
-
 async function switchToSepolia() {
     try {
         const chainId = await web3.eth.getChainId();
@@ -439,7 +436,6 @@ async function switchToSepolia() {
         }
     } catch (e) {}
 }
-
 async function uploadFileToIPFS(file) {
     if (!file) return "";
     const formData = new FormData();
@@ -449,7 +445,6 @@ async function uploadFileToIPFS(file) {
     const data = await res.json();
     return `ipfs://${data.cid}`;
 }
-
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
@@ -458,14 +453,13 @@ function showTab(tabId) {
     document.getElementById('pageTitle').innerText = titles[tabId];
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
-    
+   
     // Reset scroll khi chuyển tab
     setTimeout(() => {
         const scrollArea = document.getElementById('main-scroll-area');
         if (scrollArea) scrollArea.scrollTop = 0;
     }, 100);
 }
-
 async function createProduct() {
     const btn = document.getElementById('btnCreate');
     btn.disabled = true;
@@ -497,7 +491,6 @@ async function createProduct() {
         btn.innerHTML = '<span>Ký & Xác thực trên Blockchain</span> <i class="fa-solid fa-paper-plane"></i>';
     }
 }
-
 async function loadProducts() {
     const grid = document.getElementById('productGridBody');
     grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="loading-spinner mx-auto"></div></div>';
@@ -534,14 +527,12 @@ async function loadProducts() {
         grid.innerHTML = '<div class="col-span-full py-20 text-center text-red-400">Lỗi Blockchain.</div>';
     }
 }
-
 function setFilter(filter) {
     currentFilter = filter;
     document.getElementById('btnInStock').classList.toggle('active', filter === 'inStock');
     document.getElementById('btnTransferred').classList.toggle('active', filter === 'transferred');
     loadProducts();
 }
-
 async function showProductDetail(id) {
     const sidebar = document.getElementById('productDetailSidebar');
     const content = document.getElementById('sidebarContent');
@@ -605,7 +596,6 @@ async function showProductDetail(id) {
         content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi tải chi tiết: ${err.message}</p>`;
     }
 }
-
 function closeSidebar() { document.getElementById('productDetailSidebar').classList.add('translate-x-full'); }
 function openCertModal(url) {
     const modal = document.getElementById('certModal');
@@ -629,7 +619,6 @@ async function transferOwnership() {
         alert("❌ Lỗi: " + err.message);
     }
 }
-
 function enterDashboard() {
     const intro = document.getElementById('intro-screen');
     intro.style.opacity = '0';
@@ -650,7 +639,6 @@ function showFunctionInfo(type) {
     descEl.innerHTML = desc;
     modal.classList.add('active');
 }
-
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
@@ -659,7 +647,6 @@ showTab = function(tabId) {
         btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
 };
-
 window.addEventListener('load', function() {
     const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
     mobileButtons.forEach(btn => {
