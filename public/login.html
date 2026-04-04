@@ -152,18 +152,24 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     const password = document.getElementById("regPassword").value;
     const role = document.getElementById("regRole").value;
 
-    if (!role) return alert("Vui lòng chọn vai trò!");
-    if (password.length < 6) return alert("Mật khẩu phải có ít nhất 6 ký tự!");
+    if (!username || !email || !password || !role) {
+        return alert("Vui lòng điền đầy đủ thông tin!");
+    }
+    if (password.length < 6) {
+        return alert("Mật khẩu phải có ít nhất 6 ký tự!");
+    }
 
     const btn = e.target.querySelector("button");
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo...`;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo tài khoản...`;
 
     try {
+        // Tạo user trong Authentication
         const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
         const user = userCredential.user;
 
+        // Tạo document trong Firestore
         await setDoc(doc(window.firebaseDB, "users", user.uid), {
             username: username,
             email: email,
@@ -172,11 +178,11 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
         });
 
         alert("✅ Tạo tài khoản thành công! Đang tự động đăng nhập...");
-        
-        // Tự động đăng nhập ngay
+
+        // Tự động đăng nhập
         const loginCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
         const loggedUser = loginCredential.user;
-        
+
         const userDoc = await getDoc(doc(window.firebaseDB, "users", loggedUser.uid));
         const userRole = userDoc.data().role;
 
@@ -184,23 +190,18 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
         redirectByRole(userRole);
 
     } catch (error) {
-        console.error(error);
-        
+        console.error("Lỗi đăng ký:", error);
+
         if (error.code === "auth/email-already-in-use") {
-            alert("❌ Email này đã được sử dụng.\n\nVui lòng dùng email khác hoặc chuyển sang tab Đăng Nhập.");
-            
-            // Tùy chọn: tự động chuyển sang tab login
+            alert("❌ Email này đã được sử dụng.\nVui lòng dùng email khác hoặc chuyển sang Đăng Nhập.");
             switchTab("login");
-            document.getElementById("loginUsername").value = email;  // điền sẵn email
+            document.getElementById("loginUsername").value = email;
         } 
-        else if (error.code === "auth/weak-password") {
-            alert("❌ Mật khẩu quá yếu. Vui lòng dùng mật khẩu mạnh hơn (ít nhất 6 ký tự).");
-        }
-        else if (error.code === "auth/invalid-email") {
-            alert("❌ Email không hợp lệ. Vui lòng kiểm tra lại.");
+        else if (error.code === "permission-denied" || error.message.includes("permissions")) {
+            alert("❌ Lỗi quyền truy cập Firestore.\n\nVui lòng kiểm tra lại Security Rules trong Firebase Console và Publish lại.");
         }
         else {
-            alert("❌ Không thể tạo tài khoản: " + error.message);
+            alert("❌ Không thể tạo tài khoản: " + (error.message || "Lỗi không xác định"));
         }
     } finally {
         btn.disabled = false;
