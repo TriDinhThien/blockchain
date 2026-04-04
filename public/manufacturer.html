@@ -19,87 +19,169 @@
       
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #f0fdf9 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%);
         }
 
         /* Intro screen */
         #intro-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: rgba(15, 23, 42, 0.45);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #intro-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
             filter: brightness(0.82) contrast(1.08) saturate(1.15);
         }
+        .intro-content {
+            text-align: center;
+            z-index: 10;
+            animation: introFloat 3s ease-in-out infinite;
+        }
 
-        /* Sidebar - thêm chiều sâu */
+        /* Sidebar */
         aside {
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.94);
             backdrop-filter: blur(20px);
+        }
+        .sidebar-item {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-radius: 9999px;
+        }
+        .sidebar-item:hover {
+            transform: translateX(8px) scale(1.03);
+            box-shadow: 0 20px 25px -5px rgb(16 185 129 / 0.2);
         }
         .sidebar-item.active {
             background: linear-gradient(90deg, #10b981, #0ea5e9);
-            box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.4);
+            color: white;
+            box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.45);
+        }
+        .sidebar-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 5px;
+            height: 60%;
+            background: white;
+            border-top-right-radius: 9999px;
+            border-bottom-right-radius: 9999px;
         }
 
-        /* Main background & product area */
-        #main-scroll-area {
-            background: #f0fdf9;
-        }
+        /* Product area - nền bạc hà nhạt */
         #list-products {
-            background: #f0fdf9;
+            background-color: #f0fdf9;
+            min-height: 100%;
+            padding-bottom: 40px;
         }
         #productGridBody {
-            background: #f0fdf9;
+            background-color: #f0fdf9;
         }
-
-        /* Product cards - sinh động hơn */
         #productGridBody > div {
             background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.18);
             box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.08);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 2.5rem;
         }
         #productGridBody > div:hover {
-            transform: translateY(-12px) scale(1.03);
-            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25);
-            border-color: rgba(16, 185, 129, 0.3);
+            transform: translateY(-12px) scale(1.04);
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.28);
+            border-color: rgba(16, 185, 129, 0.35);
         }
 
-        /* Glass effect mạnh hơn cho các form */
+        /* Glassmorphism */
         .glass {
             background: rgba(255, 255, 255, 0.78);
             backdrop-filter: blur(24px);
-            border: 1px solid rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.7);
         }
 
-        /* Header & buttons */
+        /* Header */
         header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
         }
 
+        /* Filter buttons */
+        .filter-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
         .filter-btn.active {
             background: linear-gradient(90deg, #10b981, #0ea5e9);
-            box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+            color: white;
+            border-color: #10b981;
+            box-shadow: 0 10px 25px -5px rgb(16 185 129);
         }
 
-        /* Accent text */
-        .text-emerald-600, .text-emerald-500 {
-            color: #10b981;
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(16px);
         }
+        .modal.active { display: flex; }
 
-        /* Scroll area padding & feel */
+        /* Scroll fix */
         #main-scroll-area {
-            padding: 40px 40px 100px 40px;
+            flex: 1 1 0 !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth;
+            background: #f0fdf9;
         }
 
         @media (max-width: 768px) {
-            #main-scroll-area {
-                padding: 20px 20px 280px 20px;
+            header {
+                height: 64px !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
             }
+            #pageTitle {
+                font-size: 1.5rem !important;
+            }
+            #main-scroll-area {
+                padding: 20px 20px 280px 20px !important;
+            }
+            #create-product input,
+            #create-product textarea,
+            #transfer-ownership input {
+                padding: 16px 20px !important;
+                font-size: 16px !important;
+                min-height: 56px !important;
+                border-radius: 9999px !important;
+            }
+            #create-product input[type="date"] {
+                min-height: 56px !important;
+                padding: 16px 20px !important;
+            }
+        }
+        input, textarea, select {
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
     </style>
 </head>
 <body class="bg-[#f8fafc] min-h-screen flex text-slate-900 overflow-hidden">
+
     <!-- INTRO SCREEN -->
     <div id="intro-screen">
         <video id="intro-video" autoplay loop muted playsinline preload="auto">
@@ -124,11 +206,12 @@
                 </button>
                 <p class="text-white/70 text-sm flex items-center gap-2">
                     <i class="fa-solid fa-circle-play"></i>
-                    Video thiên nhiên đang phát • Forest &amp; River
+                    Video thiên nhiên đang phát
                 </p>
             </div>
         </div>
     </div>
+
     <!-- DASHBOARD CONTENT -->
     <div id="dashboard-content" class="flex w-full min-h-screen">
         <!-- Sidebar -->
@@ -184,6 +267,7 @@
                 </div>
             </div>
         </aside>
+
         <!-- Main -->
         <main class="flex-1 flex flex-col min-w-0">
             <header class="h-20 bg-white/90 backdrop-blur-2xl border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30 shadow-sm">
@@ -197,7 +281,7 @@
                 </button>
             </header>
           
-            <!-- Khu vực scroll chính - ĐÃ FIX HOÀN TOÀN -->
+            <!-- Khu vực scroll chính -->
             <div id="main-scroll-area" class="p-10 overflow-y-auto flex-1">
                 <!-- List Products -->
                 <div id="list-products" class="tab-content active">
@@ -212,6 +296,7 @@
                     </div>
                     <div id="productGridBody" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
                 </div>
+
                 <!-- Create Product -->
                 <div id="create-product" class="tab-content max-w-5xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl overflow-hidden">
@@ -251,6 +336,7 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Transfer Ownership -->
                 <div id="transfer-ownership" class="tab-content max-w-2xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl p-10">
@@ -264,6 +350,7 @@
                 </div>
             </div>
         </main>
+
         <!-- Mobile Bottom Navigation -->
         <div id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl backdrop-blur-2xl z-[999] flex justify-around items-center py-2 px-4">
             <button onclick="showTab('list-products')" data-tab="list-products" class="mobile-nav-btn flex-1 flex flex-col items-center py-2 text-slate-600">
@@ -279,6 +366,7 @@
                 <span class="text-xs mt-1 font-medium">Chuyển giao</span>
             </button>
         </div>
+
         <!-- Sidebar chi tiết & Modals -->
         <div id="productDetailSidebar" class="fixed inset-y-0 right-0 w-[420px] bg-white/95 shadow-2xl translate-x-full flex flex-col z-[100] border-l border-slate-200 backdrop-blur-2xl">
             <div class="px-6 py-6 border-b flex items-center justify-between bg-white/80">
@@ -315,6 +403,7 @@
             </div>
         </div>
     </div>
+
 <script>
 const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
 const abi = [
@@ -326,6 +415,7 @@ const abi = [
 ];
 let web3, contract, account;
 let currentFilter = 'inStock';
+
 window.addEventListener("load", async () => {
     if (!window.ethereum) return alert("Vui lòng cài MetaMask!");
     web3 = new Web3(window.ethereum);
@@ -337,6 +427,7 @@ window.addEventListener("load", async () => {
     document.getElementById('btnInStock').classList.add('active');
     loadProducts();
 });
+
 async function switchToSepolia() {
     try {
         const chainId = await web3.eth.getChainId();
@@ -345,6 +436,7 @@ async function switchToSepolia() {
         }
     } catch (e) {}
 }
+
 async function uploadFileToIPFS(file) {
     if (!file) return "";
     const formData = new FormData();
@@ -354,6 +446,7 @@ async function uploadFileToIPFS(file) {
     const data = await res.json();
     return `ipfs://${data.cid}`;
 }
+
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
@@ -363,12 +456,12 @@ function showTab(tabId) {
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
    
-    // Reset scroll khi chuyển tab
     setTimeout(() => {
         const scrollArea = document.getElementById('main-scroll-area');
         if (scrollArea) scrollArea.scrollTop = 0;
     }, 100);
 }
+
 async function createProduct() {
     const btn = document.getElementById('btnCreate');
     btn.disabled = true;
@@ -400,6 +493,7 @@ async function createProduct() {
         btn.innerHTML = '<span>Ký & Xác thực trên Blockchain</span> <i class="fa-solid fa-paper-plane"></i>';
     }
 }
+
 async function loadProducts() {
     const grid = document.getElementById('productGridBody');
     grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="loading-spinner mx-auto"></div></div>';
@@ -436,12 +530,14 @@ async function loadProducts() {
         grid.innerHTML = '<div class="col-span-full py-20 text-center text-red-400">Lỗi Blockchain.</div>';
     }
 }
+
 function setFilter(filter) {
     currentFilter = filter;
     document.getElementById('btnInStock').classList.toggle('active', filter === 'inStock');
     document.getElementById('btnTransferred').classList.toggle('active', filter === 'transferred');
     loadProducts();
 }
+
 async function showProductDetail(id) {
     const sidebar = document.getElementById('productDetailSidebar');
     const content = document.getElementById('sidebarContent');
@@ -505,6 +601,7 @@ async function showProductDetail(id) {
         content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi tải chi tiết: ${err.message}</p>`;
     }
 }
+
 function closeSidebar() { document.getElementById('productDetailSidebar').classList.add('translate-x-full'); }
 function openCertModal(url) {
     const modal = document.getElementById('certModal');
@@ -548,6 +645,7 @@ function showFunctionInfo(type) {
     descEl.innerHTML = desc;
     modal.classList.add('active');
 }
+
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
@@ -556,6 +654,7 @@ showTab = function(tabId) {
         btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
 };
+
 window.addEventListener('load', function() {
     const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
     mobileButtons.forEach(btn => {
