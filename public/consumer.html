@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Consumer Dashboard | VeriGlow</title>
-   
+  
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
@@ -12,16 +12,23 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
+       
+        :root {
+            --primary: #0ea5e9;
+            --emerald: #10b981;
+            --mint: #6ee7b7;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%);
         }
 
         /* Aesthetic global */
         .tab-content { display: none; }
-        .tab-content.active { 
-            display: block; 
-            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        .tab-content.active {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes fadeInScale {
             0% { opacity: 0; transform: scale(0.95) translateY(20px); }
@@ -46,7 +53,7 @@
             height: 100%;
             object-fit: cover;
             z-index: -1;
-            filter: brightness(0.85) contrast(1.1);
+            filter: brightness(0.82) contrast(1.08) saturate(1.15);
         }
         .intro-content {
             text-align: center;
@@ -54,7 +61,7 @@
             animation: introFloat 3s ease-in-out infinite;
         }
 
-        /* Sidebar - Consumer aesthetic (Sky + Emerald) */
+        /* Sidebar - Consumer aesthetic */
         .sidebar-item {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -62,12 +69,12 @@
         }
         .sidebar-item:hover {
             transform: translateX(8px) scale(1.03);
-            box-shadow: 0 20px 25px -5px rgb(14 165 233 / 0.25);
+            box-shadow: 0 20px 25px -5px rgb(16 185 129 / 0.25);
         }
-        .sidebar-item.active { 
-            background: linear-gradient(90deg, #0ea5e9, #10b981); 
-            color: white; 
-            box-shadow: 0 15px 30px -8px rgba(14, 165, 233, 0.5);
+        .sidebar-item.active {
+            background: linear-gradient(90deg, #10b981, #0ea5e9);
+            color: white;
+            box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.45);
         }
         .sidebar-item.active::before {
             content: '';
@@ -94,8 +101,9 @@
 
         /* Glassmorphism */
         .glass {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.7);
         }
 
         /* Info icon */
@@ -107,36 +115,41 @@
             transform: scale(1.2);
         }
 
-        .loading-spinner { 
-            border: 3px solid #f3f3f3; 
-            border-top: 3px solid #0ea5e9; 
-            border-radius: 50%; 
-            width: 24px; 
-            height: 24px; 
-            animation: spin 1s linear infinite; 
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #10b981;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
         }
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .modal { 
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(15, 23, 42, 0.75); 
-            z-index: 10000; 
-            align-items: center; 
-            justify-content: center; 
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
             backdrop-filter: blur(16px);
         }
         .modal.active { display: flex; }
-        .modal-content { 
+        .modal-content {
             animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes modalPop {
             0% { opacity: 0; transform: scale(0.9) translateY(30px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Main area background */
+        .p-10.max-w-7xl.mx-auto {
+            background: #f0fdf9;
         }
     </style>
 </head>
@@ -148,26 +161,25 @@
             <source src="https://videos.pexels.com/video-files/854219/854219-hd_1920_1080_30fps.mp4" type="video/mp4">
             Trình duyệt của bạn không hỗ trợ video.
         </video>
-        
+       
         <div class="intro-content max-w-lg px-6">
-            <!-- Logo bo tròn lớn từ 2.png -->
-            <img src="2.png" alt="VeriGlow Logo" 
+            <img src="2.png" alt="VeriGlow Logo"
                  class="mx-auto w-40 h-40 md:w-52 md:h-52 rounded-full object-cover shadow-2xl border-8 border-white/40 mb-8 ring-8 ring-white/20">
-            
+           
             <h1 class="text-6xl md:text-7xl font-bold tracking-[-2px] text-white drop-shadow-xl">
                 VeriGlow
             </h1>
             <p class="text-white/90 text-xl md:text-2xl mt-3 font-light">Consumer • Verify & Own</p>
             <p class="text-emerald-200 text-sm mt-1">Minh bạch • An toàn • Gần gũi thiên nhiên</p>
-            
+           
             <div class="mt-12 flex flex-col items-center gap-4">
-                <button onclick="enterDashboard()" 
+                <button onclick="enterDashboard()"
                         class="px-14 py-6 bg-white text-slate-900 rounded-3xl font-semibold text-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all flex items-center gap-4">
                     <span>Khám phá tủ đồ</span>
                     <i class="fa-solid fa-gem text-emerald-500"></i>
                 </button>
                 <p class="text-white/70 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-circle-play"></i> 
+                    <i class="fa-solid fa-circle-play"></i>
                     Video thiên nhiên • Forest &amp; River
                 </p>
             </div>
@@ -182,33 +194,33 @@
                 <img src="2.png" alt="Logo" class="w-12 h-12 rounded-3xl object-cover shadow-xl ring-2 ring-emerald-200">
                 <span class="font-bold text-2xl tracking-[-1px] bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">VeriGlow</span>
             </div>
-            
+           
             <nav class="mt-4 px-6 space-y-2 flex-1">
                 <div class="flex items-center gap-2">
-                    <button onclick="showTab('my-purchases')" 
+                    <button onclick="showTab('my-purchases')"
                             class="sidebar-item active flex-1 flex items-center gap-3 px-5 py-4 font-semibold text-slate-600">
-                        <i class="fa-solid fa-gem text-xl"></i> 
+                        <i class="fa-solid fa-gem text-xl"></i>
                         <span>Tủ đồ của tôi</span>
                     </button>
-                    <button onclick="showFunctionInfo('my-purchases')" 
+                    <button onclick="showFunctionInfo('my-purchases')"
                             class="info-icon text-slate-400 hover:text-emerald-500 px-2 py-2">
                         <i class="fa-solid fa-circle-info"></i>
                     </button>
                 </div>
-                
+               
                 <div class="flex items-center gap-2">
-                    <button onclick="showTab('verify-trace')" 
+                    <button onclick="showTab('verify-trace')"
                             class="sidebar-item flex-1 flex items-center gap-3 px-5 py-4 font-semibold text-slate-600">
-                        <i class="fa-solid fa-qrcode text-xl"></i> 
+                        <i class="fa-solid fa-qrcode text-xl"></i>
                         <span>Quét mã xác thực</span>
                     </button>
-                    <button onclick="showFunctionInfo('verify-trace')" 
+                    <button onclick="showFunctionInfo('verify-trace')"
                             class="info-icon text-slate-400 hover:text-emerald-500 px-2 py-2">
                         <i class="fa-solid fa-circle-info"></i>
                     </button>
                 </div>
             </nav>
-            
+           
             <div class="p-6 border-t border-slate-100">
                 <div class="glass rounded-3xl p-5 border border-white/60">
                     <p class="text-[10px] text-emerald-600 font-bold uppercase mb-2">Ví của bạn</p>
@@ -225,20 +237,20 @@
                     <span class="text-emerald-500"><i class="fa-solid fa-leaf"></i></span>
                 </h2>
                 <div class="flex items-center gap-4">
-                    <button onclick="loadProducts()" 
+                    <button onclick="loadProducts()"
                             class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-all hover:rotate-45">
                         <i class="fa-solid fa-arrows-rotate"></i>
                     </button>
                     <div id="statusDot" class="w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></div>
                 </div>
             </header>
-            
+           
             <div class="p-10 max-w-7xl mx-auto">
                 <!-- My Purchases -->
                 <div id="my-purchases" class="tab-content active">
                     <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
                 </div>
-                
+               
                 <!-- Verify & Trace -->
                 <div id="verify-trace" class="tab-content">
                     <div class="max-w-xl mx-auto glass p-8 rounded-[2.75rem] shadow-2xl border border-white/60">
@@ -269,19 +281,18 @@
         <div id="certModal" class="modal">
             <div class="modal-content relative p-2 max-w-[90vw]">
                 <img id="modalCertImg" src="" class="max-w-full max-h-[90vh] rounded-3xl shadow-2xl">
-                <button onclick="document.getElementById('certModal').classList.remove('active')" 
+                <button onclick="document.getElementById('certModal').classList.remove('active')"
                         class="absolute -top-4 right-4 bg-black/70 hover:bg-black text-white w-10 h-10 rounded-2xl flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
         </div>
-
         <div id="qrModal" class="modal">
             <div class="modal-content p-10 text-center bg-white rounded-[2.75rem] max-w-md" onclick="event.stopPropagation()">
                 <h3 class="text-xl font-bold mb-6 text-slate-800">QR Authenticity</h3>
                 <canvas id="modalQrCanvas" class="mx-auto rounded-3xl shadow-inner"></canvas>
                 <p class="mt-6 text-xs text-slate-400 font-medium">Mã định danh sản phẩm trên Blockchain</p>
-                <button onclick="document.getElementById('qrModal').classList.remove('active')" 
+                <button onclick="document.getElementById('qrModal').classList.remove('active')"
                         class="mt-8 px-8 py-3 text-slate-400 hover:text-slate-600 text-sm font-medium">Đóng</button>
             </div>
         </div>
@@ -291,12 +302,12 @@
             <div class="modal-content w-full max-w-lg mx-4 bg-white rounded-3xl p-8" onclick="event.stopPropagation()">
                 <div class="flex justify-between items-start mb-6">
                     <h3 id="functionTitle" class="text-2xl font-bold text-slate-800"></h3>
-                    <button onclick="document.getElementById('functionModal').classList.remove('active')" 
+                    <button onclick="document.getElementById('functionModal').classList.remove('active')"
                             class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-3xl"></i></button>
                 </div>
                 <div id="functionDesc" class="text-slate-600 leading-relaxed"></div>
                 <div class="mt-8 flex justify-end">
-                    <button onclick="document.getElementById('functionModal').classList.remove('active')" 
+                    <button onclick="document.getElementById('functionModal').classList.remove('active')"
                             class="px-8 py-3 bg-emerald-600 text-white rounded-3xl font-medium">Đã hiểu</button>
                 </div>
             </div>
@@ -311,15 +322,12 @@ const abi = [
     {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"products","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"bool","name":"isAuthentic","type":"bool"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"productImageUrl","type":"string"},{"internalType":"string","name":"certificationUrl","type":"string"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"}],"stateMutability":"view","type":"function"},
     {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
 ];
-
 let web3, contract, account, html5QrCode;
-
 function formatUrl(url) {
     if (!url || url === "" || url === "undefined") return 'https://placehold.co/400x400?text=VeriGlow';
     if (url.startsWith('ipfs://')) return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
     return url;
 }
-
 window.addEventListener("load", async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
@@ -336,16 +344,15 @@ window.addEventListener("load", async () => {
         alert("Vui lòng cài đặt MetaMask để sử dụng!");
     }
 });
-
 async function loadProducts() {
     const grid = document.getElementById('productGrid');
     grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-slate-400 italic">Đang tải tủ đồ từ Blockchain...</p></div>';
-    
+   
     try {
         const count = Number(await contract.methods.productCount().call());
         let html = '';
         let found = 0;
-        
+       
         for (let i = 1; i <= count; i++) {
             const p = await contract.methods.products(i).call();
             if (p.owner.toLowerCase() === account) {
@@ -372,30 +379,29 @@ async function loadProducts() {
                     </div>`;
             }
         }
-        
-        grid.innerHTML = found > 0 ? html : 
+       
+        grid.innerHTML = found > 0 ? html :
             '<div class="col-span-full py-32 text-center"><i class="fa-solid fa-box-open text-5xl text-slate-100 mb-6 block"></i><p class="text-slate-400 font-medium">Bạn chưa sở hữu sản phẩm nào.</p></div>';
     } catch (e) {
         grid.innerHTML = '<div class="col-span-full text-center py-20 text-red-400">Không thể kết nối với Blockchain.</div>';
     }
 }
-
 async function showProductDetail(id) {
     const sidebar = document.getElementById('productDetailSidebar');
     const content = document.getElementById('sidebarContent');
     content.innerHTML = '<div class="flex justify-center py-20"><div class="loading-spinner"></div></div>';
     sidebar.classList.remove('translate-x-full');
-    
+   
     try {
         const verify = await contract.methods.verifyProduct(id).call();
         const prod = await contract.methods.products(id).call();
         const imgUrl = formatUrl(prod.productImageUrl);
         const certUrl = formatUrl(prod.certificationUrl);
         const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`;
-       
+      
         const history = verify.visibleHistory || [];
         const ingredients = verify.ingredients || [];
-        
+       
         content.innerHTML = `
             <div class="space-y-8">
                 <div class="relative group">
@@ -405,7 +411,7 @@ async function showProductDetail(id) {
                         <p class="text-sm font-mono font-bold text-slate-800">#${id}</p>
                     </div>
                 </div>
-                
+               
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
                         <p class="text-slate-400 text-[10px] uppercase font-bold tracking-tighter mb-1">Batch ID</p>
@@ -416,7 +422,7 @@ async function showProductDetail(id) {
                         <p class="text-sm font-bold text-slate-700">${verify.manufactureDate}</p>
                     </div>
                 </div>
-                
+               
                 <div class="bg-gradient-to-br from-sky-50 to-emerald-50 rounded-[2rem] p-6 border border-emerald-100 shadow-sm">
                     <div class="text-emerald-700 text-[10px] font-black mb-3 uppercase tracking-widest flex items-center gap-2">
                         <i class="fa-solid fa-industry"></i> Đơn vị sản xuất
@@ -424,13 +430,13 @@ async function showProductDetail(id) {
                     <div class="font-bold text-slate-800 text-lg">${verify.manufacturerName}</div>
                     <div class="text-[11px] text-slate-500 mt-2 font-medium leading-relaxed">${verify.factoryAddress}</div>
                 </div>
-                
+               
                 ${ingredients.length > 0 ? `
                 <div class="space-y-4">
                     <p class="text-slate-800 text-xs font-bold uppercase tracking-widest ml-1">Thành phần niêm yết</p>
                     <div class="flex flex-wrap gap-2">${ingredients.map(i => `<span class="bg-white border border-slate-200 px-3.5 py-2 rounded-2xl text-[11px] text-slate-600 shadow-sm font-semibold">${i}</span>`).join('')}</div>
                 </div>` : ''}
-                
+               
                 <div class="space-y-6 pb-10">
                     <p class="text-slate-800 text-xs font-bold uppercase tracking-widest ml-1 flex items-center gap-2">
                         <i class="fa-solid fa-timeline text-emerald-500"></i> Nhật ký hành trình
@@ -444,7 +450,7 @@ async function showProductDetail(id) {
                         </div>`).join('')}
                     </div>
                 </div>
-                
+               
                 <div class="pt-6 grid grid-cols-2 gap-4 sticky bottom-0 bg-white pb-4">
                     <button onclick="openCertModal('${certUrl}')" class="py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-2xl flex flex-col items-center gap-2 transition-all border border-indigo-100">
                         <i class="fa-solid fa-file-shield text-xl"></i>
@@ -461,29 +467,25 @@ async function showProductDetail(id) {
         content.innerHTML = `<div class="p-10 text-center text-red-500 font-medium">Lỗi load dữ liệu: ${err.message}</div>`;
     }
 }
-
 function closeSidebar() {
     document.getElementById('productDetailSidebar').classList.add('translate-x-full');
 }
-
 function openCertModal(url) {
     if (!url || url.includes('placehold')) return alert("Sản phẩm không kèm ảnh chứng nhận.");
     document.getElementById('modalCertImg').src = url;
     document.getElementById('certModal').classList.add('active');
 }
-
 function showQrModal(url) {
     const canvas = document.getElementById('modalQrCanvas');
     QRCode.toCanvas(canvas, url, { width: 280, margin: 2, color: { dark: '#0f172a' } }, (err) => {
         if (!err) document.getElementById('qrModal').classList.add('active');
     });
 }
-
 function showTab(id) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
-   
+  
     if (id === 'my-purchases') {
         document.querySelectorAll('.sidebar-item')[0].classList.add('active');
         document.getElementById('pageTitle').innerText = "Tủ đồ của tôi";
@@ -494,7 +496,6 @@ function showTab(id) {
         startScanner();
     }
 }
-
 function startScanner() {
     if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
@@ -509,11 +510,9 @@ function startScanner() {
         }
     ).catch(err => console.error(err));
 }
-
 function stopScanner() {
     if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop();
 }
-
 /* ====================== AESTHETIC FUNCTIONS ====================== */
 function enterDashboard() {
     const intro = document.getElementById('intro-screen');
@@ -523,29 +522,27 @@ function enterDashboard() {
         document.getElementById('dashboard-content').classList.add('flex');
     }, 800);
 }
-
 function showFunctionInfo(type) {
     const modal = document.getElementById('functionModal');
     const titleEl = document.getElementById('functionTitle');
     const descEl = document.getElementById('functionDesc');
-    
+   
     let title = '';
     let desc = '';
-    
+   
     if (type === 'my-purchases') {
         title = 'Tủ đồ của tôi';
         desc = 'Hiển thị tất cả sản phẩm bạn đã sở hữu. Mỗi sản phẩm được xác thực trên Blockchain với đầy đủ thông tin nguồn gốc, thành phần và lịch sử hành trình.';
-    } 
+    }
     else if (type === 'verify-trace') {
         title = 'Quét mã xác thực';
         desc = 'Sử dụng camera để quét mã QR trên sản phẩm. Hệ thống sẽ tự động truy xuất thông tin chi tiết và xác thực tính chính hãng của sản phẩm từ Blockchain.';
     }
-    
+   
     titleEl.innerHTML = title;
     descEl.innerHTML = desc;
     modal.classList.add('active');
 }
-
 // Đóng modal khi click ra ngoài
 window.onclick = function(event) {
     if (event.target.id === 'certModal' || event.target.id === 'qrModal') {
