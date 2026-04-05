@@ -151,7 +151,7 @@
         }
         .modal.active { display: flex; }
 
-        /* Scroll area - Fix scroll */
+        /* Scroll area */
         #main-scroll-area {
             flex: 1 1 0 !important;
             min-height: 0 !important;
@@ -192,7 +192,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex text-slate-900">
+<body class="min-h-screen flex text-slate-900 overflow-hidden">
 
     <!-- INTRO SCREEN -->
     <div id="intro-screen">
@@ -225,8 +225,7 @@
     </div>
 
     <!-- DASHBOARD CONTENT -->
-    <div id="dashboard-content" class="hidden flex w-full min-h-screen">
-
+    <div id="dashboard-content" class="flex w-full min-h-screen">
         <!-- Sidebar -->
         <aside class="w-72 bg-white/95 border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen shadow-2xl backdrop-blur-xl">
             <div class="p-8">
@@ -299,11 +298,7 @@
                 <div id="list-products" class="tab-content active">
                     <div class="mb-8 flex items-center gap-4">
                         <span class="text-sm font-medium text-slate-500">Hiển thị:</span>
-                        <!-- Hoạt động đứng đầu tiên -->
-                        <button id="btnActivities" onclick="setFilter('activities')" class="filter-btn px-8 py-3 rounded-3xl text-sm font-semibold border border-slate-200 active flex items-center gap-2">
-                            <i class="fa-solid fa-history"></i> Hoạt động
-                        </button>
-                        <button id="btnInStock" onclick="setFilter('inStock')" class="filter-btn px-8 py-3 rounded-3xl text-sm font-semibold border border-slate-200 flex items-center gap-2">
+                        <button id="btnInStock" onclick="setFilter('inStock')" class="filter-btn px-8 py-3 rounded-3xl text-sm font-semibold border border-slate-200 active flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked"></i> Còn trong kho
                         </button>
                         <button id="btnTransferred" onclick="setFilter('transferred')" class="filter-btn px-8 py-3 rounded-3xl text-sm font-semibold border border-slate-200 flex items-center gap-2">
@@ -383,7 +378,7 @@
             </button>
         </div>
 
-        <!-- Product Detail Sidebar -->
+        <!-- Sidebar chi tiết & Modals -->
         <div id="productDetailSidebar" class="fixed inset-y-0 right-0 w-[420px] bg-white/95 shadow-2xl translate-x-full flex flex-col z-[100] border-l border-slate-200 backdrop-blur-2xl">
             <div class="px-6 py-6 border-b flex items-center justify-between bg-white/80">
                 <div class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-emerald-600"></i><h3 class="font-bold text-xl text-slate-800">Chi tiết sản phẩm</h3></div>
@@ -391,8 +386,6 @@
             </div>
             <div id="sidebarContent" class="flex-1 overflow-y-auto p-6 space-y-8"></div>
         </div>
-
-        <!-- Modals -->
         <div id="certModal" class="modal" onclick="if(event.target.id==='certModal')this.classList.remove('active')">
             <div class="modal-content relative max-w-4xl">
                 <img id="modalCertImg" src="" class="max-w-full block rounded-3xl">
@@ -431,9 +424,8 @@ const abi = [
     {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"products","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"bool","name":"isAuthentic","type":"bool"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"productImageUrl","type":"string"},{"internalType":"string","name":"certificationUrl","type":"string"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"}],"stateMutability":"view","type":"function"},
     {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
 ];
-
 let web3, contract, account;
-let currentFilter = 'activities';   // Mặc định là Hoạt động
+let currentFilter = 'inStock';
 
 window.addEventListener("load", async () => {
     if (!window.ethereum) return alert("Vui lòng cài MetaMask!");
@@ -443,8 +435,7 @@ window.addEventListener("load", async () => {
     document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
     contract = new web3.eth.Contract(abi, contractAddress);
     await switchToSepolia();
-    
-    document.getElementById('btnActivities').classList.add('active');
+    document.getElementById('btnInStock').classList.add('active');
     loadProducts();
 });
 
@@ -480,14 +471,6 @@ function showTab(tabId) {
         const scrollArea = document.getElementById('main-scroll-area');
         if (scrollArea) scrollArea.scrollTop = 0;
     }, 100);
-}
-
-function setFilter(filter) {
-    currentFilter = filter;
-    document.getElementById('btnActivities').classList.toggle('active', filter === 'activities');
-    document.getElementById('btnInStock').classList.toggle('active', filter === 'inStock');
-    document.getElementById('btnTransferred').classList.toggle('active', filter === 'transferred');
-    loadProducts();
 }
 
 async function createProduct() {
@@ -528,63 +511,42 @@ async function loadProducts() {
     try {
         const count = Number(await contract.methods.productCount().call());
         let html = '';
-
-        if (currentFilter === 'activities') {
-            // Hoạt động: hiển thị mới nhất trước
-            for (let i = count; i >= 1; i--) {
-                const p = await contract.methods.products(i).call();
-                const isOwned = p.owner.toLowerCase() === account.toLowerCase();
-                const img = p.productImageUrl ? p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : 'https://placehold.co/400x300?text=No+Image';
-                const statusLabel = isOwned ? `<span class="px-2 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-md">TRONG KHO</span>` : `<span class="px-2 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md">ĐÃ ĐI</span>`;
-                html += `
-                    <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer" onclick="showProductDetail(${i})">
-                        <div class="relative h-48 overflow-hidden bg-slate-100">
-                            <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            <div class="absolute top-3 left-3">${statusLabel}</div>
-                            <div class="absolute top-3 right-3 bg-black/40 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-md font-mono">#${i}</div>
+        for (let i = 1; i <= count; i++) {
+            const p = await contract.methods.products(i).call();
+            const isOwned = p.owner.toLowerCase() === account.toLowerCase();
+            if (currentFilter === 'inStock' && !isOwned) continue;
+            if (currentFilter === 'transferred' && isOwned) continue;
+            const img = p.productImageUrl ? p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : 'https://placehold.co/400x300?text=No+Image';
+            const statusLabel = isOwned ? `<span class="px-2 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-md">TRONG KHO</span>` : `<span class="px-2 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md">ĐÃ ĐI</span>`;
+            html += `
+                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer" onclick="showProductDetail(${i})">
+                    <div class="relative h-48 overflow-hidden bg-slate-100">
+                        <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute top-3 left-3">${statusLabel}</div>
+                        <div class="absolute top-3 right-3 bg-black/40 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-md font-mono">#${i}</div>
+                    </div>
+                    <div class="p-5">
+                        <div class="text-[10px] text-sky-500 font-bold uppercase mb-1">${p.manufacturerName}</div>
+                        <h4 class="font-bold text-slate-800 mb-1 line-clamp-1">${p.name}</h4>
+                        <div class="text-xs text-slate-400 mb-4 italic">${p.batchID}</div>
+                        <div class="flex items-center justify-between border-t pt-4">
+                            <span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-calendar mr-1"></i>${p.manufactureDate}</span>
+                            <button class="text-sky-600 font-bold text-xs flex items-center gap-1 hover:gap-2 transition-all">Chi tiết <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
-                        <div class="p-5">
-                            <div class="text-[10px] text-sky-500 font-bold uppercase mb-1">${p.manufacturerName}</div>
-                            <h4 class="font-bold text-slate-800 mb-1 line-clamp-1">${p.name}</h4>
-                            <div class="text-xs text-slate-400 mb-4 italic">${p.batchID}</div>
-                            <div class="flex items-center justify-between border-t pt-4">
-                                <span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-calendar mr-1"></i>${p.manufactureDate}</span>
-                                <button class="text-sky-600 font-bold text-xs flex items-center gap-1 hover:gap-2 transition-all">Chi tiết <i class="fa-solid fa-arrow-right"></i></button>
-                            </div>
-                        </div>
-                    </div>`;
-            }
-        } else {
-            for (let i = 1; i <= count; i++) {
-                const p = await contract.methods.products(i).call();
-                const isOwned = p.owner.toLowerCase() === account.toLowerCase();
-                if (currentFilter === 'inStock' && !isOwned) continue;
-                if (currentFilter === 'transferred' && isOwned) continue;
-                const img = p.productImageUrl ? p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : 'https://placehold.co/400x300?text=No+Image';
-                const statusLabel = isOwned ? `<span class="px-2 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-md">TRONG KHO</span>` : `<span class="px-2 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md">ĐÃ ĐI</span>`;
-                html += `
-                    <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer" onclick="showProductDetail(${i})">
-                        <div class="relative h-48 overflow-hidden bg-slate-100">
-                            <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            <div class="absolute top-3 left-3">${statusLabel}</div>
-                            <div class="absolute top-3 right-3 bg-black/40 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-md font-mono">#${i}</div>
-                        </div>
-                        <div class="p-5">
-                            <div class="text-[10px] text-sky-500 font-bold uppercase mb-1">${p.manufacturerName}</div>
-                            <h4 class="font-bold text-slate-800 mb-1 line-clamp-1">${p.name}</h4>
-                            <div class="text-xs text-slate-400 mb-4 italic">${p.batchID}</div>
-                            <div class="flex items-center justify-between border-t pt-4">
-                                <span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-calendar mr-1"></i>${p.manufactureDate}</span>
-                                <button class="text-sky-600 font-bold text-xs flex items-center gap-1 hover:gap-2 transition-all">Chi tiết <i class="fa-solid fa-arrow-right"></i></button>
-                            </div>
-                        </div>
-                    </div>`;
-            }
+                    </div>
+                </div>`;
         }
         grid.innerHTML = html || '<div class="col-span-full py-20 text-center text-slate-400">Không có sản phẩm nào.</div>';
     } catch (err) {
         grid.innerHTML = '<div class="col-span-full py-20 text-center text-red-400">Lỗi Blockchain.</div>';
     }
+}
+
+function setFilter(filter) {
+    currentFilter = filter;
+    document.getElementById('btnInStock').classList.toggle('active', filter === 'inStock');
+    document.getElementById('btnTransferred').classList.toggle('active', filter === 'transferred');
+    loadProducts();
 }
 
 async function showProductDetail(id) {
@@ -599,13 +561,11 @@ async function showProductDetail(id) {
         let certUrl = prod.certificationUrl ? prod.certificationUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
         const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`;
         const history = verify.visibleHistory || [verify.owner];
-
         let ingredientsHTML = verify.ingredients && verify.ingredients.length > 0 ? `
             <div class="bg-amber-50 rounded-3xl p-6">
                 <div class="text-amber-700 text-xs font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-flask"></i> THÀNH PHẦN</div>
                 <div class="flex flex-wrap gap-2">${verify.ingredients.map(item => `<span class="bg-white px-3 py-1 rounded-full text-xs text-amber-800 border border-amber-200">${item}</span>`).join('')}</div>
             </div>` : '';
-
         content.innerHTML = `
             <div class="space-y-6">
                 ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-3xl shadow-lg h-64 object-cover">` : `<div class="h-64 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400">Không có ảnh</div>`}
@@ -653,9 +613,7 @@ async function showProductDetail(id) {
     }
 }
 
-function closeSidebar() { 
-    document.getElementById('productDetailSidebar').classList.add('translate-x-full'); 
-}
+function closeSidebar() { document.getElementById('productDetailSidebar').classList.add('translate-x-full'); }
 function openCertModal(url) {
     const modal = document.getElementById('certModal');
     document.getElementById('modalCertImg').src = url;
@@ -664,9 +622,7 @@ function openCertModal(url) {
 function showQrModal(url) {
     const modal = document.getElementById('qrModal');
     const canvas = document.getElementById('modalQrCanvas');
-    QRCode.toCanvas(canvas, url, { width: 250, margin: 2 }, (err) => { 
-        if (!err) modal.classList.add('active'); 
-    });
+    QRCode.toCanvas(canvas, url, { width: 250, margin: 2 }, (err) => { if (!err) modal.classList.add('active'); });
 }
 async function transferOwnership() {
     const id = document.getElementById("transferId").value.trim();
@@ -693,24 +649,14 @@ function showFunctionInfo(type) {
     const titleEl = document.getElementById('functionTitle');
     const descEl = document.getElementById('functionDesc');
     let title = '', desc = '';
-    if (type === 'list-products') { 
-        title = 'Kho sản phẩm'; 
-        desc = 'Xem toàn bộ sản phẩm đã đăng ký. Bạn có thể lọc giữa <strong>Hoạt động</strong>, <strong>Còn trong kho</strong> và <strong>Đã chuyển giao</strong>.'; 
-    }
-    else if (type === 'create-product') { 
-        title = 'Đăng ký sản phẩm'; 
-        desc = 'Tạo sản phẩm mới trên Blockchain. Điền đầy đủ thông tin và tải lên ảnh + giấy chứng nhận.'; 
-    }
-    else if (type === 'transfer-ownership') { 
-        title = 'Chuyển giao quyền'; 
-        desc = 'Bàn giao quyền sở hữu sản phẩm cho đại lý. Nhập ID và địa chỉ ví người nhận.'; 
-    }
+    if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem toàn bộ sản phẩm đã đăng ký. Bạn có thể lọc giữa <strong>Còn trong kho</strong> và <strong>Đã chuyển giao</strong>.'; }
+    else if (type === 'create-product') { title = 'Đăng ký sản phẩm'; desc = 'Tạo sản phẩm mới trên Blockchain. Điền đầy đủ thông tin và tải lên ảnh + giấy chứng nhận.'; }
+    else if (type === 'transfer-ownership') { title = 'Chuyển giao quyền'; desc = 'Bàn giao quyền sở hữu sản phẩm cho đại lý. Nhập ID và địa chỉ ví người nhận.'; }
     titleEl.innerHTML = title;
     descEl.innerHTML = desc;
     modal.classList.add('active');
 }
 
-// Mobile nav
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
