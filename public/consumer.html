@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
-    <!-- Thư viện quét QR -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
     <style>
@@ -25,35 +24,66 @@
             background: linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%);
         }
 
-        /* Giữ nguyên toàn bộ style từ file Manufacturer */
         #intro-screen {
-            position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
-            background: rgba(15, 23, 42, 0.45); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.45);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #intro-video {
-            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
             filter: brightness(0.82) contrast(1.08) saturate(1.15);
         }
-        .intro-content { text-align: center; z-index: 10; animation: introFloat 3s ease-in-out infinite; }
-
-        aside { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(20px); }
-        .sidebar-item {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; border-radius: 9999px;
+        .intro-content {
+            text-align: center;
+            z-index: 10;
+            animation: introFloat 3s ease-in-out infinite;
         }
-        .sidebar-item:hover { transform: translateX(8px) scale(1.03); box-shadow: 0 20px 25px -5px rgb(16 185 129 / 0.2); }
+
+        aside {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(20px);
+        }
+        .sidebar-item {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-radius: 9999px;
+        }
+        .sidebar-item:hover {
+            transform: translateX(8px) scale(1.03);
+            box-shadow: 0 20px 25px -5px rgb(16 185 129 / 0.2);
+        }
         .sidebar-item.active {
-            background: linear-gradient(90deg, #10b981, #0ea5e9); color: white;
+            background: linear-gradient(90deg, #10b981, #0ea5e9);
+            color: white;
             box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.45);
         }
         .sidebar-item.active::before {
-            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            width: 5px; height: 60%; background: white;
-            border-top-right-radius: 9999px; border-bottom-right-radius: 9999px;
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 5px;
+            height: 60%;
+            background: white;
+            border-top-right-radius: 9999px;
+            border-bottom-right-radius: 9999px;
         }
 
         .tab-content { display: none; }
         .tab-content.active {
-            display: block; animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes fadeInScale {
             0% { opacity: 0; transform: scale(0.95) translateY(20px); }
@@ -61,9 +91,11 @@
         }
 
         #productGridBody > div {
-            background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(16, 185, 129, 0.18);
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(16, 185, 129, 0.18);
             box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.08);
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 2.5rem;
         }
         #productGridBody > div:hover {
             transform: translateY(-12px) scale(1.04);
@@ -72,7 +104,8 @@
         }
 
         .glass {
-            background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(24px);
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(24px);
             border: 1px solid rgba(255,255,255,0.7);
         }
 
@@ -80,25 +113,31 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .filter-btn.active {
-            background: linear-gradient(90deg, #10b981, #0ea5e9); color: white;
-            border-color: #10b981; box-shadow: 0 10px 25px -5px rgb(16 185 129);
+            background: linear-gradient(90deg, #10b981, #0ea5e9);
+            color: white;
+            border-color: #10b981;
+            box-shadow: 0 10px 25px -5px rgb(16 185 129);
         }
 
         .modal {
-            display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75);
-            z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(16px);
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(16px);
         }
         .modal.active { display: flex; }
 
         #main-scroll-area {
-            flex: 1 1 0 !important; min-height: 0 !important; overflow-y: auto !important;
-            -webkit-overflow-scrolling: touch !important; scroll-behavior: smooth; background: #f0fdf9;
-        }
-
-        /* Scanner */
-        #scanner-container {
-            width: 100%; max-width: 400px; margin: 0 auto; border-radius: 2rem; overflow: hidden;
-            box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.3);
+            flex: 1 1 0 !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth;
+            background: #f0fdf9;
         }
 
         @media (max-width: 768px) {
@@ -106,7 +145,10 @@
             #pageTitle { font-size: 1.5rem !important; }
             #main-scroll-area { padding: 20px 20px 280px 20px !important; }
         }
-        input, textarea, select { width: 100% !important; box-sizing: border-box !important; }
+        input, textarea, select {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex text-slate-900 overflow-hidden">
@@ -195,7 +237,7 @@
           
             <div id="main-scroll-area" class="p-10 overflow-y-auto flex-1">
 
-                <!-- 1. Kho sản phẩm (copy nguyên từ file gốc) -->
+                <!-- Kho sản phẩm -->
                 <div id="list-products" class="tab-content">
                     <div class="mb-8 flex items-center gap-4">
                         <span class="text-sm font-medium text-slate-500">Hiển thị:</span>
@@ -209,28 +251,26 @@
                     <div id="productGridBody" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
                 </div>
 
-                <!-- 2. Quét QR Code -->
+                <!-- Quét QR Code -->
                 <div id="scan-qr" class="tab-content active">
-                    <div class="max-w-md mx-auto text-center pt-8">
-                        <div class="mb-10">
-                            <i class="fa-solid fa-qrcode text-7xl text-emerald-500 mb-6"></i>
-                            <h3 class="text-3xl font-bold text-slate-800">Quét mã QR trên sản phẩm</h3>
-                            <p class="text-slate-600 mt-3 text-lg">Hướng camera vào mã QR để truy xuất nguồn gốc và thông tin sản phẩm</p>
-                        </div>
+                    <div class="max-w-md mx-auto text-center pt-10">
+                        <i class="fa-solid fa-qrcode text-7xl text-emerald-500 mb-6"></i>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-2">Quét mã QR trên sản phẩm</h3>
+                        <p class="text-slate-600 mb-8">Hướng camera vào mã QR để truy xuất nguồn gốc</p>
                         
-                        <div id="scanner-container" class="bg-white p-6 rounded-3xl shadow-2xl">
-                            <div id="reader" class="w-full"></div>
+                        <div id="scanner-container" class="bg-white p-4 rounded-3xl shadow-2xl mb-8">
+                            <div id="reader" style="width:100%; max-width:380px; margin:0 auto;"></div>
                         </div>
 
-                        <div id="scan-result" class="mt-10 hidden bg-emerald-50 border border-emerald-200 rounded-3xl p-8">
-                            <p class="text-emerald-700 font-semibold text-xl mb-4">✅ Quét thành công!</p>
-                            <div id="result-content" class="text-left bg-white p-5 rounded-2xl text-sm"></div>
+                        <div id="scan-result" class="hidden mt-8 p-6 bg-emerald-50 rounded-3xl border border-emerald-200">
+                            <p class="text-emerald-700 font-semibold mb-4">✅ Quét thành công!</p>
+                            <div id="result-content" class="text-sm text-slate-700"></div>
                         </div>
 
-                        <button onclick="startScanner()" id="start-scan-btn"
-                                class="mt-8 w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-3xl flex items-center justify-center gap-3 text-lg transition-all">
+                        <button onclick="startScanner()" id="start-scan-btn" 
+                                class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-3xl flex items-center justify-center gap-3 text-lg">
                             <i class="fa-solid fa-camera"></i>
-                            <span>Bật Camera & Quét QR</span>
+                            <span>Bật Camera Quét QR</span>
                         </button>
                     </div>
                 </div>
@@ -249,7 +289,7 @@
             </button>
         </div>
 
-        <!-- Product Detail Sidebar & Modals (copy nguyên từ file bạn gửi) -->
+        <!-- Product Detail Sidebar & Modals (nguyên bản) -->
         <div id="productDetailSidebar" class="fixed inset-y-0 right-0 w-[420px] bg-white/95 shadow-2xl translate-x-full flex flex-col z-[100] border-l border-slate-200 backdrop-blur-2xl">
             <div class="px-6 py-6 border-b flex items-center justify-between bg-white/80">
                 <div class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-emerald-600"></i><h3 class="font-bold text-xl text-slate-800">Chi tiết sản phẩm</h3></div>
@@ -290,7 +330,7 @@
     </div>
 
     <script>
-        // === SCRIPT TỪ FILE GỐC CỦA BẠN + THÊM QUÉT QR ===
+        // ==================== SCRIPT FULL TỪ FILE GỐC CỦA BẠN + QUÉT QR ====================
         const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
         const abi = [
             {"inputs":[{"internalType":"string","name":"_name","type":"string"},{"internalType":"string","name":"_batchID","type":"string"},{"internalType":"string","name":"_manufactureDate","type":"string"},{"internalType":"string","name":"_origin","type":"string"},{"internalType":"string[]","name":"_ingredients","type":"string[]"},{"internalType":"string","name":"_productImageUrl","type":"string"},{"internalType":"string","name":"_certificationUrl","type":"string"},{"internalType":"string","name":"_manufacturerName","type":"string"},{"internalType":"string","name":"_factoryAddress","type":"string"}],"name":"createProduct","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -326,7 +366,6 @@
             } catch (e) {}
         }
 
-        // === CÁC HÀM TỪ FILE GỐC CỦA BẠN (copy nguyên) ===
         async function uploadFileToIPFS(file) {
             if (!file) return "";
             const formData = new FormData();
@@ -342,7 +381,7 @@
             document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             const titles = {'list-products': 'Kho sản phẩm', 'scan-qr': 'Quét QR Code'};
-            document.getElementById('pageTitle').innerText = titles[tabId] || 'VeriGlow';
+            document.getElementById('pageTitle').innerText = titles[tabId];
             const idx = ['list-products','scan-qr'].indexOf(tabId);
             if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
         }
@@ -391,12 +430,68 @@
             }
         }
 
-        // showProductDetail, createProduct, transferOwnership, showQrModal, openCertModal... giữ nguyên như file gốc của bạn
-        // (Để tránh dài dòng, bạn có thể copy phần script cũ vào đây nếu cần)
-
         async function showProductDetail(id) {
-            // Copy nguyên hàm showProductDetail từ file bạn gửi
-            // ... (dán hàm showProductDetail từ file gốc của bạn vào đây)
+            const sidebar = document.getElementById('productDetailSidebar');
+            const content = document.getElementById('sidebarContent');
+            content.innerHTML = '<div class="text-center py-12"><div class="loading-spinner mx-auto"></div></div>';
+            sidebar.classList.remove('translate-x-full');
+            try {
+                const verify = await contract.methods.verifyProduct(id).call();
+                const prod = await contract.methods.products(id).call();
+                let imgUrl = prod.productImageUrl ? prod.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
+                let certUrl = prod.certificationUrl ? prod.certificationUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
+                const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`;
+                const history = verify.visibleHistory || [verify.owner];
+                let ingredientsHTML = verify.ingredients && verify.ingredients.length > 0 ? `
+                    <div class="bg-amber-50 rounded-3xl p-6">
+                        <div class="text-amber-700 text-xs font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-flask"></i> THÀNH PHẦN</div>
+                        <div class="flex flex-wrap gap-2">${verify.ingredients.map(item => `<span class="bg-white px-3 py-1 rounded-full text-xs text-amber-800 border border-amber-200">${item}</span>`).join('')}</div>
+                    </div>` : '';
+                content.innerHTML = `
+                    <div class="space-y-6">
+                        ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-3xl shadow-lg h-64 object-cover">` : `<div class="h-64 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400">Không có ảnh</div>`}
+                        <div class="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-5 rounded-3xl">
+                            <div><span class="text-slate-400 text-[10px] block uppercase font-bold">Tên sản phẩm</span><strong>${verify.name}</strong></div>
+                            <div><span class="text-slate-400 text-[10px] block uppercase font-bold">Mã lô</span><strong>${verify.batchID}</strong></div>
+                            <div><span class="text-slate-400 text-[10px] block uppercase font-bold">Ngày SX</span><strong>${verify.manufactureDate}</strong></div>
+                            <div><span class="text-slate-400 text-[10px] block uppercase font-bold">Xuất xứ</span><strong>${verify.origin}</strong></div>
+                        </div>
+                        <div class="bg-sky-50 rounded-3xl p-6 border border-sky-100">
+                            <div class="text-sky-700 text-xs font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-industry"></i> NHÀ SẢN XUẤT</div>
+                            <div class="font-bold text-slate-800">${verify.manufacturerName}</div>
+                            <div class="text-xs text-slate-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${verify.factoryAddress}</div>
+                        </div>
+                        ${ingredientsHTML}
+                        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                            <div class="text-slate-500 text-xs font-bold mb-5 flex items-center gap-2 uppercase tracking-wider"><i class="fa-solid fa-route"></i> Hành trình sản phẩm</div>
+                            <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                                <div class="relative">
+                                    <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-sky-500 border-2 border-white shadow-sm ring-2 ring-sky-100"></div>
+                                    <div class="text-xs font-bold text-slate-800">Sản xuất & Đăng ký</div>
+                                    <div class="text-[10px] text-slate-400 truncate mt-0.5">${verify.manufacturerName}</div>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></div>
+                                    <div class="text-xs font-bold text-slate-600">Đã chuyển giao cho: ${history.length - 1} người</div>
+                                </div>
+                                <div class="relative bg-orange-50 p-3 rounded-xl border border-orange-100">
+                                    <div class="absolute -left-[21px] top-4 w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm"></div>
+                                    <div class="text-[10px] font-bold text-orange-600 uppercase">Chủ sở hữu hiện tại</div>
+                                    <div class="text-[10px] font-mono text-slate-500 truncate mt-1">${verify.owner}</div>
+                                </div>
+                            </div>
+                        </div>
+                        ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
+                        <div class="text-center pt-4 border-t">
+                            <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
+                                <i class="fa-solid fa-qrcode"></i> Xem mã QR
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi tải chi tiết: ${err.message}</p>`;
+            }
         }
 
         function closeSidebar() { document.getElementById('productDetailSidebar').classList.add('translate-x-full'); }
@@ -409,6 +504,19 @@
             const modal = document.getElementById('qrModal');
             const canvas = document.getElementById('modalQrCanvas');
             QRCode.toCanvas(canvas, url, { width: 250, margin: 2 }, (err) => { if (!err) modal.classList.add('active'); });
+        }
+
+        async function transferOwnership() {
+            const id = document.getElementById("transferId").value.trim();
+            const newOwner = document.getElementById("newOwner").value.trim();
+            if (!id || !newOwner) return alert("Vui lòng điền đầy đủ thông tin!");
+            try {
+                await contract.methods.transferOwnership(id, newOwner).send({ from: account });
+                alert("✅ Chuyển giao quyền sở hữu thành công!");
+                loadProducts();
+            } catch (err) {
+                alert("❌ Lỗi: " + err.message);
+            }
         }
 
         function enterDashboard() {
@@ -425,7 +533,7 @@
             const titleEl = document.getElementById('functionTitle');
             const descEl = document.getElementById('functionDesc');
             let title = '', desc = '';
-            if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem toàn bộ sản phẩm.'; }
+            if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem toàn bộ sản phẩm đã đăng ký.'; }
             else if (type === 'scan-qr') { title = 'Quét QR Code'; desc = 'Sử dụng camera để quét mã QR trên sản phẩm và truy xuất nguồn gốc.'; }
             titleEl.innerHTML = title;
             descEl.innerHTML = desc;
@@ -435,10 +543,8 @@
         // ==================== QUÉT QR CODE ====================
         function startScanner() {
             document.getElementById('start-scan-btn').style.display = 'none';
-            
             html5QrCode = new Html5Qrcode("reader");
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            
             html5QrCode.start(
                 { facingMode: "environment" },
                 config,
@@ -447,14 +553,13 @@
                     showScanResult(decodedText);
                 },
                 (error) => {}
-            ).catch(err => alert("Không thể mở camera: " + err));
+            ).catch(err => alert("Không mở được camera: " + err));
         }
 
         function showScanResult(decodedText) {
             const resultDiv = document.getElementById('scan-result');
             const content = document.getElementById('result-content');
             resultDiv.classList.remove('hidden');
-            
             content.innerHTML = `
                 <p class="font-medium mb-3">Mã QR đã quét:</p>
                 <p class="break-all text-xs font-mono bg-white p-4 rounded-2xl border">${decodedText}</p>
@@ -464,12 +569,14 @@
         }
 
         // Mobile nav active
-        window.addEventListener('load', function() {
+        const originalShowTab = showTab;
+        showTab = function(tabId) {
+            originalShowTab(tabId);
             const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
             mobileButtons.forEach(btn => {
-                if (btn.getAttribute('data-tab') === 'scan-qr') btn.classList.add('active');
+                btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
             });
-        });
+        };
     </script>
 </body>
 </html>
