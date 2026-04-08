@@ -161,6 +161,12 @@
             background: #f0fdf9;
         }
 
+        /* Thêm animation cho thanh thời gian của Toast Notification */
+        @keyframes toastProgress {
+            0% { width: 100%; }
+            100% { width: 0%; }
+        }
+
         @media (max-width: 768px) {
             header {
                 height: 64px !important;
@@ -192,7 +198,9 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex text-slate-900 overflow-hidden">
+<body class="min-h-screen flex text-slate-900 overflow-hidden relative">
+
+    <div id="toast-container" class="fixed top-6 right-6 z-[10001] flex flex-col gap-3 pointer-events-none"></div>
 
     <div id="intro-screen">
         <video id="intro-video" autoplay loop muted playsinline preload="auto">
@@ -418,8 +426,70 @@ const abi = [
 let web3, contract, account;
 let currentFilter = 'inStock';
 
+// HÀM HIỂN THỊ TOAST NOTIFICATION THAY CHO ALERT
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    // Base styles: ẩn ban đầu bằng dịch chuyển và trong suốt
+    toast.className = 'glass bg-white/95 rounded-2xl p-4 shadow-2xl border-l-4 flex items-start gap-4 transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto max-w-sm w-full relative overflow-hidden';
+    
+    let icon = '';
+    let borderClass = '';
+    let title = '';
+    let progressColor = '';
+
+    if (type === 'success') {
+        icon = '<i class="fa-solid fa-circle-check text-emerald-500 text-2xl mt-0.5"></i>';
+        borderClass = 'border-l-emerald-500';
+        title = 'Thành công';
+        progressColor = 'bg-emerald-500';
+    } else if (type === 'error') {
+        icon = '<i class="fa-solid fa-circle-xmark text-red-500 text-2xl mt-0.5"></i>';
+        borderClass = 'border-l-red-500';
+        title = 'Đã có lỗi xảy ra';
+        progressColor = 'bg-red-500';
+    } else if (type === 'warning') {
+        icon = '<i class="fa-solid fa-circle-exclamation text-amber-500 text-2xl mt-0.5"></i>';
+        borderClass = 'border-l-amber-500';
+        title = 'Cảnh báo';
+        progressColor = 'bg-amber-500';
+    }
+
+    toast.classList.add(borderClass);
+
+    toast.innerHTML = `
+        ${icon}
+        <div class="flex-1 pt-0.5">
+            <h4 class="font-bold text-slate-800 text-sm">${title}</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">${message}</p>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 transition-colors pt-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+        <div class="absolute bottom-0 left-0 h-1 ${progressColor} w-full" style="animation: toastProgress 3s linear forwards;"></div>
+    `;
+
+    container.appendChild(toast);
+
+    // Kích hoạt hiệu ứng slide-in
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full', 'opacity-0');
+    }, 10);
+
+    // Tự động xóa sau 3 giây
+    setTimeout(() => {
+        toast.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => {
+            if(toast.parentElement) toast.remove();
+        }, 300);
+    }, 3000);
+}
+
+
 window.addEventListener("load", async () => {
-    if (!window.ethereum) return alert("Vui lòng cài MetaMask!");
+    if (!window.ethereum) return showToast("Vui lòng cài đặt ví MetaMask!", "error");
     web3 = new Web3(window.ethereum);
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     account = accounts[0];
@@ -485,11 +555,15 @@ async function createProduct() {
         const productImageUrl = imgFile ? await uploadFileToIPFS(imgFile) : "";
         const certificationUrl = certFile ? await uploadFileToIPFS(certFile) : "";
         await contract.methods.createProduct(name, batchID, manufactureDate, origin, ingredients, productImageUrl, certificationUrl, manufacturerName, factoryAddress).send({ from: account });
-        alert("✅ Sản phẩm đã được tạo thành công trên Blockchain!");
+        
+        // Thay alert bằng showToast
+        showToast("Sản phẩm đã được tạo thành công trên Blockchain!", "success");
+        
         loadProducts();
         showTab('list-products');
     } catch (err) {
-        alert("❌ Lỗi: " + err.message);
+        // Thay alert bằng showToast
+        showToast(err.message, "error");
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>Ký & Xác thực trên Blockchain</span> <i class="fa-solid fa-paper-plane"></i>';
@@ -619,31 +693,33 @@ function showQrModal(url) {
 async function transferOwnership() {
     const id = document.getElementById("transferId").value.trim();
     const newOwner = document.getElementById("newOwner").value.trim();
-    if (!id || !newOwner) return alert("Vui lòng điền đầy đủ thông tin!");
+    
+    // Thay thế toàn bộ alert() bằng showToast()
+    if (!id || !newOwner) return showToast("Vui lòng điền đầy đủ thông tin!", "warning");
 
     // Kiểm tra địa chỉ ví hợp lệ
     if (!web3.utils.isAddress(newOwner)) {
-        return alert("địa chỉ ví không hợp lệ");
+        return showToast("Địa chỉ ví không hợp lệ", "error");
     }
 
     try {
         // Kiểm tra sản phẩm có tồn tại không
         const count = Number(await contract.methods.productCount().call());
         if (Number(id) < 1 || Number(id) > count) {
-            return alert("sản phẩm không tồn tại");
+            return showToast("Sản phẩm không tồn tại trong hệ thống", "error");
         }
 
         // Kiểm tra quyền sở hữu
         const p = await contract.methods.products(id).call();
         if (p.owner.toLowerCase() !== account.toLowerCase()) {
-            return alert("đây không phải là sản phẩm của tôi");
+            return showToast("Thao tác bị từ chối: Đây không phải là sản phẩm của bạn", "error");
         }
 
         await contract.methods.transferOwnership(id, newOwner).send({ from: account });
-        alert("✅ Chuyển giao quyền sở hữu thành công!");
+        showToast("Chuyển giao quyền sở hữu thành công!", "success");
         loadProducts();
     } catch (err) {
-        alert("❌ Lỗi: " + err.message);
+        showToast(err.message, "error");
     }
 }
 
