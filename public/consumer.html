@@ -190,10 +190,9 @@
 </head>
 <body class="flex text-slate-900 min-h-screen overflow-hidden">
 
-    <!-- INTRO SCREEN -->
     <div id="intro-screen">
         <video id="intro-video" autoplay loop muted playsinline>
-            <source src="https://videos.pexels.com/video-files/854219/854219-hd_1920_1080_30fps.mp4" type="video/mp4">
+            <source src="intro-consumer.mp4" type="video/mp4">
             Trình duyệt của bạn không hỗ trợ video.
         </video>
        
@@ -212,9 +211,7 @@
         </div>
     </div>
 
-    <!-- DASHBOARD CONTENT -->
     <div id="dashboard-content" class="flex w-full min-h-screen">
-        <!-- Sidebar -->
         <aside class="fixed left-0 top-0 bottom-0 w-72 bg-white/95 border-r border-pink-100 flex flex-col z-40 hidden md:flex shadow-2xl backdrop-blur-xl">
             <div class="p-8 flex items-center gap-3">
                 <img src="2.png" alt="Logo" class="w-12 h-12 rounded-3xl object-cover shadow-xl ring-2 ring-pink-200">
@@ -251,7 +248,6 @@
             </div>
         </aside>
 
-        <!-- Main -->
         <main class="flex-1 md:ml-72 min-h-screen">
             <header class="h-20 bg-white/90 backdrop-blur-2xl border-b border-pink-100 flex items-center justify-between px-10 sticky top-0 z-30 shadow-sm">
                 <h2 id="pageTitle" class="text-2xl font-semibold text-slate-800 tracking-tight flex items-center gap-3">
@@ -267,12 +263,10 @@
             </header>
            
             <div class="p-10 max-w-7xl mx-auto">
-                <!-- My Purchases -->
                 <div id="my-purchases" class="tab-content active">
                     <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
                 </div>
                
-                <!-- Verify & Trace -->
                 <div id="verify-trace" class="tab-content">
                     <div class="max-w-xl mx-auto glass p-8 rounded-[2.75rem] shadow-2xl border border-white/60">
                         <div id="reader" class="rounded-3xl overflow-hidden border-4 border-white shadow-inner bg-slate-900 h-[380px]"></div>
@@ -282,7 +276,6 @@
             </div>
         </main>
 
-        <!-- ==================== PRODUCT DETAIL SIDEBAR (GIỐNG HỆT MANUFACTURER) ==================== -->
         <div id="productDetailSidebar" class="fixed inset-y-0 right-0 w-[420px] bg-white/95 shadow-2xl translate-x-full flex flex-col z-[100] border-l border-pink-100 backdrop-blur-2xl">
             <div class="px-6 py-6 border-b flex items-center justify-between bg-white/80">
                 <div class="flex items-center gap-3">
@@ -296,7 +289,6 @@
             <div id="sidebarContent" class="flex-1 overflow-y-auto p-6 space-y-8"></div>
         </div>
 
-        <!-- Error modal -->
         <div id="errorModal" class="modal" onclick="if(event.target.id==='errorModal') closeErrorModal()">
             <div class="modal-content px-4">
                 <div class="error-card relative p-6 md:p-8">
@@ -318,7 +310,6 @@
             </div>
         </div>
 
-        <!-- Modals -->
         <div id="certModal" class="modal">
             <div class="modal-content relative p-2 max-w-[90vw]">
                 <img id="modalCertImg" src="" class="max-w-full max-h-[90vh] rounded-3xl shadow-2xl">
@@ -411,7 +402,8 @@ async function loadProducts() {
         let html = '';
         let found = 0;
        
-        for (let i = 1; i <= count; i++) {
+        // Đảo ngược vòng lặp: chạy từ count lùi về 1 để hiển thị sản phẩm mới nhất trước
+        for (let i = count; i >= 1; i--) {
             const p = await contract.methods.products(i).call();
             if (p.owner.toLowerCase() === account) {
                 found++;
