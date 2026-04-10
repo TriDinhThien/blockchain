@@ -292,13 +292,13 @@
                 <div id="list-products" class="tab-content active">
                     <div class="mb-8 flex flex-wrap items-center gap-3">
                         <span class="text-sm font-medium text-slate-500 w-full md:w-auto mb-2 md:mb-0">Hiển thị:</span>
-                        <button id="btnInStock" onclick="setFilter('inStock')" class="filter-btn px-6 py-3 rounded-3xl text-sm font-semibold border border-slate-200 active flex items-center gap-2">
+                        <button id="btnInStock" onclick="setFilter('inStock')" class="filter-btn px-6 py-3 rounded-3xl text-sm font-semibold border border-slate-200 flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked"></i> Còn trong kho
                         </button>
                         <button id="btnTransferred" onclick="setFilter('transferred')" class="filter-btn px-6 py-3 rounded-3xl text-sm font-semibold border border-slate-200 flex items-center gap-2">
                             <i class="fa-solid fa-truck-moving"></i> Đã chuyển giao
                         </button>
-                        <button id="btnActivity" onclick="setFilter('activity')" class="filter-btn px-6 py-3 rounded-3xl text-sm font-semibold border border-slate-200 flex items-center gap-2">
+                        <button id="btnActivity" onclick="setFilter('activity')" class="filter-btn px-6 py-3 rounded-3xl text-sm font-semibold border border-slate-200 active flex items-center gap-2">
                             <i class="fa-solid fa-clock-rotate-left"></i> Hoạt động
                         </button>
                     </div>
@@ -427,7 +427,7 @@ const abi = [
     {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
 ];
 let web3, contract, account;
-let currentFilter = 'inStock';
+let currentFilter = 'activity'; // Đã đổi mặc định thành tab Hoạt động
 
 // HÀM HIỂN THỊ ALERT POP-UP MODAL GIỮA MÀN HÌNH
 function showToast(message, type = 'success') {
@@ -467,7 +467,7 @@ window.addEventListener("load", async () => {
     document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
     contract = new web3.eth.Contract(abi, contractAddress);
     await switchToSepolia();
-    document.getElementById('btnInStock').classList.add('active');
+    document.getElementById('btnActivity').classList.add('active'); // Đã kích hoạt btnActivity thay vì btnInStock
     loadProducts();
 });
 
@@ -598,8 +598,8 @@ async function loadProducts() {
             return;
         }
 
-        // Logic cũ cho inStock và transferred
-        for (let i = 1; i <= count; i++) {
+        // Logic hiển thị inStock và transferred với vòng lặp ngược (mới nhất hiển thị trước)
+        for (let i = count; i >= 1; i--) {
             const p = await contract.methods.products(i).call();
             const isOwned = p.owner.toLowerCase() === account.toLowerCase();
             if (currentFilter === 'inStock' && !isOwned) continue;
@@ -786,4 +786,3 @@ window.addEventListener('load', function() {
 </script>
 </body>
 </html>
-
