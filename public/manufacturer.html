@@ -427,18 +427,15 @@ const abi = [
     {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
 ];
 let web3, contract, account;
-let currentFilter = 'activity'; // Đã đổi mặc định thành tab Hoạt động
+let currentFilter = 'activity'; 
 
-// HÀM HIỂN THỊ ALERT POP-UP MODAL GIỮA MÀN HÌNH
 function showToast(message, type = 'success') {
     const modal = document.getElementById('alertModal');
     const icon = document.getElementById('alertIcon');
     const title = document.getElementById('alertTitle');
     const msg = document.getElementById('alertMessage');
     const btn = document.getElementById('alertBtn');
-
     msg.innerHTML = message;
-
     if (type === 'success') {
         icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500 drop-shadow-sm"></i>';
         title.innerText = 'Thành công!';
@@ -455,7 +452,6 @@ function showToast(message, type = 'success') {
         btn.className = 'w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r from-amber-500 to-amber-600';
         btn.innerText = 'Đã hiểu';
     }
-
     modal.classList.add('active');
 }
 
@@ -467,7 +463,7 @@ window.addEventListener("load", async () => {
     document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
     contract = new web3.eth.Contract(abi, contractAddress);
     await switchToSepolia();
-    document.getElementById('btnActivity').classList.add('active'); // Đã kích hoạt btnActivity thay vì btnInStock
+    document.getElementById('btnActivity').classList.add('active'); 
     loadProducts();
 });
 
@@ -498,7 +494,6 @@ function showTab(tabId) {
     document.getElementById('pageTitle').innerText = titles[tabId];
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
-   
     setTimeout(() => {
         const scrollArea = document.getElementById('main-scroll-area');
         if (scrollArea) scrollArea.scrollTop = 0;
@@ -526,9 +521,7 @@ async function createProduct() {
         const productImageUrl = imgFile ? await uploadFileToIPFS(imgFile) : "";
         const certificationUrl = certFile ? await uploadFileToIPFS(certFile) : "";
         await contract.methods.createProduct(name, batchID, manufactureDate, origin, ingredients, productImageUrl, certificationUrl, manufacturerName, factoryAddress).send({ from: account });
-        
         showToast("Sản phẩm đã được tạo thành công trên Blockchain!", "success");
-        
         loadProducts();
         showTab('list-products');
     } catch (err) {
@@ -545,18 +538,12 @@ async function loadProducts() {
     try {
         const count = Number(await contract.methods.productCount().call());
         let html = '';
-
-        // HIỂN THỊ TAB LỊCH SỬ HOẠT ĐỘNG
         if (currentFilter === 'activity') {
             let activityHtml = '<div class="col-span-full max-w-4xl mx-auto w-full space-y-4">';
             let hasActivity = false;
-
-            // Chạy vòng lặp ngược để xem cái mới nhất trước
             for (let i = count; i >= 1; i--) {
                 const p = await contract.methods.products(i).call();
                 const isOwned = p.owner.toLowerCase() === account.toLowerCase();
-                
-                // Nếu sản phẩm không còn sở hữu -> Sự kiện Chuyển giao xuất kho
                 if (!isOwned) {
                     activityHtml += `
                         <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
@@ -567,15 +554,10 @@ async function loadProducts() {
                                 <h4 class="font-bold text-slate-800 text-sm">Đã chuyển giao sản phẩm #${i}</h4>
                                 <p class="text-xs text-slate-500 mt-1"><span class="font-semibold text-slate-700">${p.name}</span> - Lô: ${p.batchID}</p>
                             </div>
-                            <div class="hidden md:block text-[10px] text-slate-400 whitespace-nowrap bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
-                                <i class="fa-regular fa-clock mr-1"></i> Xuất kho
-                            </div>
                         </div>
                     `;
                     hasActivity = true;
                 }
-
-                // Sự kiện Tạo sản phẩm (Cho mọi sản phẩm của nsx)
                 activityHtml += `
                     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
                         <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
@@ -585,33 +567,26 @@ async function loadProducts() {
                             <h4 class="font-bold text-slate-800 text-sm">Đã tạo sản phẩm #${i}</h4>
                             <p class="text-xs text-slate-500 mt-1"><span class="font-semibold text-slate-700">${p.name}</span> - Lô: ${p.batchID}</p>
                         </div>
-                        <div class="hidden md:block text-[10px] text-slate-400 whitespace-nowrap bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
-                            <i class="fa-regular fa-calendar-plus mr-1"></i> ${p.manufactureDate}
-                        </div>
                     </div>
                 `;
                 hasActivity = true;
             }
             activityHtml += '</div>';
-            
             grid.innerHTML = hasActivity ? activityHtml : '<div class="col-span-full py-20 text-center text-slate-400">Chưa có hoạt động nào.</div>';
             return;
         }
-
-        // Logic hiển thị inStock và transferred với vòng lặp ngược (mới nhất hiển thị trước)
         for (let i = count; i >= 1; i--) {
             const p = await contract.methods.products(i).call();
             const isOwned = p.owner.toLowerCase() === account.toLowerCase();
             if (currentFilter === 'inStock' && !isOwned) continue;
             if (currentFilter === 'transferred' && isOwned) continue;
             const img = p.productImageUrl ? p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : 'https://placehold.co/400x300?text=No+Image';
-            const statusLabel = isOwned ? `<span class="px-2 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-md">TRONG KHO</span>` : `<span class="px-2 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md">ĐĐ ĐI</span>`;
+            const statusLabel = isOwned ? `<span class="px-2 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-md">TRONG KHO</span>` : `<span class="px-2 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md">ĐÃ ĐI</span>`;
             html += `
                 <div class="grid-item bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer" onclick="showProductDetail(${i})">
                     <div class="relative h-48 overflow-hidden bg-slate-100">
                         <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute top-3 left-3">${statusLabel}</div>
-                        <div class="absolute top-3 right-3 bg-black/40 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-md font-mono">#${i}</div>
                     </div>
                     <div class="p-5">
                         <div class="text-[10px] text-sky-500 font-bold uppercase mb-1">${p.manufacturerName}</div>
@@ -619,7 +594,7 @@ async function loadProducts() {
                         <div class="text-xs text-slate-400 mb-4 italic">${p.batchID}</div>
                         <div class="flex items-center justify-between border-t pt-4">
                             <span class="text-[10px] text-slate-400 font-medium"><i class="fa-regular fa-calendar mr-1"></i>${p.manufactureDate}</span>
-                            <button class="text-sky-600 font-bold text-xs flex items-center gap-1 hover:gap-2 transition-all">Chi tiết <i class="fa-solid fa-arrow-right"></i></button>
+                            <button class="text-sky-600 font-bold text-xs flex items-center gap-1">Chi tiết <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                     </div>
                 </div>`;
@@ -650,21 +625,55 @@ async function showProductDetail(id) {
         let certUrl = prod.certificationUrl ? prod.certificationUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
         const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`;
         
+        // --- CẬP NHẬT LOGIC HÀNH TRÌNH ---
         const history = verify.visibleHistory || [];
+        // Bộ đếm: số lần chuyển giao (không tính lần khởi tạo đầu tiên)
         const transferCount = history.length > 0 ? history.length - 1 : 0;
         
+        // Tạo danh sách ví đã sở hữu
         let walletListHTML = '';
         if (transferCount > 0) {
             walletListHTML = `<div class="mt-3 space-y-2 border-l-2 border-emerald-100 ml-1 pl-4">`;
             for (let i = 1; i < history.length; i++) {
                 walletListHTML += `
-                    <div class="flex flex-col mt-2">
-                        <span class="text-[9px] font-bold text-emerald-500 uppercase">Lần chuyển ${i}</span>
-                        <span class="text-[10px] font-mono text-slate-500 break-words whitespace-normal bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed">${history[i]}</span>
+                    <div class="flex flex-col">
+                        <span class="text-[9px] font-bold text-emerald-500 uppercase">Giao dịch ${i}</span>
+                        <span class="text-[10px] font-mono text-slate-500 break-all bg-slate-50 p-1.5 rounded-lg border border-slate-100">${history[i]}</span>
                     </div>`;
             }
             walletListHTML += `</div>`;
         }
+
+        const journeyHTML = `
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                <div class="text-slate-500 text-xs font-bold mb-5 flex items-center gap-2 uppercase tracking-wider">
+                    <i class="fa-solid fa-route text-emerald-500"></i> Hành trình sản phẩm
+                </div>
+                <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                    
+                    <div class="relative">
+                        <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-sky-500 border-2 border-white shadow-sm ring-2 ring-sky-100"></div>
+                        <div class="text-xs font-bold text-slate-800">Sản xuất & Đăng ký</div>
+                        <div class="text-[10px] text-slate-400 truncate mt-0.5">${verify.manufacturerName}</div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full ${transferCount > 0 ? 'bg-emerald-500' : 'bg-slate-300'} border-2 border-white shadow-sm"></div>
+                        <div class="text-xs font-bold ${transferCount > 0 ? 'text-emerald-600' : 'text-slate-600'}">
+                            ${transferCount > 0 ? `Sản phẩm đã qua tay: ${transferCount} người` : 'Sản phẩm chưa từng chuyển giao'}
+                        </div>
+                        ${walletListHTML}
+                    </div>
+
+                    <div class="relative bg-orange-50 p-3 rounded-xl border border-orange-100">
+                        <div class="absolute -left-[21px] top-4 w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm"></div>
+                        <div class="text-[10px] font-bold text-orange-600 uppercase">Chủ sở hữu hiện tại</div>
+                        <div class="text-[10px] font-mono text-slate-500 truncate mt-1">${verify.owner}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        // --- KẾT THÚC CẬP NHẬT ---
 
         let ingredientsHTML = verify.ingredients && verify.ingredients.length > 0 ? `
             <div class="bg-amber-50 rounded-3xl p-6">
@@ -687,29 +696,8 @@ async function showProductDetail(id) {
                     <div class="text-xs text-slate-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${verify.factoryAddress}</div>
                 </div>
                 ${ingredientsHTML}
-                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-                    <div class="text-slate-500 text-xs font-bold mb-5 flex items-center gap-2 uppercase tracking-wider"><i class="fa-solid fa-route"></i> Hành trình sản phẩm</div>
-                    <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-                        <div class="relative">
-                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-sky-500 border-2 border-white shadow-sm ring-2 ring-sky-100"></div>
-                            <div class="text-xs font-bold text-slate-800">Sản xuất & Đăng ký</div>
-                            <div class="text-[10px] text-slate-400 truncate mt-0.5">${verify.manufacturerName}</div>
-                        </div>
-                        <div class="relative">
-                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full ${transferCount > 0 ? 'bg-emerald-500 shadow-sm' : 'bg-slate-300'} border-2 border-white"></div>
-                            <div class="text-xs font-bold ${transferCount > 0 ? 'text-emerald-600' : 'text-slate-600'}">
-                                ${transferCount > 0 ? `Sản phẩm đã chuyển giao: ${transferCount} lần` : 'Sản phẩm chưa từng chuyển giao'}
-                            </div>
-                            ${walletListHTML}
-                        </div>
-                        <div class="relative bg-orange-50 p-3 rounded-xl border border-orange-100">
-                            <div class="absolute -left-[21px] top-4 w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm"></div>
-                            <div class="text-[10px] font-bold text-orange-600 uppercase">Chủ sở hữu hiện tại</div>
-                            <div class="text-[10px] font-mono text-slate-500 truncate mt-1">${verify.owner}</div>
-                        </div>
-                    </div>
-                </div>
-                ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
+                ${journeyHTML}
+                ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận</button>` : ''}
                 <div class="text-center pt-4 border-t">
                     <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
                         <i class="fa-solid fa-qrcode"></i> Xem mã QR
@@ -718,7 +706,7 @@ async function showProductDetail(id) {
             </div>
         `;
     } catch (err) {
-        content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi tải chi tiết: ${err.message}</p>`;
+        content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi: ${err.message}</p>`;
     }
 }
 
@@ -737,27 +725,11 @@ function showQrModal(url) {
 async function transferOwnership() {
     const id = document.getElementById("transferId").value.trim();
     const newOwner = document.getElementById("newOwner").value.trim();
-    
     if (!id || !newOwner) return showToast("Vui lòng điền đầy đủ thông tin!", "warning");
-
-    // Kiểm tra địa chỉ ví hợp lệ
-    if (!web3.utils.isAddress(newOwner)) {
-        return showToast("Địa chỉ ví không hợp lệ! Hãy kiểm tra lại địa chỉ ví của đại lý.", "error");
-    }
-
+    if (!web3.utils.isAddress(newOwner)) return showToast("Địa chỉ ví không hợp lệ!", "error");
     try {
-        // Kiểm tra sản phẩm có tồn tại không
-        const count = Number(await contract.methods.productCount().call());
-        if (Number(id) < 1 || Number(id) > count) {
-            return showToast("ID Sản phẩm không tồn tại trong hệ thống!", "error");
-        }
-
-        // Kiểm tra quyền sở hữu
         const p = await contract.methods.products(id).call();
-        if (p.owner.toLowerCase() !== account.toLowerCase()) {
-            return showToast("Thao tác bị từ chối: Bạn không phải là chủ sở hữu của sản phẩm này!", "error");
-        }
-
+        if (p.owner.toLowerCase() !== account.toLowerCase()) return showToast("Bạn không phải là chủ sở hữu!", "error");
         await contract.methods.transferOwnership(id, newOwner).send({ from: account });
         showToast("Chuyển giao quyền sở hữu thành công!", "success");
         loadProducts();
@@ -780,9 +752,9 @@ function showFunctionInfo(type) {
     const titleEl = document.getElementById('functionTitle');
     const descEl = document.getElementById('functionDesc');
     let title = '', desc = '';
-    if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem toàn bộ sản phẩm đã đăng ký. Bạn có thể lọc giữa <strong>Còn trong kho</strong>, <strong>Đã chuyển giao</strong> và xem <strong>Hoạt động</strong> mới nhất.'; }
-    else if (type === 'create-product') { title = 'Đăng ký sản phẩm'; desc = 'Tạo sản phẩm mới trên Blockchain. Điền đầy đủ thông tin và tải lên ảnh + giấy chứng nhận.'; }
-    else if (type === 'transfer-ownership') { title = 'Chuyển giao quyền'; desc = 'Bàn giao quyền sở hữu sản phẩm cho đại lý. Nhập ID và địa chỉ ví người nhận.'; }
+    if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem toàn bộ sản phẩm đã đăng ký và lịch sử hoạt động.'; }
+    else if (type === 'create-product') { title = 'Đăng ký sản phẩm'; desc = 'Tạo sản phẩm mới trên Blockchain.'; }
+    else if (type === 'transfer-ownership') { title = 'Chuyển giao quyền'; desc = 'Bàn giao quyền sở hữu cho đại lý.'; }
     titleEl.innerHTML = title;
     descEl.innerHTML = desc;
     modal.classList.add('active');
