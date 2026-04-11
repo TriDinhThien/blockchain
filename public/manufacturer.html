@@ -427,15 +427,18 @@ const abi = [
     {"inputs":[{"internalType":"uint256","name":"_id","type":"uint256"}],"name":"verifyProduct","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"string","name":"batchID","type":"string"},{"internalType":"string","name":"manufactureDate","type":"string"},{"internalType":"string","name":"origin","type":"string"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"string","name":"manufacturerName","type":"string"},{"internalType":"string","name":"factoryAddress","type":"string"},{"internalType":"string[]","name":"ingredients","type":"string[]"},{"internalType":"string[]","name":"visibleHistory","type":"string[]"}],"stateMutability":"view","type":"function"}
 ];
 let web3, contract, account;
-let currentFilter = 'activity'; 
+let currentFilter = 'activity'; // Đã đổi mặc định thành tab Hoạt động
 
+// HÀM HIỂN THỊ ALERT POP-UP MODAL GIỮA MÀN HÌNH
 function showToast(message, type = 'success') {
     const modal = document.getElementById('alertModal');
     const icon = document.getElementById('alertIcon');
     const title = document.getElementById('alertTitle');
     const msg = document.getElementById('alertMessage');
     const btn = document.getElementById('alertBtn');
+
     msg.innerHTML = message;
+
     if (type === 'success') {
         icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500 drop-shadow-sm"></i>';
         title.innerText = 'Thành công!';
@@ -452,6 +455,7 @@ function showToast(message, type = 'success') {
         btn.className = 'w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r from-amber-500 to-amber-600';
         btn.innerText = 'Đã hiểu';
     }
+
     modal.classList.add('active');
 }
 
@@ -463,7 +467,7 @@ window.addEventListener("load", async () => {
     document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
     contract = new web3.eth.Contract(abi, contractAddress);
     await switchToSepolia();
-    document.getElementById('btnActivity').classList.add('active'); 
+    document.getElementById('btnActivity').classList.add('active'); // Đã kích hoạt btnActivity thay vì btnInStock
     loadProducts();
 });
 
@@ -494,6 +498,7 @@ function showTab(tabId) {
     document.getElementById('pageTitle').innerText = titles[tabId];
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
+   
     setTimeout(() => {
         const scrollArea = document.getElementById('main-scroll-area');
         if (scrollArea) scrollArea.scrollTop = 0;
@@ -521,7 +526,9 @@ async function createProduct() {
         const productImageUrl = imgFile ? await uploadFileToIPFS(imgFile) : "";
         const certificationUrl = certFile ? await uploadFileToIPFS(certFile) : "";
         await contract.methods.createProduct(name, batchID, manufactureDate, origin, ingredients, productImageUrl, certificationUrl, manufacturerName, factoryAddress).send({ from: account });
+        
         showToast("Sản phẩm đã được tạo thành công trên Blockchain!", "success");
+        
         loadProducts();
         showTab('list-products');
     } catch (err) {
@@ -538,12 +545,18 @@ async function loadProducts() {
     try {
         const count = Number(await contract.methods.productCount().call());
         let html = '';
+
+        // HIỂN THỊ TAB LỊCH SỬ HOẠT ĐỘNG
         if (currentFilter === 'activity') {
             let activityHtml = '<div class="col-span-full max-w-4xl mx-auto w-full space-y-4">';
             let hasActivity = false;
+
+            // Chạy vòng lặp ngược để xem cái mới nhất trước
             for (let i = count; i >= 1; i--) {
                 const p = await contract.methods.products(i).call();
                 const isOwned = p.owner.toLowerCase() === account.toLowerCase();
+                
+                // Nếu sản phẩm không còn sở hữu -> Sự kiện Chuyển giao xuất kho
                 if (!isOwned) {
                     activityHtml += `
                         <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
@@ -557,9 +570,12 @@ async function loadProducts() {
                             <div class="hidden md:block text-[10px] text-slate-400 whitespace-nowrap bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
                                 <i class="fa-regular fa-clock mr-1"></i> Xuất kho
                             </div>
-                        </div>`;
+                        </div>
+                    `;
                     hasActivity = true;
                 }
+
+                // Sự kiện Tạo sản phẩm (Cho mọi sản phẩm của nsx)
                 activityHtml += `
                     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
                         <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
@@ -572,20 +588,24 @@ async function loadProducts() {
                         <div class="hidden md:block text-[10px] text-slate-400 whitespace-nowrap bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
                             <i class="fa-regular fa-calendar-plus mr-1"></i> ${p.manufactureDate}
                         </div>
-                    </div>`;
+                    </div>
+                `;
                 hasActivity = true;
             }
             activityHtml += '</div>';
+            
             grid.innerHTML = hasActivity ? activityHtml : '<div class="col-span-full py-20 text-center text-slate-400">Chưa có hoạt động nào.</div>';
             return;
         }
+
+        // Logic hiển thị inStock và transferred với vòng lặp ngược (mới nhất hiển thị trước)
         for (let i = count; i >= 1; i--) {
             const p = await contract.methods.products(i).call();
             const isOwned = p.owner.toLowerCase() === account.toLowerCase();
             if (currentFilter === 'inStock' && !isOwned) continue;
             if (currentFilter === 'transferred' && isOwned) continue;
             const img = p.productImageUrl ? p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : 'https://placehold.co/400x300?text=No+Image';
-            const statusLabel = isOwned ? `<span class="px-2 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-md">TRONG KHO</span>` : `<span class="px-2 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md">ĐÃ ĐI</span>`;
+            const statusLabel = isOwned ? `<span class="px-2 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-md">TRONG KHO</span>` : `<span class="px-2 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md">ĐĐ ĐI</span>`;
             html += `
                 <div class="grid-item bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer" onclick="showProductDetail(${i})">
                     <div class="relative h-48 overflow-hidden bg-slate-100">
@@ -630,45 +650,28 @@ async function showProductDetail(id) {
         let certUrl = prod.certificationUrl ? prod.certificationUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
         const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`;
         
-        // Cập nhật logic mảng history
         const history = verify.visibleHistory || [];
-        const ownerCount = history.length > 0 ? history.length - 1 : 0; 
+        const transferCount = history.length > 0 ? history.length - 1 : 0;
         
+        let walletListHTML = '';
+        if (transferCount > 0) {
+            walletListHTML = `<div class="mt-3 space-y-2 border-l-2 border-emerald-100 ml-1 pl-4">`;
+            for (let i = 1; i < history.length; i++) {
+                walletListHTML += `
+                    <div class="flex flex-col mt-2">
+                        <span class="text-[9px] font-bold text-emerald-500 uppercase">Lần chuyển ${i}</span>
+                        <span class="text-[10px] font-mono text-slate-500 break-words whitespace-normal bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed">${history[i]}</span>
+                    </div>`;
+            }
+            walletListHTML += `</div>`;
+        }
+
         let ingredientsHTML = verify.ingredients && verify.ingredients.length > 0 ? `
             <div class="bg-amber-50 rounded-3xl p-6">
                 <div class="text-amber-700 text-xs font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-flask"></i> THÀNH PHẦN</div>
                 <div class="flex flex-wrap gap-2">${verify.ingredients.map(item => `<span class="bg-white px-3 py-1 rounded-full text-xs text-amber-800 border border-amber-200">${item}</span>`).join('')}</div>
             </div>` : '';
-
-        let intermediateHistoryHTML = '';
-        if (ownerCount > 0) {
-            intermediateHistoryHTML += `
-                <div class="relative">
-                    <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-slate-300 border-2 border-white shadow-sm"></div>
-                    <div class="text-xs font-bold text-slate-600">Đã qua tay: <span class="text-sky-600">${ownerCount} người</span></div>
-                </div>
-            `;
-            // Bắt đầu từ 1 (sau Nhà sản xuất) cho đến trước chủ sở hữu hiện tại
-            for (let i = 1; i < history.length - 1; i++) {
-                intermediateHistoryHTML += `
-                <div class="relative mt-2">
-                    <div class="absolute -left-[19px] top-3 w-2 h-2 rounded-full bg-slate-200 border border-white"></div>
-                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 ml-2 shadow-sm transition-all hover:bg-slate-100 cursor-default">
-                        <div class="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1"><i class="fa-solid fa-arrow-right-arrow-left text-slate-400"></i> Chủ sở hữu trung gian ${i}</div>
-                        <div class="text-[10px] font-mono text-slate-600 truncate" title="${history[i]}">${history[i]}</div>
-                    </div>
-                </div>
-                `;
-            }
-        } else {
-            intermediateHistoryHTML = `
-                <div class="relative">
-                    <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></div>
-                    <div class="text-xs font-bold text-slate-600">Sản phẩm chưa từng chuyển giao</div>
-                </div>
-            `;
-        }
-
+            
         content.innerHTML = `
             <div class="space-y-6">
                 ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-3xl shadow-lg h-64 object-cover">` : `<div class="h-64 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400">Không có ảnh</div>`}
@@ -690,14 +693,19 @@ async function showProductDetail(id) {
                         <div class="relative">
                             <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-sky-500 border-2 border-white shadow-sm ring-2 ring-sky-100"></div>
                             <div class="text-xs font-bold text-slate-800">Sản xuất & Đăng ký</div>
-                            <div class="text-[10px] text-slate-400 truncate mt-0.5 mb-1">${verify.manufacturerName}</div>
-                            <div class="text-[10px] font-mono text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100 truncate" title="${history[0]}">${history[0] || 'Unknown'}</div>
+                            <div class="text-[10px] text-slate-400 truncate mt-0.5">${verify.manufacturerName}</div>
                         </div>
-                        ${intermediateHistoryHTML}
-                        <div class="relative bg-orange-50 p-3 rounded-xl border border-orange-100 shadow-sm">
+                        <div class="relative">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full ${transferCount > 0 ? 'bg-emerald-500 shadow-sm' : 'bg-slate-300'} border-2 border-white"></div>
+                            <div class="text-xs font-bold ${transferCount > 0 ? 'text-emerald-600' : 'text-slate-600'}">
+                                ${transferCount > 0 ? `Sản phẩm đã chuyển giao: ${transferCount} lần` : 'Sản phẩm chưa từng chuyển giao'}
+                            </div>
+                            ${walletListHTML}
+                        </div>
+                        <div class="relative bg-orange-50 p-3 rounded-xl border border-orange-100">
                             <div class="absolute -left-[21px] top-4 w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm"></div>
                             <div class="text-[10px] font-bold text-orange-600 uppercase">Chủ sở hữu hiện tại</div>
-                            <div class="text-[10px] font-mono text-slate-600 truncate mt-1 bg-white px-2 py-1 rounded border border-orange-100" title="${verify.owner}">${verify.owner}</div>
+                            <div class="text-[10px] font-mono text-slate-500 truncate mt-1">${verify.owner}</div>
                         </div>
                     </div>
                 </div>
@@ -729,13 +737,27 @@ function showQrModal(url) {
 async function transferOwnership() {
     const id = document.getElementById("transferId").value.trim();
     const newOwner = document.getElementById("newOwner").value.trim();
+    
     if (!id || !newOwner) return showToast("Vui lòng điền đầy đủ thông tin!", "warning");
-    if (!web3.utils.isAddress(newOwner)) return showToast("Địa chỉ ví không hợp lệ!", "error");
+
+    // Kiểm tra địa chỉ ví hợp lệ
+    if (!web3.utils.isAddress(newOwner)) {
+        return showToast("Địa chỉ ví không hợp lệ! Hãy kiểm tra lại địa chỉ ví của đại lý.", "error");
+    }
+
     try {
+        // Kiểm tra sản phẩm có tồn tại không
         const count = Number(await contract.methods.productCount().call());
-        if (Number(id) < 1 || Number(id) > count) return showToast("ID Sản phẩm không tồn tại!", "error");
+        if (Number(id) < 1 || Number(id) > count) {
+            return showToast("ID Sản phẩm không tồn tại trong hệ thống!", "error");
+        }
+
+        // Kiểm tra quyền sở hữu
         const p = await contract.methods.products(id).call();
-        if (p.owner.toLowerCase() !== account.toLowerCase()) return showToast("Bạn không phải chủ sở hữu!", "error");
+        if (p.owner.toLowerCase() !== account.toLowerCase()) {
+            return showToast("Thao tác bị từ chối: Bạn không phải là chủ sở hữu của sản phẩm này!", "error");
+        }
+
         await contract.methods.transferOwnership(id, newOwner).send({ from: account });
         showToast("Chuyển giao quyền sở hữu thành công!", "success");
         loadProducts();
@@ -758,9 +780,9 @@ function showFunctionInfo(type) {
     const titleEl = document.getElementById('functionTitle');
     const descEl = document.getElementById('functionDesc');
     let title = '', desc = '';
-    if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem sản phẩm đã đăng ký. Bạn có thể lọc: <strong>Trong kho</strong>, <strong>Đã chuyển</strong> và <strong>Hoạt động</strong>.'; }
-    else if (type === 'create-product') { title = 'Đăng ký sản phẩm'; desc = 'Tạo sản phẩm mới trên Blockchain.'; }
-    else if (type === 'transfer-ownership') { title = 'Chuyển giao quyền'; desc = 'Bàn giao sản phẩm cho đại lý/NPP.'; }
+    if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem toàn bộ sản phẩm đã đăng ký. Bạn có thể lọc giữa <strong>Còn trong kho</strong>, <strong>Đã chuyển giao</strong> và xem <strong>Hoạt động</strong> mới nhất.'; }
+    else if (type === 'create-product') { title = 'Đăng ký sản phẩm'; desc = 'Tạo sản phẩm mới trên Blockchain. Điền đầy đủ thông tin và tải lên ảnh + giấy chứng nhận.'; }
+    else if (type === 'transfer-ownership') { title = 'Chuyển giao quyền'; desc = 'Bàn giao quyền sở hữu sản phẩm cho đại lý. Nhập ID và địa chỉ ví người nhận.'; }
     titleEl.innerHTML = title;
     descEl.innerHTML = desc;
     modal.classList.add('active');
@@ -769,10 +791,18 @@ function showFunctionInfo(type) {
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
-    document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn').forEach(btn => {
+    const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
+    mobileButtons.forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
 };
+
+window.addEventListener('load', function() {
+    const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
+    mobileButtons.forEach(btn => {
+        if (btn.getAttribute('data-tab') === 'list-products') btn.classList.add('active');
+    });
+}, { once: true });
 </script>
 </body>
 </html>
