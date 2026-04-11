@@ -13,24 +13,16 @@
       
         :root {
             --primary: #0ea5e9;
+            --emerald: #10b981;
+            --mint: #6ee7b7;
         }
       
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%);
         }
-        /* Aesthetic global */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes fadeInScale {
-            0% { opacity: 0; transform: scale(0.95) translateY(20px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        /* Intro screen - Nature video background */
+
+        /* Intro screen */
         #intro-screen {
             position: fixed;
             inset: 0;
@@ -38,7 +30,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(15, 23, 42, 0.45);
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #intro-video {
@@ -48,14 +40,19 @@
             height: 100%;
             object-fit: cover;
             z-index: -1;
-            filter: brightness(0.85) contrast(1.1);
+            filter: brightness(0.82) contrast(1.08) saturate(1.15);
         }
         .intro-content {
             text-align: center;
             z-index: 10;
             animation: introFloat 3s ease-in-out infinite;
         }
-        /* Sidebar aesthetic */
+
+        /* Sidebar */
+        aside {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(20px);
+        }
         .sidebar-item {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -63,12 +60,12 @@
         }
         .sidebar-item:hover {
             transform: translateX(8px) scale(1.03);
-            box-shadow: 0 20px 25px -5px rgb(14 165 233 / 0.2);
+            box-shadow: 0 20px 25px -5px rgb(16 185 129 / 0.2);
         }
         .sidebar-item.active {
-            background: linear-gradient(90deg, #0ea5e9, #06b67f);
+            background: linear-gradient(90deg, #10b981, #0ea5e9);
             color: white;
-            box-shadow: 0 15px 30px -8px rgba(14, 165, 233, 0.5);
+            box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.45);
         }
         .sidebar-item.active::before {
             content: '';
@@ -82,24 +79,52 @@
             border-top-right-radius: 9999px;
             border-bottom-right-radius: 9999px;
         }
-        /* Product cards - aesthetic nature glow */
-        #productGridBody > div {
+
+        /* Tab content */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.95) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Product area */
+        #list-products {
+            background-color: #f0fdf9;
+            min-height: 100%;
+        }
+        #productGridBody {
+            background-color: #f0fdf9;
+        }
+        #productGridBody > div.grid-item {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(16, 185, 129, 0.18);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.08);
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             border-radius: 2.5rem;
         }
-        #productGridBody > div:hover {
+        #productGridBody > div.grid-item:hover {
             transform: translateY(-12px) scale(1.04);
-            box-shadow: 25px 25px 50px -12px rgb(6 182 127 / 0.3);
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.28);
+            border-color: rgba(16, 185, 129, 0.35);
         }
 
-        /* === THAY ĐỔI NỀN PHÍA DƯỚI CÁC THẺ SẢN PHẨM === */
-        #list-products {
-            background-color: #f0fdf4; /* Màu bạc hà nhạt (mint light) */
-            min-height: 100%;
-            padding-bottom: 40px;
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.7);
         }
-        #productGridBody {
-            background-color: #f0fdf4;
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
         }
 
         /* Filter buttons */
@@ -107,12 +132,13 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .filter-btn.active {
-            background: linear-gradient(90deg, #0ea5e9, #06b67f);
+            background: linear-gradient(90deg, #10b981, #0ea5e9);
             color: white;
-            border-color: #0ea5e9;
-            box-shadow: 0 10px 25px -5px rgb(14 165 233);
+            border-color: #10b981;
+            box-shadow: 0 10px 25px -5px rgb(16 185 129);
         }
-        /* Modal aesthetic */
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -124,41 +150,17 @@
             backdrop-filter: blur(16px);
         }
         .modal.active { display: flex; }
-        .modal-content {
-            animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes modalPop {
-            0% { opacity: 0; transform: scale(0.9) translateY(30px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        /* Glassmorphism for cards */
-        .glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-        }
-        /* Button function info icon */
-        .info-icon {
-            transition: all 0.2s ease;
-        }
-        .info-icon:hover {
-            color: #06b67f;
-            transform: scale(1.2);
-        }
-        /* ==================== SCROLL FIX - ĐÃ HOÀN THIỆN HOÀN TOÀN ==================== */
-        .mobile-nav-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .mobile-nav-btn.active {
-            color: #0ea5e9;
-            transform: scale(1.08);
-        }
+
+        /* Scroll area */
         #main-scroll-area {
             flex: 1 1 0 !important;
             min-height: 0 !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
             scroll-behavior: smooth;
+            background: #f0fdf9;
         }
+
         @media (max-width: 768px) {
             header {
                 height: 64px !important;
@@ -190,8 +192,8 @@
         }
     </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen flex text-slate-900 overflow-hidden">
-    <!-- INTRO SCREEN -->
+<body class="min-h-screen flex text-slate-900 overflow-hidden relative">
+
     <div id="intro-screen">
         <video id="intro-video" autoplay loop muted playsinline preload="auto">
             <source src="introclip.mp4" type="video/mp4">
@@ -215,14 +217,13 @@
                 </button>
                 <p class="text-white/70 text-sm flex items-center gap-2">
                     <i class="fa-solid fa-circle-play"></i>
-                    Video thiên nhiên đang phát • Forest &amp; River
+                    Video thiên nhiên đang phát
                 </p>
             </div>
         </div>
     </div>
-    <!-- DASHBOARD CONTENT -->
+
     <div id="dashboard-content" class="flex w-full min-h-screen">
-        <!-- Sidebar -->
         <aside class="w-72 bg-white/95 border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen shadow-2xl backdrop-blur-xl">
             <div class="p-8">
                 <div class="flex items-center gap-3">
@@ -275,7 +276,7 @@
                 </div>
             </div>
         </aside>
-        <!-- Main -->
+
         <main class="flex-1 flex flex-col min-w-0">
             <header class="h-20 bg-white/90 backdrop-blur-2xl border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30 shadow-sm">
                 <h2 id="pageTitle" class="text-3xl font-semibold text-slate-800 tracking-[-0.5px] flex items-center gap-3">
@@ -288,28 +289,29 @@
                 </button>
             </header>
           
-            <!-- Khu vực scroll chính - ĐÃ FIX HOÀN TOÀN -->
             <div id="main-scroll-area" class="p-10 overflow-y-auto flex-1">
-                <!-- List Products -->
                 <div id="list-products" class="tab-content active">
-                    <div class="mb-8 flex items-center gap-4">
-                        <span class="text-sm font-medium text-slate-500">Hiển thị:</span>
-                        <button id="btnInStock" onclick="setFilter('inStock')" class="filter-btn px-8 py-3 rounded-3xl text-sm font-semibold border border-slate-200 active flex items-center gap-2">
+                    <div class="mb-8 flex flex-wrap items-center gap-3">
+                        <span class="text-sm font-medium text-slate-500 w-full md:w-auto mb-2 md:mb-0">Hiển thị:</span>
+                        <button id="btnInStock" onclick="setFilter('inStock')" class="filter-btn px-6 py-3 rounded-3xl text-sm font-semibold border border-slate-200 active flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked"></i> Còn trong kho
                         </button>
-                        <button id="btnTransferred" onclick="setFilter('transferred')" class="filter-btn px-8 py-3 rounded-3xl text-sm font-semibold border border-slate-200 flex items-center gap-2">
+                        <button id="btnTransferred" onclick="setFilter('transferred')" class="filter-btn px-6 py-3 rounded-3xl text-sm font-semibold border border-slate-200 flex items-center gap-2">
                             <i class="fa-solid fa-truck-moving"></i> Đã chuyển giao
+                        </button>
+                        <button id="btnActivity" onclick="setFilter('activity')" class="filter-btn px-6 py-3 rounded-3xl text-sm font-semibold border border-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Hoạt động
                         </button>
                     </div>
                     <div id="productGridBody" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
                 </div>
-                <!-- Create Product -->
+
                 <div id="create-product" class="tab-content max-w-5xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl overflow-hidden">
                         <div class="bg-gradient-to-r from-sky-700 to-emerald-600 p-10 text-white flex justify-between items-center">
                             <div>
                                 <h3 class="text-3xl font-bold">Đăng ký sản phẩm lên Blockchain</h3>
-                                <p class="text-white/80 mt-2">Thông tin được bảo vệ bởi thiên nhiên &amp; công nghệ</p>
+                                <p class="text-white/80 mt-2">Thông vị được bảo vệ bởi thiên nhiên &amp; công nghệ</p>
                             </div>
                             <i class="fa-solid fa-shield-halved text-6xl opacity-80"></i>
                         </div>
@@ -342,7 +344,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- Transfer Ownership -->
+
                 <div id="transfer-ownership" class="tab-content max-w-2xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl p-10">
                         <h3 class="text-3xl font-bold text-slate-800 mb-8 flex items-center gap-4"><i class="fa-solid fa-truck-moving text-emerald-500"></i> Bàn giao sản phẩm</h3>
@@ -355,7 +357,7 @@
                 </div>
             </div>
         </main>
-        <!-- Mobile Bottom Navigation -->
+
         <div id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl backdrop-blur-2xl z-[999] flex justify-around items-center py-2 px-4">
             <button onclick="showTab('list-products')" data-tab="list-products" class="mobile-nav-btn flex-1 flex flex-col items-center py-2 text-slate-600">
                 <i class="fa-solid fa-boxes-stacked text-3xl"></i>
@@ -370,7 +372,7 @@
                 <span class="text-xs mt-1 font-medium">Chuyển giao</span>
             </button>
         </div>
-        <!-- Sidebar chi tiết & Modals -->
+
         <div id="productDetailSidebar" class="fixed inset-y-0 right-0 w-[420px] bg-white/95 shadow-2xl translate-x-full flex flex-col z-[100] border-l border-slate-200 backdrop-blur-2xl">
             <div class="px-6 py-6 border-b flex items-center justify-between bg-white/80">
                 <div class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-emerald-600"></i><h3 class="font-bold text-xl text-slate-800">Chi tiết sản phẩm</h3></div>
@@ -405,7 +407,17 @@
                 </div>
             </div>
         </div>
+        
+        <div id="alertModal" class="modal" style="z-index: 10005;" onclick="if(event.target.id==='alertModal')this.classList.remove('active')">
+            <div class="modal-content w-full max-w-sm mx-4 bg-white rounded-[2rem] p-8 text-center shadow-2xl border border-slate-100 transform transition-all" onclick="event.stopPropagation()">
+                <div id="alertIcon" class="mb-4 text-6xl"></div>
+                <h3 id="alertTitle" class="text-2xl font-bold text-slate-800 mb-3"></h3>
+                <p id="alertMessage" class="text-slate-500 mb-8 leading-relaxed text-sm break-words"></p>
+                <button onclick="document.getElementById('alertModal').classList.remove('active')" id="alertBtn" class="w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5"></button>
+            </div>
+        </div>
     </div>
+
 <script>
 const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
 const abi = [
@@ -417,8 +429,39 @@ const abi = [
 ];
 let web3, contract, account;
 let currentFilter = 'inStock';
+
+// HÀM HIỂN THỊ ALERT POP-UP MODAL GIỮA MÀN HÌNH
+function showToast(message, type = 'success') {
+    const modal = document.getElementById('alertModal');
+    const icon = document.getElementById('alertIcon');
+    const title = document.getElementById('alertTitle');
+    const msg = document.getElementById('alertMessage');
+    const btn = document.getElementById('alertBtn');
+
+    msg.innerHTML = message;
+
+    if (type === 'success') {
+        icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500 drop-shadow-sm"></i>';
+        title.innerText = 'Thành công!';
+        btn.className = 'w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r from-emerald-500 to-emerald-600';
+        btn.innerText = 'Tiếp tục';
+    } else if (type === 'error') {
+        icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 drop-shadow-sm"></i>';
+        title.innerText = 'Đã có lỗi xảy ra';
+        btn.className = 'w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r from-red-500 to-red-600';
+        btn.innerText = 'Thử lại';
+    } else if (type === 'warning') {
+        icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-amber-500 drop-shadow-sm"></i>';
+        title.innerText = 'Cảnh báo';
+        btn.className = 'w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r from-amber-500 to-amber-600';
+        btn.innerText = 'Đã hiểu';
+    }
+
+    modal.classList.add('active');
+}
+
 window.addEventListener("load", async () => {
-    if (!window.ethereum) return alert("Vui lòng cài MetaMask!");
+    if (!window.ethereum) return showToast("Vui lòng cài đặt ví MetaMask!", "error");
     web3 = new Web3(window.ethereum);
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     account = accounts[0];
@@ -428,6 +471,7 @@ window.addEventListener("load", async () => {
     document.getElementById('btnInStock').classList.add('active');
     loadProducts();
 });
+
 async function switchToSepolia() {
     try {
         const chainId = await web3.eth.getChainId();
@@ -436,6 +480,7 @@ async function switchToSepolia() {
         }
     } catch (e) {}
 }
+
 async function uploadFileToIPFS(file) {
     if (!file) return "";
     const formData = new FormData();
@@ -445,6 +490,7 @@ async function uploadFileToIPFS(file) {
     const data = await res.json();
     return `ipfs://${data.cid}`;
 }
+
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
@@ -454,12 +500,12 @@ function showTab(tabId) {
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
    
-    // Reset scroll khi chuyển tab
     setTimeout(() => {
         const scrollArea = document.getElementById('main-scroll-area');
         if (scrollArea) scrollArea.scrollTop = 0;
     }, 100);
 }
+
 async function createProduct() {
     const btn = document.getElementById('btnCreate');
     btn.disabled = true;
@@ -481,22 +527,79 @@ async function createProduct() {
         const productImageUrl = imgFile ? await uploadFileToIPFS(imgFile) : "";
         const certificationUrl = certFile ? await uploadFileToIPFS(certFile) : "";
         await contract.methods.createProduct(name, batchID, manufactureDate, origin, ingredients, productImageUrl, certificationUrl, manufacturerName, factoryAddress).send({ from: account });
-        alert("✅ Sản phẩm đã được tạo thành công trên Blockchain!");
+        
+        showToast("Sản phẩm đã được tạo thành công trên Blockchain!", "success");
+        
         loadProducts();
         showTab('list-products');
     } catch (err) {
-        alert("❌ Lỗi: " + err.message);
+        showToast(err.message, "error");
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>Ký & Xác thực trên Blockchain</span> <i class="fa-solid fa-paper-plane"></i>';
     }
 }
+
 async function loadProducts() {
     const grid = document.getElementById('productGridBody');
     grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="loading-spinner mx-auto"></div></div>';
     try {
         const count = Number(await contract.methods.productCount().call());
         let html = '';
+
+        // HIỂN THỊ TAB LỊCH SỬ HOẠT ĐỘNG
+        if (currentFilter === 'activity') {
+            let activityHtml = '<div class="col-span-full max-w-4xl mx-auto w-full space-y-4">';
+            let hasActivity = false;
+
+            // Chạy vòng lặp ngược để xem cái mới nhất trước
+            for (let i = count; i >= 1; i--) {
+                const p = await contract.methods.products(i).call();
+                const isOwned = p.owner.toLowerCase() === account.toLowerCase();
+                
+                // Nếu sản phẩm không còn sở hữu -> Sự kiện Chuyển giao xuất kho
+                if (!isOwned) {
+                    activityHtml += `
+                        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-truck-moving text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm">Đã chuyển giao sản phẩm #${i}</h4>
+                                <p class="text-xs text-slate-500 mt-1"><span class="font-semibold text-slate-700">${p.name}</span> - Lô: ${p.batchID}</p>
+                            </div>
+                            <div class="hidden md:block text-[10px] text-slate-400 whitespace-nowrap bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                                <i class="fa-regular fa-clock mr-1"></i> Xuất kho
+                            </div>
+                        </div>
+                    `;
+                    hasActivity = true;
+                }
+
+                // Sự kiện Tạo sản phẩm (Cho mọi sản phẩm của nsx)
+                activityHtml += `
+                    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
+                        <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-box-open text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-800 text-sm">Đã tạo sản phẩm #${i}</h4>
+                            <p class="text-xs text-slate-500 mt-1"><span class="font-semibold text-slate-700">${p.name}</span> - Lô: ${p.batchID}</p>
+                        </div>
+                        <div class="hidden md:block text-[10px] text-slate-400 whitespace-nowrap bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                            <i class="fa-regular fa-calendar-plus mr-1"></i> ${p.manufactureDate}
+                        </div>
+                    </div>
+                `;
+                hasActivity = true;
+            }
+            activityHtml += '</div>';
+            
+            grid.innerHTML = hasActivity ? activityHtml : '<div class="col-span-full py-20 text-center text-slate-400">Chưa có hoạt động nào.</div>';
+            return;
+        }
+
+        // Logic cũ cho inStock và transferred
         for (let i = 1; i <= count; i++) {
             const p = await contract.methods.products(i).call();
             const isOwned = p.owner.toLowerCase() === account.toLowerCase();
@@ -505,7 +608,7 @@ async function loadProducts() {
             const img = p.productImageUrl ? p.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : 'https://placehold.co/400x300?text=No+Image';
             const statusLabel = isOwned ? `<span class="px-2 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-md">TRONG KHO</span>` : `<span class="px-2 py-1 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-md">ĐÃ ĐI</span>`;
             html += `
-                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer" onclick="showProductDetail(${i})">
+                <div class="grid-item bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer" onclick="showProductDetail(${i})">
                     <div class="relative h-48 overflow-hidden bg-slate-100">
                         <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute top-3 left-3">${statusLabel}</div>
@@ -527,12 +630,15 @@ async function loadProducts() {
         grid.innerHTML = '<div class="col-span-full py-20 text-center text-red-400">Lỗi Blockchain.</div>';
     }
 }
+
 function setFilter(filter) {
     currentFilter = filter;
     document.getElementById('btnInStock').classList.toggle('active', filter === 'inStock');
     document.getElementById('btnTransferred').classList.toggle('active', filter === 'transferred');
+    document.getElementById('btnActivity').classList.toggle('active', filter === 'activity');
     loadProducts();
 }
+
 async function showProductDetail(id) {
     const sidebar = document.getElementById('productDetailSidebar');
     const content = document.getElementById('sidebarContent');
@@ -596,6 +702,7 @@ async function showProductDetail(id) {
         content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi tải chi tiết: ${err.message}</p>`;
     }
 }
+
 function closeSidebar() { document.getElementById('productDetailSidebar').classList.add('translate-x-full'); }
 function openCertModal(url) {
     const modal = document.getElementById('certModal');
@@ -607,18 +714,39 @@ function showQrModal(url) {
     const canvas = document.getElementById('modalQrCanvas');
     QRCode.toCanvas(canvas, url, { width: 250, margin: 2 }, (err) => { if (!err) modal.classList.add('active'); });
 }
+
 async function transferOwnership() {
     const id = document.getElementById("transferId").value.trim();
     const newOwner = document.getElementById("newOwner").value.trim();
-    if (!id || !newOwner) return alert("Vui lòng điền đầy đủ thông tin!");
+    
+    if (!id || !newOwner) return showToast("Vui lòng điền đầy đủ thông tin!", "warning");
+
+    // Kiểm tra địa chỉ ví hợp lệ
+    if (!web3.utils.isAddress(newOwner)) {
+        return showToast("Địa chỉ ví không hợp lệ! Hãy kiểm tra lại địa chỉ ví của đại lý.", "error");
+    }
+
     try {
+        // Kiểm tra sản phẩm có tồn tại không
+        const count = Number(await contract.methods.productCount().call());
+        if (Number(id) < 1 || Number(id) > count) {
+            return showToast("ID Sản phẩm không tồn tại trong hệ thống!", "error");
+        }
+
+        // Kiểm tra quyền sở hữu
+        const p = await contract.methods.products(id).call();
+        if (p.owner.toLowerCase() !== account.toLowerCase()) {
+            return showToast("Thao tác bị từ chối: Bạn không phải là chủ sở hữu của sản phẩm này!", "error");
+        }
+
         await contract.methods.transferOwnership(id, newOwner).send({ from: account });
-        alert("✅ Chuyển giao quyền sở hữu thành công!");
+        showToast("Chuyển giao quyền sở hữu thành công!", "success");
         loadProducts();
     } catch (err) {
-        alert("❌ Lỗi: " + err.message);
+        showToast(err.message, "error");
     }
 }
+
 function enterDashboard() {
     const intro = document.getElementById('intro-screen');
     intro.style.opacity = '0';
@@ -627,18 +755,20 @@ function enterDashboard() {
         document.getElementById('dashboard-content').classList.add('flex');
     }, 800);
 }
+
 function showFunctionInfo(type) {
     const modal = document.getElementById('functionModal');
     const titleEl = document.getElementById('functionTitle');
     const descEl = document.getElementById('functionDesc');
     let title = '', desc = '';
-    if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem toàn bộ sản phẩm đã đăng ký. Bạn có thể lọc giữa <strong>Còn trong kho</strong> và <strong>Đã chuyển giao</strong>.'; }
+    if (type === 'list-products') { title = 'Kho sản phẩm'; desc = 'Xem toàn bộ sản phẩm đã đăng ký. Bạn có thể lọc giữa <strong>Còn trong kho</strong>, <strong>Đã chuyển giao</strong> và xem <strong>Hoạt động</strong> mới nhất.'; }
     else if (type === 'create-product') { title = 'Đăng ký sản phẩm'; desc = 'Tạo sản phẩm mới trên Blockchain. Điền đầy đủ thông tin và tải lên ảnh + giấy chứng nhận.'; }
     else if (type === 'transfer-ownership') { title = 'Chuyển giao quyền'; desc = 'Bàn giao quyền sở hữu sản phẩm cho đại lý. Nhập ID và địa chỉ ví người nhận.'; }
     titleEl.innerHTML = title;
     descEl.innerHTML = desc;
     modal.classList.add('active');
 }
+
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
@@ -647,6 +777,7 @@ showTab = function(tabId) {
         btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
 };
+
 window.addEventListener('load', function() {
     const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
     mobileButtons.forEach(btn => {
@@ -656,3 +787,4 @@ window.addEventListener('load', function() {
 </script>
 </body>
 </html>
+
