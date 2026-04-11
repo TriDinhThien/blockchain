@@ -640,13 +640,15 @@ async function showProductDetail(id) {
         let imgUrl = prod.productImageUrl ? prod.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
         let certUrl = prod.certificationUrl ? prod.certificationUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
         const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`;
-        const history = verify.visibleHistory || [verify.owner];
 
         let ingredientsHTML = verify.ingredients && verify.ingredients.length > 0 ? `
             <div class="bg-amber-50 rounded-3xl p-6">
                 <div class="text-amber-700 text-xs font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-flask"></i> THÀNH PHẦN</div>
                 <div class="flex flex-wrap gap-2">${verify.ingredients.map(item => `<span class="bg-white px-3 py-1 rounded-full text-xs text-amber-800 border border-amber-200">${item}</span>`).join('')}</div>
             </div>` : '';
+
+        // TÍNH SỐ LẦN CHUYỂN GIAO (lịch sử bắt đầu bằng "Created by Manufacturer")
+        const transferCount = verify.visibleHistory.length - 1;
 
         content.innerHTML = `
             <div class="space-y-6">
@@ -664,16 +666,16 @@ async function showProductDetail(id) {
                 </div>
                 ${ingredientsHTML}
                 
-                <!-- PHẦN HÀNH TRÌNH SẢN PHẨM ĐÃ ĐƯỢC HOÀN THIỆN -->
+                <!-- PHẦN HÀNH TRÌNH SẢN PHẨM – ĐÃ CẬP NHẬT ĐẾM SỐ LẦN CHUYỂN GIAO -->
                 <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                     <div class="text-slate-500 text-xs font-bold mb-5 flex items-center gap-2 uppercase tracking-wider">
                         <i class="fa-solid fa-route"></i> Hành trình sản phẩm
                     </div>
                     
-                    <!-- Bộ đếm số người đã sở hữu -->
+                    <!-- Bộ đếm số lần chuyển giao -->
                     <div class="mb-6 flex items-baseline gap-2 bg-emerald-50 rounded-3xl px-5 py-4">
-                        <span class="text-emerald-600 font-bold text-3xl">${verify.visibleHistory.length}</span>
-                        <span class="text-emerald-700 text-sm font-medium">chủ sở hữu đã sở hữu sản phẩm này</span>
+                        <span class="text-emerald-600 font-bold text-3xl">${transferCount}</span>
+                        <span class="text-emerald-700 text-sm font-medium">lần chuyển giao</span>
                     </div>
 
                     <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
