@@ -13,16 +13,24 @@
       
         :root {
             --primary: #0ea5e9;
-            --emerald: #10b981;
-            --mint: #6ee7b7;
         }
       
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%);
         }
-
-        /* Intro screen */
+        /* Aesthetic global */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.95) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        /* Intro screen - Nature video background */
         #intro-screen {
             position: fixed;
             inset: 0;
@@ -30,7 +38,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.45);
+            background: rgba(15, 23, 42, 0.4);
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #intro-video {
@@ -40,19 +48,14 @@
             height: 100%;
             object-fit: cover;
             z-index: -1;
-            filter: brightness(0.82) contrast(1.08) saturate(1.15);
+            filter: brightness(0.85) contrast(1.1);
         }
         .intro-content {
             text-align: center;
             z-index: 10;
             animation: introFloat 3s ease-in-out infinite;
         }
-
-        /* Sidebar */
-        aside {
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(20px);
-        }
+        /* Sidebar aesthetic */
         .sidebar-item {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -60,12 +63,12 @@
         }
         .sidebar-item:hover {
             transform: translateX(8px) scale(1.03);
-            box-shadow: 0 20px 25px -5px rgb(16 185 129 / 0.2);
+            box-shadow: 0 20px 25px -5px rgb(14 165 233 / 0.2);
         }
         .sidebar-item.active {
-            background: linear-gradient(90deg, #10b981, #0ea5e9);
+            background: linear-gradient(90deg, #0ea5e9, #06b67f);
             color: white;
-            box-shadow: 0 15px 30px -8px rgba(16, 185, 129, 0.45);
+            box-shadow: 0 15px 30px -8px rgba(14, 165, 233, 0.5);
         }
         .sidebar-item.active::before {
             content: '';
@@ -79,52 +82,24 @@
             border-top-right-radius: 9999px;
             border-bottom-right-radius: 9999px;
         }
-
-        /* Tab content */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-            animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes fadeInScale {
-            0% { opacity: 0; transform: scale(0.95) translateY(20px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        /* Product area */
-        #list-products {
-            background-color: #f0fdf9;
-            min-height: 100%;
-        }
-        #productGridBody {
-            background-color: #f0fdf9;
-        }
+        /* Product cards - aesthetic nature glow */
         #productGridBody > div {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(16, 185, 129, 0.18);
-            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.08);
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             border-radius: 2.5rem;
         }
         #productGridBody > div:hover {
             transform: translateY(-12px) scale(1.04);
-            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.28);
-            border-color: rgba(16, 185, 129, 0.35);
+            box-shadow: 25px 25px 50px -12px rgb(6 182 127 / 0.3);
         }
 
-        /* Glassmorphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.78);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255,255,255,0.7);
+        /* === THAY ĐỔI NỀN PHÍA DƯỚI CÁC THẺ SẢN PHẨM === */
+        #list-products {
+            background-color: #f0fdf4; /* Màu bạc hà nhạt (mint light) */
+            min-height: 100%;
+            padding-bottom: 40px;
         }
-
-        /* Header */
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(16px);
+        #productGridBody {
+            background-color: #f0fdf4;
         }
 
         /* Filter buttons */
@@ -132,13 +107,12 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .filter-btn.active {
-            background: linear-gradient(90deg, #10b981, #0ea5e9);
+            background: linear-gradient(90deg, #0ea5e9, #06b67f);
             color: white;
-            border-color: #10b981;
-            box-shadow: 0 10px 25px -5px rgb(16 185 129);
+            border-color: #0ea5e9;
+            box-shadow: 0 10px 25px -5px rgb(14 165 233);
         }
-
-        /* Modal */
+        /* Modal aesthetic */
         .modal {
             display: none;
             position: fixed;
@@ -150,17 +124,41 @@
             backdrop-filter: blur(16px);
         }
         .modal.active { display: flex; }
-
-        /* Scroll area */
+        .modal-content {
+            animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPop {
+            0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        /* Glassmorphism for cards */
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+        }
+        /* Button function info icon */
+        .info-icon {
+            transition: all 0.2s ease;
+        }
+        .info-icon:hover {
+            color: #06b67f;
+            transform: scale(1.2);
+        }
+        /* ==================== SCROLL FIX - ĐÃ HOÀN THIỆN HOÀN TOÀN ==================== */
+        .mobile-nav-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mobile-nav-btn.active {
+            color: #0ea5e9;
+            transform: scale(1.08);
+        }
         #main-scroll-area {
             flex: 1 1 0 !important;
             min-height: 0 !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
             scroll-behavior: smooth;
-            background: #f0fdf9;
         }
-
         @media (max-width: 768px) {
             header {
                 height: 64px !important;
@@ -192,8 +190,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex text-slate-900 overflow-hidden">
-
+<body class="bg-[#f8fafc] min-h-screen flex text-slate-900 overflow-hidden">
     <!-- INTRO SCREEN -->
     <div id="intro-screen">
         <video id="intro-video" autoplay loop muted playsinline preload="auto">
@@ -218,12 +215,11 @@
                 </button>
                 <p class="text-white/70 text-sm flex items-center gap-2">
                     <i class="fa-solid fa-circle-play"></i>
-                    Video thiên nhiên đang phát
+                    Video thiên nhiên đang phát • Forest &amp; River
                 </p>
             </div>
         </div>
     </div>
-
     <!-- DASHBOARD CONTENT -->
     <div id="dashboard-content" class="flex w-full min-h-screen">
         <!-- Sidebar -->
@@ -279,7 +275,6 @@
                 </div>
             </div>
         </aside>
-
         <!-- Main -->
         <main class="flex-1 flex flex-col min-w-0">
             <header class="h-20 bg-white/90 backdrop-blur-2xl border-b border-slate-200 flex items-center justify-between px-10 sticky top-0 z-30 shadow-sm">
@@ -293,6 +288,7 @@
                 </button>
             </header>
           
+            <!-- Khu vực scroll chính - ĐÃ FIX HOÀN TOÀN -->
             <div id="main-scroll-area" class="p-10 overflow-y-auto flex-1">
                 <!-- List Products -->
                 <div id="list-products" class="tab-content active">
@@ -307,7 +303,6 @@
                     </div>
                     <div id="productGridBody" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
                 </div>
-
                 <!-- Create Product -->
                 <div id="create-product" class="tab-content max-w-5xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl overflow-hidden">
@@ -347,7 +342,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Transfer Ownership -->
                 <div id="transfer-ownership" class="tab-content max-w-2xl mx-auto">
                     <div class="glass rounded-[2.75rem] border border-white/60 shadow-2xl p-10">
@@ -361,7 +355,6 @@
                 </div>
             </div>
         </main>
-
         <!-- Mobile Bottom Navigation -->
         <div id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl backdrop-blur-2xl z-[999] flex justify-around items-center py-2 px-4">
             <button onclick="showTab('list-products')" data-tab="list-products" class="mobile-nav-btn flex-1 flex flex-col items-center py-2 text-slate-600">
@@ -377,7 +370,6 @@
                 <span class="text-xs mt-1 font-medium">Chuyển giao</span>
             </button>
         </div>
-
         <!-- Sidebar chi tiết & Modals -->
         <div id="productDetailSidebar" class="fixed inset-y-0 right-0 w-[420px] bg-white/95 shadow-2xl translate-x-full flex flex-col z-[100] border-l border-slate-200 backdrop-blur-2xl">
             <div class="px-6 py-6 border-b flex items-center justify-between bg-white/80">
@@ -414,7 +406,6 @@
             </div>
         </div>
     </div>
-
 <script>
 const contractAddress = "0x91898720F37b76F8DC33B21702a2376592784aD5";
 const abi = [
@@ -426,7 +417,6 @@ const abi = [
 ];
 let web3, contract, account;
 let currentFilter = 'inStock';
-
 window.addEventListener("load", async () => {
     if (!window.ethereum) return alert("Vui lòng cài MetaMask!");
     web3 = new Web3(window.ethereum);
@@ -438,7 +428,6 @@ window.addEventListener("load", async () => {
     document.getElementById('btnInStock').classList.add('active');
     loadProducts();
 });
-
 async function switchToSepolia() {
     try {
         const chainId = await web3.eth.getChainId();
@@ -447,7 +436,6 @@ async function switchToSepolia() {
         }
     } catch (e) {}
 }
-
 async function uploadFileToIPFS(file) {
     if (!file) return "";
     const formData = new FormData();
@@ -457,7 +445,6 @@ async function uploadFileToIPFS(file) {
     const data = await res.json();
     return `ipfs://${data.cid}`;
 }
-
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
@@ -467,12 +454,12 @@ function showTab(tabId) {
     const idx = ['list-products','create-product','transfer-ownership'].indexOf(tabId);
     if (idx > -1) document.querySelectorAll('.sidebar-item')[idx].classList.add('active');
    
+    // Reset scroll khi chuyển tab
     setTimeout(() => {
         const scrollArea = document.getElementById('main-scroll-area');
         if (scrollArea) scrollArea.scrollTop = 0;
     }, 100);
 }
-
 async function createProduct() {
     const btn = document.getElementById('btnCreate');
     btn.disabled = true;
@@ -504,7 +491,6 @@ async function createProduct() {
         btn.innerHTML = '<span>Ký & Xác thực trên Blockchain</span> <i class="fa-solid fa-paper-plane"></i>';
     }
 }
-
 async function loadProducts() {
     const grid = document.getElementById('productGridBody');
     grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="loading-spinner mx-auto"></div></div>';
@@ -541,14 +527,12 @@ async function loadProducts() {
         grid.innerHTML = '<div class="col-span-full py-20 text-center text-red-400">Lỗi Blockchain.</div>';
     }
 }
-
 function setFilter(filter) {
     currentFilter = filter;
     document.getElementById('btnInStock').classList.toggle('active', filter === 'inStock');
     document.getElementById('btnTransferred').classList.toggle('active', filter === 'transferred');
     loadProducts();
 }
-
 async function showProductDetail(id) {
     const sidebar = document.getElementById('productDetailSidebar');
     const content = document.getElementById('sidebarContent');
@@ -612,7 +596,6 @@ async function showProductDetail(id) {
         content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi tải chi tiết: ${err.message}</p>`;
     }
 }
-
 function closeSidebar() { document.getElementById('productDetailSidebar').classList.add('translate-x-full'); }
 function openCertModal(url) {
     const modal = document.getElementById('certModal');
@@ -656,7 +639,6 @@ function showFunctionInfo(type) {
     descEl.innerHTML = desc;
     modal.classList.add('active');
 }
-
 const originalShowTab = showTab;
 showTab = function(tabId) {
     originalShowTab(tabId);
@@ -665,7 +647,6 @@ showTab = function(tabId) {
         btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
     });
 };
-
 window.addEventListener('load', function() {
     const mobileButtons = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-btn');
     mobileButtons.forEach(btn => {
