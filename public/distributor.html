@@ -536,20 +536,85 @@ function setFilter(filter) {
 async function showProductDetail(id) {
     const sidebar = document.getElementById('productDetailSidebar');
     const content = document.getElementById('sidebarContent');
-    content.innerHTML = '<div class="text-center py-12"><div class="loading-spinner mx-auto text-blue-500"><i class="fa-solid fa-circle-notch fa-spin text-3xl"></i></div></div>';
+    content.innerHTML = '<div class="text-center py-12"><div class="loading-spinner mx-auto"></div></div>';
     sidebar.classList.remove('translate-x-full');
+    
     try {
         const verify = await contract.methods.verifyProduct(id).call();
         const prod = await contract.methods.products(id).call();
         let imgUrl = prod.productImageUrl ? prod.productImageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
         let certUrl = prod.certificationUrl ? prod.certificationUrl.replace('ipfs://', 'https://ipfs.io/ipfs/') : '';
         const verifyUrl = `https://blockchain-demo-lilac.vercel.app/verify.html?id=${id}`;
-        const history = verify.visibleHistory || [verify.owner];
+        
+        // --- KHẮC PHỤC LỖI: DÙNG EVENTS ĐỂ LẤY LỊCH SỬ THỰC TẾ ---
+        // 1. Lấy tất cả sự kiện chuyển giao trên toàn hệ thống
+        const allEvents = await contract.getPastEvents('OwnershipTransferred', {
+            fromBlock: 0,
+            toBlock: 'latest'
+        });
+        
+        // 2. Lọc ra đúng các sự kiện của ID sản phẩm đang xem
+        const transferEvents = allEvents.filter(e => e.returnValues.id === id.toString());
+        const transferCount = transferEvents.length;
+        
+        // 3. Render danh sách ví và các giao dịch
+        let walletListHTML = '';
+        if (transferCount > 0) {
+            walletListHTML = `<div class="mt-3 space-y-3 border-l-2 border-emerald-100 ml-1 pl-4">`;
+            transferEvents.forEach((event, index) => {
+                const from = event.returnValues.oldOwner;
+                const to = event.returnValues.newOwner;
+                walletListHTML += `
+                    <div class="flex flex-col">
+                        <span class="text-[9px] font-bold text-emerald-500 uppercase mb-1">Giao dịch ${index + 1}</span>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <div class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Từ ví:</div>
+                            <div class="text-[10px] font-mono text-slate-500 break-all mb-2">${from}</div>
+                            <div class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Sang ví:</div>
+                            <div class="text-[10px] font-mono text-slate-600 font-semibold break-all">${to}</div>
+                        </div>
+                    </div>`;
+            });
+            walletListHTML += `</div>`;
+        }
+
+        const journeyHTML = `
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                <div class="text-slate-500 text-xs font-bold mb-5 flex items-center gap-2 uppercase tracking-wider">
+                    <i class="fa-solid fa-route text-emerald-500"></i> Hành trình sản phẩm
+                </div>
+                <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                    
+                    <div class="relative">
+                        <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-sky-500 border-2 border-white shadow-sm ring-2 ring-sky-100"></div>
+                        <div class="text-xs font-bold text-slate-800">Sản xuất & Đăng ký</div>
+                        <div class="text-[10px] text-slate-400 truncate mt-0.5">${verify.manufacturerName}</div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full ${transferCount > 0 ? 'bg-emerald-500' : 'bg-slate-300'} border-2 border-white shadow-sm"></div>
+                        <div class="text-xs font-bold ${transferCount > 0 ? 'text-emerald-600' : 'text-slate-600'}">
+                            ${transferCount > 0 ? `Sản phẩm đã qua tay: ${transferCount} lần` : 'Sản phẩm chưa từng chuyển giao'}
+                        </div>
+                        ${walletListHTML}
+                    </div>
+
+                    <div class="relative bg-orange-50 p-3 rounded-xl border border-orange-100 mt-4">
+                        <div class="absolute -left-[21px] top-4 w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm"></div>
+                        <div class="text-[10px] font-bold text-orange-600 uppercase">Chủ sở hữu hiện tại</div>
+                        <div class="text-[10px] font-mono text-slate-500 truncate mt-1">${verify.owner}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        // --- KẾT THÚC PHẦN KHẮC PHỤC ---
+
         let ingredientsHTML = verify.ingredients && verify.ingredients.length > 0 ? `
             <div class="bg-amber-50 rounded-3xl p-6">
                 <div class="text-amber-700 text-xs font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-flask"></i> THÀNH PHẦN</div>
                 <div class="flex flex-wrap gap-2">${verify.ingredients.map(item => `<span class="bg-white px-3 py-1 rounded-full text-xs text-amber-800 border border-amber-200">${item}</span>`).join('')}</div>
             </div>` : '';
+            
         content.innerHTML = `
             <div class="space-y-6">
                 ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-3xl shadow-lg h-64 object-cover">` : `<div class="h-64 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400">Không có ảnh</div>`}
@@ -565,26 +630,8 @@ async function showProductDetail(id) {
                     <div class="text-xs text-slate-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${verify.factoryAddress}</div>
                 </div>
                 ${ingredientsHTML}
-                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-                    <div class="text-slate-500 text-xs font-bold mb-5 flex items-center gap-2 uppercase tracking-wider"><i class="fa-solid fa-route"></i> Hành trình sản phẩm</div>
-                    <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-                        <div class="relative">
-                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm ring-2 ring-blue-100"></div>
-                            <div class="text-xs font-bold text-slate-800">Sản xuất & Đăng ký</div>
-                            <div class="text-[10px] text-slate-400 truncate mt-0.5">${verify.manufacturerName}</div>
-                        </div>
-                        <div class="relative">
-                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></div>
-                            <div class="text-xs font-bold text-slate-600">Lịch sử giao dịch: Qua tay ${history.length - 1} người</div>
-                        </div>
-                        <div class="relative bg-orange-50 p-3 rounded-xl border border-orange-100">
-                            <div class="absolute -left-[21px] top-4 w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm"></div>
-                            <div class="text-[10px] font-bold text-orange-600 uppercase">Chủ sở hữu hiện tại</div>
-                            <div class="text-[10px] font-mono text-slate-500 truncate mt-1">${verify.owner}</div>
-                        </div>
-                    </div>
-                </div>
-                ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
+                ${journeyHTML}
+                ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận</button>` : ''}
                 <div class="text-center pt-4 border-t">
                     <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
                         <i class="fa-solid fa-qrcode"></i> Xem mã QR
@@ -593,7 +640,7 @@ async function showProductDetail(id) {
             </div>
         `;
     } catch (err) {
-        content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi tải chi tiết: ${err.message}</p>`;
+        content.innerHTML = `<p class="text-red-500 text-center py-10">Lỗi: ${err.message}</p>`;
     }
 }
 
