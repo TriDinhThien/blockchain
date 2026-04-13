@@ -505,25 +505,59 @@ function showToast(message, type = 'success') {
     modal.classList.add('active');
 }
 
+// HÀM KHỞI TẠO APP (Mới)
+async function initApp() {
+    try {
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0];
+        
+        if(document.getElementById('accountDisplay')) {
+            document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
+        }
+        
+        contract = new web3.eth.Contract(abi, contractAddress);
+        await switchToSepolia();
+        
+        document.getElementById('btnActivity').classList.add('active'); 
+        loadProducts();
+    } catch (error) {
+        console.error("Lỗi kết nối ví:", error);
+        showToast("Lỗi kết nối hoặc người dùng từ chối ví!", "error");
+    }
+}
+
+// XỬ LÝ LOAD TRANG VÀ MOBILE DEEP LINK (Mới)
 window.addEventListener("load", async () => {
-    if (!window.ethereum) return showToast("Vui lòng cài đặt ví MetaMask!", "error");
-    web3 = new Web3(window.ethereum);
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    account = accounts[0];
-    document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
-    contract = new web3.eth.Contract(abi, contractAddress);
-    await switchToSepolia();
-    document.getElementById('btnActivity').classList.add('active'); 
-    loadProducts();
+    if (window.ethereum) {
+        await initApp();
+    } else {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            showToast("Đang kết nối mở ứng dụng MetaMask...", "success");
+            setTimeout(() => {
+                const dappUrl = window.location.href.replace(/^https?:\/\//, '');
+                window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
+            }, 1500);
+        } else {
+            showToast("Vui lòng cài đặt ví MetaMask trên trình duyệt!", "error");
+        }
+    }
 });
 
+// HÀM CHUYỂN MẠNG SEPOLIA (Tối ưu)
 async function switchToSepolia() {
     try {
         const chainId = await web3.eth.getChainId();
         if (chainId !== 11155111) {
-            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0xaa36a7' }] });
+            await window.ethereum.request({ 
+                method: 'wallet_switchEthereumChain', 
+                params: [{ chainId: '0xaa36a7' }] 
+            });
         }
-    } catch (e) {}
+    } catch (e) {
+        console.log("Không thể chuyển mạng tự động:", e);
+    }
 }
 
 function showTab(tabId) {
