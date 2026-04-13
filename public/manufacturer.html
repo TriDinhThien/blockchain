@@ -565,17 +565,48 @@ function showToast(message, type = 'success') {
     modal.classList.add('active');
 }
 
+// Bắt đầu phần chỉnh sửa logic kết nối ví di động (Deep Link)
+async function initApp() {
+    try {
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0];
+        document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
+        contract = new web3.eth.Contract(abi, contractAddress);
+        await switchToSepolia();
+        document.getElementById('btnActivity').classList.add('active'); 
+        loadProducts();
+    } catch (error) {
+        console.error(error);
+        showToast("Lỗi kết nối hoặc người dùng từ chối ví!", "error");
+    }
+}
+
 window.addEventListener("load", async () => {
-    if (!window.ethereum) return showToast("Vui lòng cài đặt ví MetaMask!", "error");
-    web3 = new Web3(window.ethereum);
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    account = accounts[0];
-    document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
-    contract = new web3.eth.Contract(abi, contractAddress);
-    await switchToSepolia();
-    document.getElementById('btnActivity').classList.add('active'); 
-    loadProducts();
+    // Nếu có window.ethereum (đang ở PC có cài Metamask hoặc mở trong trình duyệt của Metamask App)
+    if (window.ethereum) {
+        await initApp();
+    } else {
+        // Kiểm tra xem thiết bị có phải là Mobile không
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Nếu là thiết bị di động, tự động Deep Link chuyển sang ứng dụng MetaMask
+            showToast("Đang kết nối mở ứng dụng MetaMask...", "success");
+            
+            setTimeout(() => {
+                // Lấy URL hiện tại (loại bỏ http:// hoặc https://)
+                const dappUrl = window.location.href.replace(/^https?:\/\//, '');
+                // Chuyển hướng tới app MetaMask
+                window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
+            }, 1500);
+        } else {
+            // Nếu là PC nhưng chưa cài ext MetaMask
+            showToast("Vui lòng cài đặt tiện ích ví MetaMask trên trình duyệt!", "error");
+        }
+    }
 });
+// Kết thúc phần chỉnh sửa logic kết nối ví
 
 async function switchToSepolia() {
     try {
