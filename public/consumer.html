@@ -741,8 +741,8 @@ function startScanner() {
             }
             
             if (scannedId) {
-                showProductDetail(scannedId);
                 stopScanner();
+                window.location.href = "verify.html?id=" + scannedId;
             } else {
                 showError('Mã QR không hợp lệ', 'Không tìm thấy ID sản phẩm trong nội dung mã QR vừa quét.');
             }
