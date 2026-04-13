@@ -185,6 +185,10 @@
                 min-height: 56px !important;
                 padding: 16px 20px !important;
             }
+            /* Chỉ chỉnh sửa phần này để nút chi tiết sản phẩm không bị che bởi bottom nav trên mobile */
+            #sidebarContent {
+                padding-bottom: 120px !important;
+            }
         }
         input, textarea, select {
             width: 100% !important;
@@ -849,8 +853,9 @@ async function showProductDetail(idStr) {
                         ${journeyHTML}
                     </div>
                 </div>
-                ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
-                <div class="text-center pt-4 border-t">
+                <!-- Phần nút đã được thiết kế lại: dùng grid để hiển thị song song khi có thể, gọn hơn và không bị che bởi bottom nav trên mobile -->
+                <div class="grid grid-cols-1 ${certUrl ? 'md:grid-cols-2' : ''} gap-4 pt-6 border-t">
+                    ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
                     <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
                         <i class="fa-solid fa-qrcode"></i> Xem mã QR
                     </button>
