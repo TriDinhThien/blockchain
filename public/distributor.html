@@ -178,6 +178,13 @@
                 min-height: 56px !important;
                 border-radius: 9999px !important;
             }
+            /* Cập nhật Padding cho Sidebar chi tiết trên Mobile */
+            #productDetailSidebar {
+                width: 100% !important;
+            }
+            #sidebarContent {
+                padding-bottom: 120px !important;
+            }
         }
         input, select {
             width: 100% !important;
@@ -360,6 +367,7 @@
     </div>
 
 <script>
+// Cập nhật Contract Address và ABI
 const contractAddress = "0x5fb38a482899ee0C716996872A0b7DD95038B98a";
 const abi = [
 	{
@@ -504,6 +512,7 @@ function showToast(message, type = 'success') {
     modal.classList.add('active');
 }
 
+// HÀM KHỞI TẠO APP (Mới)
 async function initApp() {
     try {
         web3 = new Web3(window.ethereum);
@@ -525,24 +534,25 @@ async function initApp() {
     }
 }
 
-// Đã cập nhật lại thông báo để người dùng hiểu họ cần sử dụng web trên trình duyệt của MetaMask
+// XỬ LÝ LOAD TRANG VÀ MOBILE DEEP LINK (Mới)
 window.addEventListener("load", async () => {
     if (window.ethereum) {
         await initApp();
     } else {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile) {
-            showToast("Đang chuyển hướng để sử dụng bên trong trình duyệt của ví MetaMask...", "success");
+            showToast("Đang kết nối mở ứng dụng MetaMask...", "success");
             setTimeout(() => {
                 const dappUrl = window.location.href.replace(/^https?:\/\//, '');
                 window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
-            }, 2000);
+            }, 1500);
         } else {
             showToast("Vui lòng cài đặt ví MetaMask trên trình duyệt!", "error");
         }
     }
 });
 
+// HÀM CHUYỂN MẠNG SEPOLIA (Tối ưu)
 async function switchToSepolia() {
     try {
         const chainId = await web3.eth.getChainId();
@@ -590,6 +600,7 @@ async function loadProducts() {
                 const p = await contract.methods.getProductBasicInfo(idStr).call();
                 const isOwned = p.owner.toLowerCase() === account.toLowerCase();
                 
+                // Hiển thị lịch sử hoạt động liên quan
                 if (!isOwned) {
                     activityHtml += `
                         <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
@@ -731,10 +742,18 @@ async function showProductDetail(idStr) {
                         ${journeyHTML}
                     </div>
                 </div>
-                ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
-                <div class="text-center pt-4 border-t">
-                    <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
-                        <i class="fa-solid fa-qrcode"></i> Xem mã QR
+                
+                <div class="flex flex-col md:flex-row gap-4 pt-6 border-t w-full">
+                    ${certUrl ? `
+                    <button onclick="openCertModal('${certUrl}')" 
+                        class="w-full md:flex-1 py-5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200 shadow-sm">
+                        <i class="fa-solid fa-file-shield text-xl"></i> 
+                        <span>Giấy chứng nhận</span>
+                    </button>` : ''}
+                    <button onclick="showQrModal('${verifyUrl}')" 
+                        class="w-full md:flex-1 py-5 bg-white hover:bg-slate-50 border border-slate-300 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-bold transition-all shadow-sm">
+                        <i class="fa-solid fa-qrcode text-xl"></i> 
+                        <span>Xem mã QR Code</span>
                     </button>
                 </div>
             </div>
