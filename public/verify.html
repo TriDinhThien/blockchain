@@ -16,9 +16,14 @@
             --emerald: #10b981;
         }
         
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%);
+            padding-bottom: env(safe-area-inset-bottom);
         }
         
         .glass {
@@ -44,7 +49,6 @@
             animation: shake 0.4s cubic-bezier(0.36, 0, 0.66, -0.56) both;
         }
         
-        /* Cải tiến UI hiển thị thông tin */
         #successContent {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 2.5rem;
@@ -64,50 +68,50 @@
         }
     </style>
 </head>
-<body class="min-h-screen text-slate-900 pb-12">
+<body class="min-h-screen text-slate-900 pb-12 md:pb-16">
 
     <div class="bg-white/90 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 flex items-center justify-between">
             <div class="flex items-center gap-2 sm:gap-3">
-                <img src="2.png" alt="VeriGlow" class="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl shadow-inner">
+                <img src="2.png" alt="VeriGlow" class="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl shadow-inner object-cover">
                 <span class="font-bold text-2xl sm:text-3xl tracking-[-1px] bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">VeriGlow</span>
             </div>
-            <h1 class="text-lg sm:text-xl font-semibold text-slate-700 hidden sm:flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl md:text-2xl font-semibold text-slate-700 hidden md:flex items-center gap-2">
                 <i class="fa-solid fa-shield-halved text-emerald-500"></i>
                 XÁC THỰC SẢN PHẨM
             </h1>
-            <a href="https://blockchain-demo-lilac.vercel.app/" class="text-slate-400 hover:text-emerald-600 flex items-center gap-1 text-xs sm:text-sm font-medium transition-colors">
-                <i class="fa-solid fa-home"></i> <span class="hidden sm:inline">Về trang chủ</span>
+            <a href="https://blockchain-demo-lilac.vercel.app/" class="text-slate-400 hover:text-emerald-600 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium transition-colors p-2 -mr-2">
+                <i class="fa-solid fa-home text-base sm:text-sm"></i> <span class="hidden sm:inline">Về trang chủ</span>
             </a>
         </div>
     </div>
 
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 md:pt-10">
         
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2 sm:gap-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-3 sm:gap-4">
             <div>
-                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">Mã sản phẩm</span>
-                <h2 id="productIdDisplay" class="text-3xl sm:text-4xl font-bold text-slate-800 font-mono mt-1 sm:mt-0">Đang tải...</h2>
+                <span class="text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-widest text-slate-400">Mã sản phẩm</span>
+                <h2 id="productIdDisplay" class="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 font-mono mt-1 sm:mt-0 leading-tight">Đang tải...</h2>
             </div>
-            <div id="statusBadge" class="hidden px-6 py-2 rounded-3xl text-sm font-bold flex items-center gap-2"></div>
+            <div id="statusBadge" class="hidden px-6 py-2 rounded-3xl text-sm font-bold items-center gap-2"></div>
         </div>
 
-        <div id="batchInputCard" class="glass card p-5 sm:p-8 mb-8 hidden">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-key text-xl"></i>
+        <div id="batchInputCard" class="glass card p-5 sm:p-8 md:p-10 mb-8 hidden">
+            <div class="flex items-start sm:items-center gap-3 sm:gap-4 mb-6 md:mb-8">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-emerald-100 text-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-key text-xl sm:text-2xl md:text-3xl"></i>
                 </div>
                 <div>
-                    <h3 class="font-semibold text-lg sm:text-xl">Nhập mã lô (Batch ID)</h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Nhập đúng mã lô in trên bao bì để mở khóa thông tin đầy đủ</p>
+                    <h3 class="font-semibold text-lg sm:text-xl md:text-2xl text-slate-800">Nhập mã lô (Batch ID)</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1">Nhập đúng mã lô in trên bao bì để mở khóa thông tin đầy đủ</p>
                 </div>
             </div>
             
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-5 w-full">
                 <input id="batchInput" type="text" placeholder="Ví dụ: BATCH-2024-001"
-                       class="w-full flex-1 px-5 sm:px-7 py-4 sm:py-6 text-base sm:text-lg font-medium border border-slate-200 focus:border-emerald-400 rounded-2xl sm:rounded-3xl outline-none transition-all">
+                       class="w-full flex-1 px-5 sm:px-7 md:px-8 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl font-medium border border-slate-200 focus:border-emerald-400 rounded-2xl sm:rounded-[2rem] outline-none transition-all focus:ring-4 focus:ring-emerald-50">
                 <button onclick="verifyBatch()" id="verifyBtn"
-                        class="w-full sm:w-auto px-10 sm:px-12 py-4 sm:py-6 bg-gradient-to-r from-emerald-500 to-sky-500 hover:from-emerald-600 hover:to-sky-600 text-white font-semibold rounded-2xl sm:rounded-3xl text-base sm:text-lg shadow-lg transition-all active:scale-95 whitespace-nowrap">
+                        class="w-full sm:w-auto px-10 sm:px-12 md:px-16 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-emerald-500 to-sky-500 hover:from-emerald-600 hover:to-sky-600 text-white font-semibold rounded-2xl sm:rounded-[2rem] text-base sm:text-lg md:text-xl shadow-lg shadow-emerald-200 transition-all active:scale-[0.98] whitespace-nowrap">
                     XÁC THỰC
                 </button>
             </div>
@@ -116,59 +120,59 @@
         <div id="resultArea" class="hidden">
 
             <div id="successState" class="hidden">
-                <div class="success-header bg-gradient-to-r from-emerald-500 to-sky-500 text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 mb-6 sm:mb-8 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-6 shadow-xl">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-md">
-                        <i class="fa-solid fa-check text-4xl sm:text-5xl text-white"></i>
+                <div class="success-header bg-gradient-to-r from-emerald-500 to-sky-500 text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 mb-6 sm:mb-8 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-6 md:gap-8 shadow-xl shadow-emerald-100">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-md border border-white/30">
+                        <i class="fa-solid fa-check text-4xl sm:text-5xl md:text-6xl text-white"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl sm:text-3xl font-bold tracking-tight">SẢN PHẨM CHÍNH HÃNG</h3>
-                        <p class="opacity-90 mt-1 sm:mt-2 text-sm sm:text-lg font-medium">Toàn bộ dữ liệu được xác thực và bảo vệ trên Blockchain.</p>
+                        <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">SẢN PHẨM CHÍNH HÃNG</h3>
+                        <p class="opacity-95 mt-1 sm:mt-2 text-sm sm:text-base md:text-lg font-medium leading-relaxed">Toàn bộ dữ liệu được xác thực và bảo vệ an toàn trên nền tảng Blockchain.</p>
                     </div>
                 </div>
 
-                <div id="successContent" class="p-5 sm:p-10 space-y-6 sm:space-y-8">
-                    </div>
+                <div id="successContent" class="p-5 sm:p-8 md:p-10 space-y-6 sm:space-y-8">
+                </div>
             </div>
 
             <div id="fakeState" class="hidden">
-                <div class="fake-banner bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 mb-6 sm:mb-8 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-6 shadow-xl shadow-red-200">
+                <div class="fake-banner bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 mb-6 sm:mb-8 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-6 shadow-xl shadow-red-200">
                     <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-md">
-                        <i class="fa-solid fa-triangle-exclamation text-3xl sm:text-4xl text-white"></i>
+                        <i class="fa-solid fa-triangle-exclamation text-3xl sm:text-4xl md:text-5xl text-white"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-2xl sm:text-3xl font-bold">CẢNH BÁO: HÀNG GIẢ!</h3>
-                        <p class="opacity-90 mt-1 sm:mt-2 text-sm sm:text-lg font-medium">Mã lô không khớp với dữ liệu Blockchain. Sản phẩm có nguy cơ bị làm giả.</p>
+                        <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold">CẢNH BÁO: HÀNG GIẢ!</h3>
+                        <p class="opacity-95 mt-1 sm:mt-2 text-sm sm:text-base md:text-lg font-medium">Mã lô không khớp với dữ liệu Blockchain. Sản phẩm có nguy cơ bị làm giả hoặc đã bị can thiệp.</p>
                     </div>
-                    <button onclick="resetVerify()" class="bg-white text-red-600 px-8 py-3 sm:py-4 rounded-2xl sm:rounded-3xl font-bold hover:bg-red-50 shadow-lg transition-transform active:scale-95 w-full sm:w-auto mt-4 sm:mt-0">Thử lại</button>
+                    <button onclick="resetVerify()" class="bg-white text-red-600 px-8 sm:px-10 py-3 sm:py-4 md:py-5 rounded-2xl sm:rounded-[2rem] font-bold hover:bg-red-50 shadow-lg transition-transform active:scale-95 w-full sm:w-auto mt-4 sm:mt-0 text-sm sm:text-base md:text-lg">Thử lại</button>
                 </div>
 
-                <div class="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 card border border-red-100">
-                    <p class="text-red-500 text-xs sm:text-sm font-bold flex items-center gap-2 mb-6 uppercase tracking-wider justify-center sm:justify-start">
-                        <i class="fa-solid fa-skull-crossbones"></i> 
+                <div class="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 card border border-red-100">
+                    <p class="text-red-500 text-xs sm:text-sm font-bold flex items-center gap-2 mb-6 sm:mb-8 uppercase tracking-wider justify-center md:justify-start bg-red-50 px-4 py-2 rounded-xl inline-flex w-full md:w-auto">
+                        <i class="fa-solid fa-skull-crossbones text-base"></i> 
                         Chỉ hiển thị thông tin giới hạn
                     </p>
-                    <div class="flex flex-col md:flex-row gap-6 sm:gap-8">
-                        <div class="flex-1 w-full max-w-sm mx-auto md:max-w-none">
-                            <img id="productImageFake" src="" class="w-full rounded-[1.5rem] sm:rounded-[2rem] shadow-lg aspect-square object-cover border border-slate-100">
+                    <div class="flex flex-col md:flex-row gap-6 sm:gap-8 md:gap-12">
+                        <div class="w-full max-w-[260px] sm:max-w-sm mx-auto md:mx-0 md:w-1/3 shrink-0">
+                            <img id="productImageFake" src="" class="w-full rounded-[1.5rem] sm:rounded-[2rem] shadow-lg aspect-square object-cover border border-slate-100 bg-slate-50">
                         </div>
-                        <div class="flex-1 space-y-6 sm:space-y-8">
-                            <div class="text-center sm:text-left">
-                                <span class="text-[10px] sm:text-xs uppercase font-bold tracking-widest text-slate-400">Tên sản phẩm</span>
-                                <h4 id="productNameFake" class="text-2xl sm:text-3xl font-bold text-slate-800 mt-1 leading-tight"></h4>
+                        <div class="flex-1 space-y-6 sm:space-y-8 flex flex-col justify-center">
+                            <div class="text-center md:text-left">
+                                <span class="text-[10px] sm:text-xs md:text-sm uppercase font-bold tracking-widest text-slate-400">Tên sản phẩm</span>
+                                <h4 id="productNameFake" class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mt-1 md:mt-2 leading-tight"></h4>
                             </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 bg-slate-50 p-5 sm:p-6 rounded-2xl sm:rounded-3xl">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 bg-slate-50 p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-slate-100">
                                 <div>
-                                    <span class="text-[10px] uppercase font-bold text-slate-400">Ngày sản xuất</span>
-                                    <p id="manufactureDateFake" class="text-base sm:text-lg font-bold text-slate-700 mt-1"></p>
+                                    <span class="text-[10px] sm:text-xs uppercase font-bold text-slate-400">Ngày sản xuất</span>
+                                    <p id="manufactureDateFake" class="text-base sm:text-lg md:text-xl font-bold text-slate-700 mt-1 sm:mt-2"></p>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] uppercase font-bold text-slate-400">Nhà sản xuất</span>
-                                    <p id="manufacturerFake" class="text-base sm:text-lg font-bold text-slate-700 mt-1"></p>
+                                    <span class="text-[10px] sm:text-xs uppercase font-bold text-slate-400">Nhà sản xuất</span>
+                                    <p id="manufacturerFake" class="text-base sm:text-lg md:text-xl font-bold text-slate-700 mt-1 sm:mt-2"></p>
                                 </div>
                             </div>
-                            <div class="bg-red-50 border border-red-200 rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-red-700 text-sm sm:text-base font-medium flex gap-3 items-start">
-                                <i class="fa-solid fa-exclamation-triangle mt-1 text-red-500 shrink-0"></i>
-                                <span><strong>Khuyến cáo:</strong> Chúng tôi từ chối bảo hộ chất lượng cho sản phẩm này do thông tin xác thực không trùng khớp. Không nên sử dụng.</span>
+                            <div class="bg-red-50 border border-red-200 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 text-red-700 text-sm sm:text-base md:text-lg font-medium flex gap-3 sm:gap-4 items-start shadow-inner">
+                                <i class="fa-solid fa-exclamation-triangle mt-1 text-red-500 text-lg md:text-xl shrink-0"></i>
+                                <span><strong>Khuyến cáo:</strong> Chúng tôi từ chối bảo hộ chất lượng cho sản phẩm này do thông tin xác thực không trùng khớp. Không nên sử dụng để đảm bảo an toàn.</span>
                             </div>
                         </div>
                     </div>
@@ -282,7 +286,7 @@ async function loadProduct() {
     try {
         const exists = await contract.methods.productExists(productId).call();
         if (!exists) {
-            idDisplay.innerHTML = `<span class="text-red-500 text-xl sm:text-2xl"><i class="fa-solid fa-circle-xmark mr-2"></i>Mã sản phẩm không tồn tại trên hệ thống</span>`;
+            idDisplay.innerHTML = `<span class="text-red-500 text-xl sm:text-2xl md:text-3xl"><i class="fa-solid fa-circle-xmark mr-2"></i>Mã sản phẩm không tồn tại trên hệ thống</span>`;
             return;
         }
 
@@ -295,7 +299,7 @@ async function loadProduct() {
 
     } catch (e) {
         console.error(e);
-        idDisplay.innerHTML = `<span class="text-red-500 text-xl sm:text-2xl">Lỗi kết nối mạng Blockchain</span>`;
+        idDisplay.innerHTML = `<span class="text-red-500 text-xl sm:text-2xl md:text-3xl">Lỗi kết nối mạng Blockchain</span>`;
     }
 }
 
@@ -325,65 +329,67 @@ async function verifyBatch() {
         const verifyUrl = window.location.href;
 
         let ingredientsHTML = productData.ingredients && productData.ingredients.length > 0 ? `
-            <div class="bg-amber-50/80 rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-amber-100">
-                <div class="text-amber-700 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase mb-3 sm:mb-4 flex items-center gap-2"><i class="fa-solid fa-flask"></i> Thành phần chi tiết</div>
-                <div class="flex flex-wrap gap-2">${productData.ingredients.map(item => `<span class="bg-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-semibold text-amber-900 border border-amber-200 shadow-sm">${item}</span>`).join('')}</div>
+            <div class="bg-amber-50/80 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 border border-amber-100">
+                <div class="text-amber-700 text-[10px] sm:text-[11px] md:text-xs font-bold tracking-widest uppercase mb-3 sm:mb-4 flex items-center gap-2"><i class="fa-solid fa-flask text-base"></i> Thành phần chi tiết</div>
+                <div class="flex flex-wrap gap-2 md:gap-3">${productData.ingredients.map(item => `<span class="bg-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs md:text-sm font-semibold text-amber-900 border border-amber-200 shadow-sm">${item}</span>`).join('')}</div>
             </div>` : '';
 
-        // Tự động render UI Hành trình sản phẩm
+        // Tự động render UI Hành trình sản phẩm (Đã tối ưu khoảng cách an toàn cho Mobile)
         let journeyHTML = journeyData.map((node, index) => {
             let dotColor = index === 0 ? 'bg-sky-500 ring-4 ring-sky-100' : (index === journeyData.length - 1 ? 'bg-emerald-500 shadow-lg' : 'bg-slate-300');
             let isLast = index === journeyData.length - 1;
-            let wrapperClass = isLast ? 'relative bg-emerald-50 p-4 sm:p-5 rounded-2xl border border-emerald-100 shadow-sm' : 'relative pl-2';
-            let lineClass = isLast ? '' : 'before:absolute before:left-[11px] before:top-6 before:bottom-[-20px] before:w-0.5 before:bg-slate-200';
+            let wrapperClass = isLast ? 'relative bg-emerald-50 p-4 sm:p-5 md:p-6 rounded-2xl border border-emerald-100 shadow-sm mt-2' : 'relative pl-2 sm:pl-3';
+            let lineClass = isLast ? '' : 'before:absolute before:left-[11px] sm:before:left-[15px] md:before:left-[15px] before:top-6 before:bottom-[-20px] before:w-0.5 before:bg-slate-200';
             
             return `
-            <div class="${wrapperClass} ${lineClass} pb-6 last:pb-0">
-                <div class="absolute -left-[21px] ${isLast ? 'top-5 sm:top-6' : 'top-1'} w-3.5 h-3.5 rounded-full ${dotColor} border-2 border-white z-10"></div>
-                <div class="text-xs sm:text-sm font-bold ${isLast ? 'text-emerald-700 uppercase tracking-wide' : 'text-slate-800'}">${node.role}</div>
-                <div class="text-[11px] sm:text-xs font-semibold text-slate-700 mt-1">${node.name}</div>
-                <div class="text-[10px] sm:text-[11px] text-slate-500 mt-1"><i class="fa-solid fa-location-dot mr-1 text-slate-400"></i>${node.location}</div>
-                <div class="text-[9px] sm:text-[10px] font-mono text-slate-500 mt-1.5 break-all bg-white inline-block px-2 py-1 rounded-lg border border-slate-100"><i class="fa-solid fa-wallet mr-1 text-slate-400"></i>${node.wallet}</div>
-                <div class="text-[9px] sm:text-[10px] text-slate-400 mt-2 font-medium"><i class="fa-regular fa-clock mr-1"></i>${new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN')}</div>
+            <div class="${wrapperClass} ${lineClass} pb-6 md:pb-8 last:pb-0">
+                <div class="absolute ${isLast ? '-left-[15px] sm:-left-[15px] top-6 sm:top-7' : '-left-[21px] sm:-left-[17px] top-1 sm:top-1.5'} w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full ${dotColor} border-2 border-white z-10"></div>
+                <div class="text-xs sm:text-sm md:text-base font-bold ${isLast ? 'text-emerald-700 uppercase tracking-wide' : 'text-slate-800'}">${node.role}</div>
+                <div class="text-[11px] sm:text-xs md:text-sm font-semibold text-slate-700 mt-1">${node.name}</div>
+                <div class="text-[10px] sm:text-[11px] md:text-xs text-slate-500 mt-1 md:mt-1.5"><i class="fa-solid fa-location-dot mr-1.5 text-slate-400"></i>${node.location}</div>
+                <div class="text-[9px] sm:text-[10px] md:text-[11px] font-mono text-slate-500 mt-1.5 md:mt-2 break-all bg-white inline-block px-2 md:px-3 py-1 md:py-1.5 rounded-lg border border-slate-100"><i class="fa-solid fa-wallet mr-1.5 text-slate-400"></i>${node.wallet}</div>
+                <div class="text-[9px] sm:text-[10px] md:text-xs text-slate-400 mt-2 md:mt-3 font-medium"><i class="fa-regular fa-clock mr-1.5"></i>${new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN')}</div>
             </div>`;
         }).join('');
 
         content.innerHTML = `
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
-                <div class="w-full max-w-sm mx-auto lg:max-w-none">
-                    ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-[1.5rem] sm:rounded-[2rem] shadow-xl aspect-square object-cover border border-slate-100">` : `<div class="aspect-square bg-slate-50 border border-slate-100 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-center justify-center text-slate-400"><i class="fa-solid fa-image text-3xl sm:text-4xl mb-2"></i><span class="text-xs sm:text-sm">Chưa cập nhật ảnh</span></div>`}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-14">
+                <div class="w-full max-w-[280px] sm:max-w-sm mx-auto md:mx-0 md:max-w-none shrink-0">
+                    ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-[1.5rem] sm:rounded-[2rem] shadow-xl aspect-square object-cover border border-slate-100">` : `<div class="aspect-square bg-slate-50 border border-slate-100 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-center justify-center text-slate-400"><i class="fa-solid fa-image text-4xl sm:text-5xl mb-3"></i><span class="text-xs sm:text-sm md:text-base">Chưa cập nhật ảnh</span></div>`}
                     
-                    <div class="mt-5 sm:mt-6 flex flex-col gap-3 sm:gap-4">
-                        ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-3 sm:py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-2xl flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield text-base sm:text-lg"></i> Xem Chứng Nhận Hợp Quy</button>` : ''}
+                    <div class="mt-5 sm:mt-6 md:mt-8 flex flex-col gap-3 sm:gap-4 md:gap-5">
+                        ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-3.5 sm:py-4 md:py-5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-2xl md:rounded-3xl flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield text-lg md:text-xl"></i> Xem Chứng Nhận Hợp Quy</button>` : ''}
                         
-                        <button onclick="showQrModal('${verifyUrl}')" class="w-full py-3 sm:py-4 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold transition-all border border-slate-200 shadow-sm">
-                            <i class="fa-solid fa-qrcode text-base sm:text-lg text-slate-800"></i> Chia sẻ mã QR này
+                        <button onclick="showQrModal('${verifyUrl}')" class="w-full py-3.5 sm:py-4 md:py-5 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl md:rounded-3xl flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm md:text-base font-bold transition-all border border-slate-200 shadow-sm">
+                            <i class="fa-solid fa-qrcode text-lg md:text-xl text-slate-800"></i> Chia sẻ mã QR này
                         </button>
                     </div>
                 </div>
 
-                <div class="space-y-5 sm:space-y-6">
-                    <div class="bg-slate-50 p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100">
-                        <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-4">${productData.name}</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-2">
-                            <div><span class="text-[9px] sm:text-[10px] block uppercase font-bold text-slate-400 tracking-wider">Mã lô sản xuất</span><strong class="text-xs sm:text-sm font-mono text-slate-800 bg-white px-2 py-1 rounded-md border border-slate-200 mt-1 inline-block">${productData.batchID}</strong></div>
-                            <div><span class="text-[9px] sm:text-[10px] block uppercase font-bold text-slate-400 tracking-wider">Ngày sản xuất</span><strong class="text-xs sm:text-sm text-slate-800 mt-1 inline-block">${productData.manufactureDate}</strong></div>
-                            <div class="col-span-1 sm:col-span-2"><span class="text-[9px] sm:text-[10px] block uppercase font-bold text-slate-400 tracking-wider">Quốc gia xuất xứ</span><strong class="text-xs sm:text-sm text-slate-800 mt-1 inline-block">${productData.origin}</strong></div>
+                <div class="space-y-6 sm:space-y-8">
+                    <div class="bg-slate-50 p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-slate-100">
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 mb-4 sm:mb-5 md:mb-6 leading-snug">${productData.name}</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 md:gap-y-6 gap-x-3 md:gap-x-4">
+                            <div><span class="text-[9px] sm:text-[10px] md:text-xs block uppercase font-bold text-slate-400 tracking-wider mb-1">Mã lô sản xuất</span><strong class="text-xs sm:text-sm md:text-base font-mono text-slate-800 bg-white px-2.5 py-1 md:py-1.5 rounded-md border border-slate-200 inline-block shadow-sm">${productData.batchID}</strong></div>
+                            <div><span class="text-[9px] sm:text-[10px] md:text-xs block uppercase font-bold text-slate-400 tracking-wider mb-1">Ngày sản xuất</span><strong class="text-xs sm:text-sm md:text-base text-slate-800 inline-block">${productData.manufactureDate}</strong></div>
+                            <div class="col-span-1 sm:col-span-2"><span class="text-[9px] sm:text-[10px] md:text-xs block uppercase font-bold text-slate-400 tracking-wider mb-1">Quốc gia xuất xứ</span><strong class="text-xs sm:text-sm md:text-base text-slate-800 inline-block">${productData.origin}</strong></div>
                         </div>
                     </div>
 
-                    <div class="bg-sky-50/60 rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-sky-100">
-                        <div class="text-sky-700 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase mb-2 sm:mb-3 flex items-center gap-2"><i class="fa-solid fa-industry"></i> Đơn vị sản xuất gốc</div>
-                        <div class="font-bold text-slate-800 text-base sm:text-lg">${manufacturerNode.name || 'N/A'}</div>
-                        <div class="text-xs sm:text-sm text-slate-600 mt-1"><i class="fa-solid fa-location-dot mr-1 text-sky-600/50"></i> ${manufacturerNode.location || 'N/A'}</div>
+                    <div class="bg-sky-50/60 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 border border-sky-100">
+                        <div class="text-sky-700 text-[10px] sm:text-[11px] md:text-xs font-bold tracking-widest uppercase mb-2 sm:mb-3 md:mb-4 flex items-center gap-2"><i class="fa-solid fa-industry text-base"></i> Đơn vị sản xuất gốc</div>
+                        <div class="font-bold text-slate-800 text-base sm:text-lg md:text-xl">${manufacturerNode.name || 'N/A'}</div>
+                        <div class="text-xs sm:text-sm md:text-base text-slate-600 mt-1 md:mt-2"><i class="fa-solid fa-location-dot mr-1.5 text-sky-600/50"></i> ${manufacturerNode.location || 'N/A'}</div>
                     </div>
 
                     ${ingredientsHTML}
 
-                    <div class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm overflow-hidden">
-                        <div class="text-slate-800 text-xs sm:text-sm font-bold mb-5 sm:mb-6 flex items-center gap-2 tracking-wide uppercase border-b border-slate-100 pb-3 sm:pb-4"><i class="fa-solid fa-route text-emerald-500 text-lg sm:text-xl"></i> Hành trình Chuỗi cung ứng</div>
-                        <div class="pl-3 sm:pl-4 space-y-0">
-                            ${journeyHTML}
+                    <div class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="text-slate-800 text-xs sm:text-sm md:text-base font-bold mb-5 sm:mb-6 md:mb-8 flex items-center gap-2 tracking-wide uppercase border-b border-slate-100 pb-3 sm:pb-4"><i class="fa-solid fa-route text-emerald-500 text-lg sm:text-xl md:text-2xl"></i> Hành trình Chuỗi cung ứng</div>
+                        <div class="pl-5 sm:pl-6 md:pl-8">
+                            <div class="space-y-0">
+                                ${journeyHTML}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -408,11 +414,11 @@ async function verifyBatch() {
 
 function openCertModal(url) {
     const modalHTML = `
-        <div onclick="if(event.target.id==='certModal')this.remove()" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 transition-all">
-            <div class="relative max-w-[95vw] sm:max-w-4xl w-full">
-                <img src="${url}" class="w-full max-h-[85vh] rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl object-contain bg-white">
-                <button onclick="this.closest('.fixed').remove()" class="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white hover:bg-slate-100 text-slate-800 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg border border-slate-200 transition-transform active:scale-95">
-                    <i class="fa-solid fa-xmark text-lg sm:text-xl"></i>
+        <div onclick="if(event.target.id==='certModal')this.remove()" id="certModal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 md:p-8 transition-all overflow-y-auto">
+            <div class="relative max-w-[95vw] sm:max-w-[85vw] md:max-w-4xl w-full my-auto">
+                <img src="${url}" class="w-full h-auto max-h-[80vh] md:max-h-[85vh] rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl object-contain bg-white">
+                <button onclick="this.closest('.fixed').remove()" class="absolute -top-4 -right-2 sm:-top-5 sm:-right-5 bg-white hover:bg-slate-100 text-slate-800 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-xl border border-slate-200 transition-transform active:scale-95 z-10">
+                    <i class="fa-solid fa-xmark text-lg sm:text-xl md:text-2xl"></i>
                 </button>
             </div>
         </div>`;
@@ -421,19 +427,19 @@ function openCertModal(url) {
 
 function showQrModal(url) {
     const modalHTML = `
-        <div onclick="if(event.target.id==='qrModal')this.remove()" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 transition-all">
-            <div class="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 text-center max-w-[90vw] sm:max-w-sm w-full shadow-2xl">
-                <h3 class="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-slate-800 tracking-tight">Mã QR Sản Phẩm</h3>
-                <div class="bg-slate-50 p-3 sm:p-4 rounded-[1.5rem] sm:rounded-[2rem] inline-block mb-4 sm:mb-6 border border-slate-100">
+        <div onclick="if(event.target.id==='qrModal')this.remove()" id="qrModal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 md:p-8 transition-all">
+            <div class="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-12 text-center max-w-[90vw] sm:max-w-sm md:max-w-md w-full shadow-2xl relative">
+                <h3 class="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 md:mb-10 text-slate-800 tracking-tight">Mã QR Sản Phẩm</h3>
+                <div class="bg-slate-50 p-4 sm:p-5 md:p-6 rounded-[1.5rem] sm:rounded-[2rem] inline-block mb-5 sm:mb-6 md:mb-8 border border-slate-100 shadow-inner">
                     <canvas id="modalQrCanvas" class="mx-auto rounded-xl"></canvas>
                 </div>
-                <p class="text-xs sm:text-sm text-slate-500 font-medium px-2 sm:px-4">Sử dụng camera điện thoại để quét mã và xem lại kết quả này bất kỳ lúc nào.</p>
-                <button onclick="this.closest('.fixed').remove()" class="mt-6 sm:mt-8 w-full py-3 sm:py-4 bg-slate-900 hover:bg-black text-white rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold transition-transform active:scale-95">Đóng cửa sổ</button>
+                <p class="text-xs sm:text-sm md:text-base text-slate-500 font-medium px-2 sm:px-4 leading-relaxed">Sử dụng camera điện thoại để quét mã và xem lại kết quả này bất kỳ lúc nào.</p>
+                <button onclick="this.closest('.fixed').remove()" class="mt-6 sm:mt-8 md:mt-10 w-full py-3.5 sm:py-4 md:py-5 bg-slate-900 hover:bg-black text-white rounded-xl sm:rounded-2xl md:rounded-3xl text-sm sm:text-base md:text-lg font-bold transition-transform active:scale-[0.98] shadow-lg">Đóng cửa sổ</button>
             </div>
         </div>`;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     setTimeout(() => {
-        QRCode.toCanvas(document.getElementById('modalQrCanvas'), url, { width: 200, margin: 1, color: { dark: '#0f172a', light: '#ffffff' } });
+        QRCode.toCanvas(document.getElementById('modalQrCanvas'), url, { width: 220, margin: 1, color: { dark: '#0f172a', light: '#ffffff' } });
     }, 100);
 }
 
