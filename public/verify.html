@@ -9,101 +9,148 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-        :root { --primary: #0ea5e9; --emerald: #10b981; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%); }
-        .glass { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(24px); }
-        .card { border-radius: 2.5rem; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root { 
+            --primary: #0ea5e9; 
+            --emerald: #10b981; 
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: radial-gradient(circle at top right, #f0fdfa, #f8fafc);
+            background-attachment: fixed;
+        }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+
+        .timeline-line {
+            background: linear-gradient(to bottom, #10b981 0%, #e2e8f0 100%);
+        }
+
         .success-header { animation: successPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes successPop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .fake-banner { animation: shake 0.4s cubic-bezier(0.36, 0, 0.66, -0.56) both; }
-        #successContent { background: rgba(255, 255, 255, 0.95); border-radius: 2.5rem; box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.15); }
-        @media (max-width: 768px) { #batchInput { font-size: 16px !important; } .card { border-radius: 2rem; } #successContent { border-radius: 2rem; } }
+        @keyframes successPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        
+        .fake-banner { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .truncate-address {
+            font-family: 'Monaco', 'Consolas', monospace;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+        }
+
+        /* Tinh chỉnh Logo hình tròn */
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-900 pb-12">
 
-    <div class="bg-white/90 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
-            <div class="flex items-center gap-2 sm:gap-3">
-                <img src="2.png" alt="VeriGlow" class="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl shadow-inner">
-                <span class="font-bold text-2xl sm:text-3xl tracking-[-1px] bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">VeriGlow</span>
+    <nav class="bg-white/70 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="2.png" alt="VeriGlow" class="brand-logo">
+                <div class="flex flex-col">
+                    <span class="font-extrabold text-xl sm:text-2xl tracking-tighter bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">VeriGlow</span>
+                    <span class="text-[9px] font-bold text-slate-400 tracking-[2px] uppercase -mt-1">Blockchain Shield</span>
+                </div>
             </div>
-            <h1 class="text-lg sm:text-xl font-semibold text-slate-700 hidden sm:flex items-center gap-2">
-                <i class="fa-solid fa-shield-halved text-emerald-500"></i> XÁC THỰC SẢN PHẨM
-            </h1>
-            <a href="https://blockchain-demo-lilac.vercel.app/" class="text-slate-400 hover:text-emerald-600 flex items-center gap-1 text-xs sm:text-sm font-medium transition-colors">
-                <i class="fa-solid fa-home"></i> <span class="hidden sm:inline">Về trang chủ</span>
+            <a href="https://blockchain-demo-lilac.vercel.app/" class="group flex items-center gap-2 bg-slate-100 hover:bg-emerald-50 px-4 py-2 rounded-full transition-all duration-300">
+                <i class="fa-solid fa-house text-slate-500 group-hover:text-emerald-600 text-sm"></i>
+                <span class="hidden sm:inline text-xs font-bold text-slate-600 group-hover:text-emerald-700">Trang chủ</span>
             </a>
         </div>
-    </div>
+    </nav>
 
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2 sm:gap-4">
+    <div class="max-w-4xl mx-auto px-4 pt-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">Mã sản phẩm</span>
-                <h2 id="productIdDisplay" class="text-3xl sm:text-4xl font-bold text-slate-800 font-mono mt-1 sm:mt-0">Đang tải...</h2>
+                <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Hệ thống trực tuyến
+                </div>
+                <h2 id="productIdDisplay" class="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight">Đang tải...</h2>
             </div>
-            <div id="loadingStatus" class="text-emerald-600 text-sm font-bold flex items-center gap-2">
-                <i class="fa-solid fa-circle-notch animate-spin"></i> Đang kết nối Blockchain...
+            <div id="loadingStatus" class="flex items-center gap-3 text-slate-500 font-medium bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100">
+                <i class="fa-solid fa-circle-notch animate-spin text-emerald-500"></i>
+                <span class="text-sm">Đang quét Blockchain...</span>
             </div>
         </div>
 
-        <div id="batchInputCard" class="glass card p-5 sm:p-8 mb-8 hidden">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-key text-xl"></i>
+        <div id="batchInputCard" class="glass-card rounded-[2.5rem] p-6 sm:p-10 mb-8 hidden">
+            <div class="max-w-lg">
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">Xác minh mã lô</h3>
+                <p class="text-slate-500 text-sm mb-8 leading-relaxed">Để đảm bảo tính riêng tư, vui lòng nhập <b>Mã lô (Batch ID)</b> được in trên bao bì sản phẩm của bạn.</p>
+                
+                <div class="relative group">
+                    <input id="batchInput" type="text" placeholder="Ví dụ: BATCH-2024-001"
+                           class="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 focus:border-emerald-400 focus:bg-white rounded-2xl outline-none transition-all text-lg font-semibold uppercase tracking-wider">
+                    <button onclick="verifyBatch()" id="verifyBtn"
+                            class="mt-4 w-full py-5 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-emerald-600 hover:to-sky-600 text-white font-bold rounded-2xl text-lg shadow-xl shadow-slate-200 transition-all active:scale-[0.98]">
+                        XÁC THỰC NGAY
+                    </button>
                 </div>
-                <div>
-                    <h3 class="font-semibold text-lg sm:text-xl">Nhập mã lô (Batch ID)</h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Nhập đúng mã lô in trên bao bì để mở khóa thông tin đầy đủ</p>
-                </div>
-            </div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
-                <input id="batchInput" type="text" placeholder="Ví dụ: BATCH-2024-001"
-                       class="w-full flex-1 px-5 sm:px-7 py-4 sm:py-6 text-base sm:text-lg font-medium border border-slate-200 focus:border-emerald-400 rounded-2xl sm:rounded-3xl outline-none transition-all">
-                <button onclick="verifyBatch()" id="verifyBtn"
-                        class="w-full sm:w-auto px-10 sm:px-12 py-4 sm:py-6 bg-gradient-to-r from-emerald-500 to-sky-500 hover:from-emerald-600 hover:to-sky-600 text-white font-semibold rounded-2xl sm:rounded-3xl text-base sm:text-lg shadow-lg transition-all active:scale-95 whitespace-nowrap">
-                    XÁC THỰC
-                </button>
             </div>
         </div>
 
         <div id="resultArea" class="hidden">
             <div id="successState" class="hidden">
-                <div class="success-header bg-gradient-to-r from-emerald-500 to-sky-500 text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 mb-6 sm:mb-8 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-6 shadow-xl">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-md">
-                        <i class="fa-solid fa-check text-4xl sm:text-5xl text-white"></i>
+                <div class="success-header bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-[2.5rem] p-8 sm:p-10 mb-8 shadow-2xl shadow-emerald-200 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-10">
+                        <i class="fa-solid fa-shield-check text-[120px]"></i>
                     </div>
-                    <div>
-                        <h3 class="text-2xl sm:text-3xl font-bold tracking-tight">SẢN PHẨM CHÍNH HÃNG</h3>
-                        <p class="opacity-90 mt-1 sm:mt-2 text-sm sm:text-lg font-medium">Toàn bộ dữ liệu được xác thực và bảo vệ trên Blockchain.</p>
+                    <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shrink-0 shadow-lg rotate-3">
+                        <i class="fa-solid fa-check text-4xl text-emerald-500"></i>
+                    </div>
+                    <div class="text-center md:text-left">
+                        <h3 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-1">Hàng Chính Hãng</h3>
+                        <p class="text-emerald-50 font-medium">Sản phẩm này đã được xác thực bởi VeriGlow Blockchain</p>
                     </div>
                 </div>
-                <div id="successContent" class="p-5 sm:p-10 space-y-6 sm:space-y-8"></div>
+                <div id="successContent"></div>
             </div>
 
             <div id="fakeState" class="hidden">
-                <div class="fake-banner bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 mb-6 sm:mb-8 flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-6 shadow-xl shadow-red-200">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-md">
-                        <i class="fa-solid fa-triangle-exclamation text-3xl sm:text-4xl text-white"></i>
+                <div class="fake-banner bg-gradient-to-br from-red-600 to-rose-700 text-white rounded-[2.5rem] p-8 mb-8 shadow-2xl shadow-red-200 flex flex-col md:flex-row items-center gap-6">
+                    <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation text-4xl"></i>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="text-2xl sm:text-3xl font-bold">CẢNH BÁO: HÀNG GIẢ!</h3>
-                        <p class="opacity-90 mt-1 sm:mt-2 text-sm sm:text-lg font-medium">Mã lô không khớp với dữ liệu Blockchain.</p>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="text-3xl font-bold mb-1">Cảnh Báo Hàng Giả!</h3>
+                        <p class="text-red-100">Thông tin mã lô bạn nhập không trùng khớp với dữ liệu gốc.</p>
                     </div>
-                    <button onclick="resetVerify()" class="bg-white text-red-600 px-8 py-3 sm:py-4 rounded-2xl sm:rounded-3xl font-bold shadow-lg transition-transform active:scale-95 w-full sm:w-auto mt-4 sm:mt-0">Thử lại</button>
+                    <button onclick="resetVerify()" class="bg-white text-red-600 px-8 py-4 rounded-2xl font-bold shadow-lg hover:bg-red-50 transition-all active:scale-95">Thử lại</button>
                 </div>
-                <div class="bg-white rounded-[2rem] p-6 sm:p-8 card border border-red-100">
-                    <div class="flex flex-col md:flex-row gap-6 sm:gap-8">
-                        <div class="flex-1 w-full max-w-sm mx-auto md:max-w-none">
-                            <img id="productImageFake" src="" class="w-full rounded-[1.5rem] shadow-lg aspect-square object-cover">
-                        </div>
-                        <div class="flex-1 space-y-6">
-                            <h4 id="productNameFake" class="text-2xl font-bold text-slate-800"></h4>
-                            <div class="grid grid-cols-2 gap-4 bg-slate-50 p-5 rounded-2xl">
-                                <div><span class="text-[10px] uppercase font-bold text-slate-400">Ngày sản xuất</span><p id="manufactureDateFake" class="font-bold text-slate-700"></p></div>
-                                <div><span class="text-[10px] uppercase font-bold text-slate-400">Nhà sản xuất</span><p id="manufacturerFake" class="font-bold text-slate-700"></p></div>
+                <div class="glass-card rounded-[2.5rem] p-8 border-red-100">
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <img id="productImageFake" src="" class="w-full md:w-64 h-64 rounded-3xl object-cover shadow-md border border-slate-100">
+                        <div class="space-y-4">
+                            <h4 id="productNameFake" class="text-3xl font-bold text-slate-800"></h4>
+                            <div class="grid grid-cols-2 gap-6 pt-4">
+                                <div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sản xuất</span><p id="manufactureDateFake" class="font-bold text-slate-700 text-lg"></p></div>
+                                <div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nguồn gốc</span><p id="manufacturerFake" class="font-bold text-slate-700 text-lg"></p></div>
                             </div>
                         </div>
                     </div>
@@ -122,7 +169,6 @@ const abi = [
 
 let web3, contract, productId, realBatchID, productData, journeyData;
 
-// Danh sách các cổng RPC dự phòng để đảm bảo luôn kết nối được
 const RPC_ENDPOINTS = [
     "https://ethereum-sepolia-rpc.publicnode.com",
     "https://rpc.ankr.com/eth_sepolia",
@@ -134,19 +180,23 @@ function formatUrl(url) {
     return url.startsWith('ipfs://') ? url.replace('ipfs://', 'https://ipfs.io/ipfs/') : url;
 }
 
+function truncateAddr(addr) {
+    if(!addr) return "N/A";
+    return addr.substring(0, 6) + "..." + addr.substring(addr.length - 4);
+}
+
 async function initWeb3() {
     for (let rpc of RPC_ENDPOINTS) {
         try {
             const provider = new Web3.providers.HttpProvider(rpc);
             const tempWeb3 = new Web3(provider);
-            await tempWeb3.eth.getBlockNumber(); // Kiểm tra kết nối
-            console.log("Connected to RPC:", rpc);
+            await tempWeb3.eth.getBlockNumber();
             return tempWeb3;
         } catch (e) {
             console.warn("RPC failed:", rpc);
         }
     }
-    throw new Error("Tất cả cổng kết nối Blockchain đều bận.");
+    throw new Error("Blockchain Busy");
 }
 
 async function loadProduct() {
@@ -155,7 +205,7 @@ async function loadProduct() {
     const loadingStatus = document.getElementById('loadingStatus');
 
     if (!productId) {
-        idDisplay.innerHTML = `<span class="text-red-500">Lỗi: Không tìm thấy ID</span>`;
+        idDisplay.innerHTML = `<span class="text-red-500">Lỗi ID</span>`;
         loadingStatus.classList.add('hidden');
         return;
     }
@@ -167,7 +217,7 @@ async function loadProduct() {
 
         const exists = await contract.methods.productExists(productId).call();
         if (!exists) {
-            idDisplay.innerHTML = `<span class="text-red-500 text-xl sm:text-2xl"><i class="fa-solid fa-circle-xmark mr-2"></i>Sản phẩm không tồn tại</span>`;
+            idDisplay.innerHTML = `<span class="text-red-500 text-2xl">Sản phẩm không tồn tại</span>`;
             loadingStatus.classList.add('hidden');
             return;
         }
@@ -180,9 +230,8 @@ async function loadProduct() {
         document.getElementById('batchInputCard').classList.remove('hidden');
 
     } catch (e) {
-        console.error(e);
-        idDisplay.innerHTML = `<span class="text-red-500 text-xl sm:text-2xl">Lỗi kết nối mạng Blockchain</span>`;
-        loadingStatus.innerHTML = `<span class="text-red-400">Vui lòng làm mới trang (F5)</span>`;
+        idDisplay.innerHTML = `<span class="text-red-500 text-2xl">Lỗi Blockchain</span>`;
+        loadingStatus.innerHTML = `Vui lòng F5`;
     }
 }
 
@@ -192,93 +241,131 @@ async function verifyBatch() {
 
     const btn = document.getElementById('verifyBtn');
     btn.disabled = true;
-    btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Đang xác thực...`;
+    btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i> Đang đối soát...`;
 
-    const isReal = (input === realBatchID.toUpperCase());
-    document.getElementById('batchInputCard').classList.add('hidden');
-    document.getElementById('resultArea').classList.remove('hidden');
+    setTimeout(() => {
+        const isReal = (input === realBatchID.toUpperCase());
+        document.getElementById('batchInputCard').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
 
-    if (isReal) {
-        document.getElementById('successState').classList.remove('hidden');
-        document.getElementById('fakeState').classList.add('hidden');
-        renderSuccessUI();
-    } else {
-        document.getElementById('fakeState').classList.remove('hidden');
-        document.getElementById('successState').classList.add('hidden');
-        renderFakeUI();
-    }
-    btn.disabled = false;
-    btn.innerHTML = 'XÁC THỰC';
+        if (isReal) {
+            document.getElementById('successState').classList.remove('hidden');
+            renderSuccessUI();
+        } else {
+            document.getElementById('fakeState').classList.remove('hidden');
+            renderFakeUI();
+        }
+        btn.disabled = false;
+        btn.innerHTML = 'XÁC THỰC NGAY';
+    }, 800);
 }
 
 function renderSuccessUI() {
     const content = document.getElementById('successContent');
     const imgUrl = formatUrl(productData.productImageUrl);
     const certUrl = formatUrl(productData.certificationUrl);
-    const manufacturer = journeyData.length > 0 ? journeyData[0] : {};
 
     let journeyHTML = journeyData.map((node, index) => {
         const isLast = index === journeyData.length - 1;
+        const icon = node.role.toLowerCase().includes('nhà sản xuất') ? 'fa-factory' : 
+                     node.role.toLowerCase().includes('vận chuyển') ? 'fa-truck-fast' : 'fa-shop';
+        
         return `
-        <div class="relative ${isLast ? 'bg-emerald-50 p-4 rounded-2xl border border-emerald-100' : 'pl-2'} pb-6 last:pb-0">
-            ${!isLast ? '<div class="absolute left-[11px] top-6 bottom-[-20px] w-0.5 bg-slate-200"></div>' : ''}
-            <div class="absolute -left-[21px] ${isLast ? 'top-5' : 'top-1'} w-3.5 h-3.5 rounded-full ${isLast ? 'bg-emerald-500' : 'bg-slate-300'} border-2 border-white z-10"></div>
-            <div class="text-xs font-bold ${isLast ? 'text-emerald-700' : 'text-slate-800'}">${node.role}</div>
-            <div class="text-[11px] font-semibold text-slate-700 mt-1">${node.name}</div>
-            <div class="text-[10px] text-slate-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i>${node.location}</div>
-            <div class="text-[9px] text-slate-400 mt-2">${new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN')}</div>
+        <div class="relative flex gap-6 pb-10 last:pb-0">
+            ${!isLast ? '<div class="absolute left-[19px] top-10 bottom-0 w-0.5 timeline-line opacity-30"></div>' : ''}
+            <div class="relative z-10 w-10 h-10 rounded-2xl ${isLast ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'} flex items-center justify-center shrink-0 shadow-sm border-2 border-white">
+                <i class="fa-solid ${icon} text-sm"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+                    <h5 class="font-bold text-slate-800">${node.role}</h5>
+                    <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">${new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN')}</span>
+                </div>
+                <div class="bg-white/50 border border-slate-100 p-4 rounded-2xl shadow-sm">
+                    <p class="text-sm font-bold text-emerald-700 mb-1">${node.name}</p>
+                    <p class="text-[11px] text-slate-500 flex items-center gap-1 mb-3">
+                        <i class="fa-solid fa-location-dot"></i> ${node.location}
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Ví Address:</span>
+                        <code class="truncate-address text-slate-600">${truncateAddr(node.wallet)}</code>
+                    </div>
+                </div>
+            </div>
         </div>`;
     }).join('');
 
     content.innerHTML = `
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-                ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-[2rem] shadow-xl aspect-square object-cover border">` : `<div class="aspect-square bg-slate-50 rounded-[2rem] flex items-center justify-center">Không có ảnh</div>`}
-                <div class="mt-6 space-y-3">
-                    ${certUrl ? `<button onclick="window.open('${certUrl}')" class="w-full py-4 bg-indigo-50 text-indigo-700 rounded-2xl font-bold border border-indigo-200">Xem Chứng Nhận</button>` : ''}
-                    <button onclick="showQrModal('${window.location.href}')" class="w-full py-4 bg-white text-slate-700 rounded-2xl font-bold border shadow-sm">Chia sẻ mã QR</button>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-card rounded-[2.5rem] p-4 overflow-hidden">
+                    ${imgUrl ? `<img src="${imgUrl}" class="w-full rounded-[2rem] aspect-square object-cover shadow-inner hover:scale-105 transition-transform duration-700">` : `<div class="aspect-square bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-300">No Image</div>`}
                 </div>
-            </div>
-            <div class="space-y-6">
-                <div class="bg-slate-50 p-6 rounded-3xl">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4">${productData.name}</h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><span class="text-[10px] font-bold text-slate-400 uppercase">Mã lô</span><p class="font-mono font-bold">${productData.batchID}</p></div>
-                        <div><span class="text-[10px] font-bold text-slate-400 uppercase">Ngày SX</span><p class="font-bold">${productData.manufactureDate}</p></div>
+                <div class="glass-card rounded-[2.5rem] p-8">
+                    <h4 class="text-2xl font-black text-slate-800 mb-4 tracking-tight">${productData.name}</h4>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Mã lô sản phẩm</span>
+                            <span class="font-mono font-black text-emerald-600">${productData.batchID}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Ngày sản xuất</span>
+                            <span class="font-bold text-slate-700">${productData.manufactureDate}</span>
+                        </div>
+                    </div>
+                    <div class="mt-8 space-y-3">
+                        ${certUrl ? `<button onclick="window.open('${certUrl}')" class="w-full py-4 bg-emerald-50 text-emerald-700 rounded-2xl font-extrabold text-sm border border-emerald-100 hover:bg-emerald-100 transition-colors">XEM CHỨNG NHẬN GỐC</button>` : ''}
+                        <button onclick="showQrModal('${window.location.href}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-slate-200">CHIA SẺ MÃ TRUY XUẤT</button>
                     </div>
                 </div>
-                <div class="bg-white rounded-3xl p-6 border shadow-sm">
-                    <div class="text-slate-800 text-xs font-bold mb-5 flex items-center gap-2 uppercase"><i class="fa-solid fa-route text-emerald-500"></i> Hành trình sản phẩm</div>
-                    <div class="pl-4 space-y-0">${journeyHTML}</div>
+            </div>
+
+            <div class="lg:col-span-7">
+                <div class="glass-card rounded-[2.5rem] p-8 sm:p-10 h-full">
+                    <div class="flex items-center gap-3 mb-10">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-slate-800 tracking-tight">Hành trình Blockchain</h4>
+                    </div>
+                    <div class="pl-2">${journeyHTML}</div>
                 </div>
             </div>
         </div>`;
 }
 
 function renderFakeUI() {
-    document.getElementById('productImageFake').src = formatUrl(productData.productImageUrl) || 'https://placehold.co/600x600?text=No+Image';
+    document.getElementById('productImageFake').src = formatUrl(productData.productImageUrl) || 'https://placehold.co/600x600?text=Error';
     document.getElementById('productNameFake').textContent = productData.name;
     document.getElementById('manufactureDateFake').textContent = productData.manufactureDate;
-    document.getElementById('manufacturerFake').textContent = journeyData.length > 0 ? journeyData[0].name : 'N/A';
+    document.getElementById('manufacturerFake').textContent = journeyData.length > 0 ? journeyData[0].name : 'Không xác định';
 }
 
 function showQrModal(url) {
     const modalHTML = `
-        <div onclick="this.remove()" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-            <div class="bg-white rounded-[2rem] p-10 text-center max-w-sm w-full">
-                <h3 class="text-xl font-bold mb-6">Mã QR Sản Phẩm</h3>
-                <canvas id="modalQrCanvas" class="mx-auto"></canvas>
-                <button class="mt-8 w-full py-4 bg-slate-900 text-white rounded-2xl font-bold">Đóng</button>
+        <div id="qrModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center z-[9999] p-4" onclick="this.remove()">
+            <div class="bg-white rounded-[3rem] p-10 text-center max-w-sm w-full shadow-2xl" onclick="event.stopPropagation()">
+                <div class="mb-6 flex justify-center">
+                    <img src="2.png" class="brand-logo mb-2">
+                </div>
+                <h3 class="text-xl font-bold mb-2">QR Code Sản Phẩm</h3>
+                <p class="text-slate-400 text-xs mb-6">Quét mã để truy xuất nguồn gốc tức thì</p>
+                <div class="bg-slate-50 p-6 rounded-3xl inline-block">
+                    <canvas id="modalQrCanvas" class="mx-auto"></canvas>
+                </div>
+                <button onclick="document.getElementById('qrModal').remove()" class="mt-8 w-full py-4 bg-slate-100 text-slate-800 rounded-2xl font-bold hover:bg-slate-200 transition-colors">Đóng cửa sổ</button>
             </div>
         </div>`;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    setTimeout(() => QRCode.toCanvas(document.getElementById('modalQrCanvas'), url, { width: 200 }), 50);
+    setTimeout(() => QRCode.toCanvas(document.getElementById('modalQrCanvas'), url, { width: 220, margin: 1, color: { dark: '#0f172a' } }), 50);
 }
 
 function resetVerify() {
     document.getElementById('batchInputCard').classList.remove('hidden');
     document.getElementById('resultArea').classList.add('hidden');
     document.getElementById('batchInput').value = '';
+    document.getElementById('successState').classList.add('hidden');
+    document.getElementById('fakeState').classList.add('hidden');
 }
 
 window.onload = loadProduct;
