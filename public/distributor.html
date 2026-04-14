@@ -172,13 +172,33 @@
             #main-scroll-area {
                 padding: 20px 20px 280px 20px !important;
             }
-            #transfer-ownership input {
-                padding: 16px 20px !important;
-                font-size: 16px !important;
-                min-height: 56px !important;
-                border-radius: 9999px !important;
+
+            /* Tối ưu Form nhập liệu cho Mobile */
+            #transfer-ownership .glass {
+                padding: 1.5rem !important;
+                border-radius: 2rem !important;
             }
-            /* Cập nhật Padding cho Sidebar chi tiết trên Mobile */
+            #transfer-ownership h3 {
+                font-size: 1.5rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            #transfer-ownership input {
+                padding: 12px 20px !important;
+                font-size: 14px !important;
+                min-height: 48px !important;
+                border-radius: 1.25rem !important;
+            }
+            #transfer-ownership label {
+                font-size: 10px !important;
+                margin-bottom: 4px !important;
+            }
+            #transfer-ownership button {
+                padding: 1rem !important;
+                font-size: 1.1rem !important;
+                border-radius: 1.5rem !important;
+                margin-top: 0.5rem !important;
+            }
+            
             #productDetailSidebar {
                 width: 100% !important;
             }
@@ -367,7 +387,6 @@
     </div>
 
 <script>
-// Cập nhật Contract Address và ABI
 const contractAddress = "0x5fb38a482899ee0C716996872A0b7DD95038B98a";
 const abi = [
 	{
@@ -512,47 +531,38 @@ function showToast(message, type = 'success') {
     modal.classList.add('active');
 }
 
-// HÀM KHỞI TẠO APP (Mới)
 async function initApp() {
     try {
-        web3 = new Web3(window.ethereum);
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        account = accounts[0];
-        
-        if(document.getElementById('accountDisplay')) {
-            document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
+        if (window.ethereum) {
+            web3 = new Web3(window.ethereum);
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            account = accounts[0];
+            
+            if(document.getElementById('accountDisplay')) {
+                document.getElementById('accountDisplay').innerText = account.slice(0,6) + "..." + account.slice(-4);
+            }
+            
+            contract = new web3.eth.Contract(abi, contractAddress);
+            await switchToSepolia();
+            
+            document.getElementById('btnActivity').classList.add('active'); 
+            loadProducts();
+            return true;
         }
-        
-        contract = new web3.eth.Contract(abi, contractAddress);
-        await switchToSepolia();
-        
-        document.getElementById('btnActivity').classList.add('active'); 
-        loadProducts();
+        return false;
     } catch (error) {
         console.error("Lỗi kết nối ví:", error);
         showToast("Lỗi kết nối hoặc người dùng từ chối ví!", "error");
+        return false;
     }
 }
 
-// XỬ LÝ LOAD TRANG VÀ MOBILE DEEP LINK (Mới)
 window.addEventListener("load", async () => {
     if (window.ethereum) {
         await initApp();
-    } else {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile) {
-            showToast("Đang kết nối mở ứng dụng MetaMask...", "success");
-            setTimeout(() => {
-                const dappUrl = window.location.href.replace(/^https?:\/\//, '');
-                window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
-            }, 1500);
-        } else {
-            showToast("Vui lòng cài đặt ví MetaMask trên trình duyệt!", "error");
-        }
     }
 });
 
-// HÀM CHUYỂN MẠNG SEPOLIA (Tối ưu)
 async function switchToSepolia() {
     try {
         const chainId = await web3.eth.getChainId();
@@ -600,7 +610,6 @@ async function loadProducts() {
                 const p = await contract.methods.getProductBasicInfo(idStr).call();
                 const isOwned = p.owner.toLowerCase() === account.toLowerCase();
                 
-                // Hiển thị lịch sử hoạt động liên quan
                 if (!isOwned) {
                     activityHtml += `
                         <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
@@ -809,7 +818,27 @@ async function transferOwnership() {
     }
 }
 
-function enterDashboard() {
+// HÀM CHỈNH SỬA: KẾT NỐI METAMASK MOBILE VÀ CHUYỂN TRANG
+async function enterDashboard() {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    // Nếu là thiết bị di động và chưa có ethereum
+    if (isMobile && !window.ethereum) {
+        showToast("Đang kết nối mở ứng dụng MetaMask...", "success");
+        setTimeout(() => {
+            const dappUrl = window.location.href.replace(/^https?:\/\//, '');
+            window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
+        }, 1200);
+        return; 
+    }
+
+    // Nếu đã có MetaMask hoặc trên Desktop, tiến hành kết nối ví
+    const connected = await initApp();
+    if (!connected && !isMobile) {
+        showToast("Vui lòng cài đặt và đăng nhập MetaMask để tiếp tục!", "warning");
+        return;
+    }
+
     const intro = document.getElementById('intro-screen');
     intro.style.opacity = '0';
     setTimeout(() => {
