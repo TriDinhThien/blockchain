@@ -581,7 +581,7 @@ function showToast(message, type = 'success') {
     modal.classList.add('active');
 }
 
-// Bắt đầu phần chỉnh sửa logic kết nối ví di động (Deep Link)
+// Hàm khởi tạo và kết nối ví
 async function initApp() {
     try {
         web3 = new Web3(window.ethereum);
@@ -592,37 +592,13 @@ async function initApp() {
         await switchToSepolia();
         document.getElementById('btnActivity').classList.add('active'); 
         loadProducts();
+        return true;
     } catch (error) {
         console.error(error);
         showToast("Lỗi kết nối hoặc người dùng từ chối ví!", "error");
+        return false;
     }
 }
-
-window.addEventListener("load", async () => {
-    // Nếu có window.ethereum (đang ở PC có cài Metamask hoặc mở trong trình duyệt của Metamask App)
-    if (window.ethereum) {
-        await initApp();
-    } else {
-        // Kiểm tra xem thiết bị có phải là Mobile không
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            // Nếu là thiết bị di động, tự động Deep Link chuyển sang ứng dụng MetaMask
-            showToast("Đang kết nối mở ứng dụng MetaMask...", "success");
-            
-            setTimeout(() => {
-                // Lấy URL hiện tại (loại bỏ http:// hoặc https://)
-                const dappUrl = window.location.href.replace(/^https?:\/\//, '');
-                // Chuyển hướng tới app MetaMask
-                window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
-            }, 1500);
-        } else {
-            // Nếu là PC nhưng chưa cài ext MetaMask
-            showToast("Vui lòng cài đặt tiện ích ví MetaMask trên trình duyệt!", "error");
-        }
-    }
-});
-// Kết thúc phần chỉnh sửa logic kết nối ví
 
 async function switchToSepolia() {
     try {
@@ -865,7 +841,6 @@ async function showProductDetail(idStr) {
                         ${journeyHTML}
                     </div>
                 </div>
-                <!-- Phần nút đã được thiết kế lại: dùng grid để hiển thị song song khi có thể, gọn hơn và không bị che bởi bottom nav trên mobile -->
                 <div class="grid grid-cols-1 ${certUrl ? 'md:grid-cols-2' : ''} gap-4 pt-6 border-t">
                     ${certUrl ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-indigo-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
                     <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
@@ -925,13 +900,38 @@ async function transferOwnership() {
     }
 }
 
-function enterDashboard() {
-    const intro = document.getElementById('intro-screen');
-    intro.style.opacity = '0';
-    setTimeout(() => {
-        intro.style.display = 'none';
-        document.getElementById('dashboard-content').classList.add('flex');
-    }, 800);
+// Logic kết nối ví và xử lý hiển thị / Deep Link tích hợp vào nút nhấn
+async function enterDashboard() {
+    if (window.ethereum) {
+        // Có ví MetaMask trên trình duyệt PC hoặc trong MetaMask in-app browser
+        const success = await initApp();
+        if (success) {
+            const intro = document.getElementById('intro-screen');
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+                document.getElementById('dashboard-content').classList.add('flex');
+            }, 800);
+        }
+    } else {
+        // Kiểm tra xem thiết bị có phải là Mobile không
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Nếu là thiết bị di động, tự động Deep Link chuyển sang ứng dụng MetaMask
+            showToast("Đang kết nối mở ứng dụng MetaMask...", "success");
+            
+            setTimeout(() => {
+                // Lấy URL hiện tại (loại bỏ http:// hoặc https://)
+                const dappUrl = window.location.href.replace(/^https?:\/\//, '');
+                // Chuyển hướng tới app MetaMask
+                window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
+            }, 1500);
+        } else {
+            // Nếu là PC nhưng chưa cài ext MetaMask
+            showToast("Vui lòng cài đặt tiện ích ví MetaMask trên trình duyệt!", "error");
+        }
+    }
 }
 
 function showFunctionInfo(type) {
