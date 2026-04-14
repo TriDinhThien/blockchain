@@ -521,28 +521,53 @@ function closeErrorModal() {
     document.getElementById('errorModal').classList.remove('active');
 }
 
-window.addEventListener("load", async () => {
+// Logic kết nối ví được chuyển vào hàm gọi nút nhấn
+async function enterDashboard() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         try {
+            // Yêu cầu người dùng kết nối MetaMask
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             account = accounts[0]?.toLowerCase();
+            
             if (!account) {
                 showError('Lỗi ví', 'Không thể đọc địa chỉ ví từ MetaMask. Vui lòng kiểm tra lại kết nối ví.');
                 return;
             }
+            
             document.getElementById('walletAddr').innerText = account.slice(0,6) + "..." + account.slice(-4);
             contract = new web3.eth.Contract(abi, contractAddress);
             await switchToSepolia();
+            
+            // Xử lý chuyển giao diện sau khi kết nối thành công
+            const intro = document.getElementById('intro-screen');
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+                document.getElementById('dashboard-content').classList.remove('hidden');
+            }, 800);
+
+            // Bắt đầu tải dữ liệu
             loadProducts();
+            
         } catch (err) {
             console.error("User denied account access", err);
             showError('Lỗi kết nối ví', 'Bạn chưa cấp quyền kết nối MetaMask hoặc phiên làm việc đã bị từ chối.');
         }
     } else {
-        showError('Thiếu MetaMask', 'Vui lòng cài đặt ví MetaMask trên trình duyệt của bạn.');
+        // Kiểm tra xem người dùng có đang dùng thiết bị di động không
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Nếu là thiết bị di động, tự động deep link mở ứng dụng MetaMask
+            const dappUrl = window.location.href.replace(/^https?:\/\//, '');
+            window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
+        } else {
+            // Hiển thị lỗi thông thường trên PC
+            showError('Thiếu MetaMask', 'Vui lòng cài đặt tiện ích ví MetaMask trên trình duyệt của bạn để tiếp tục.');
+        }
     }
-});
+}
 
 async function switchToSepolia() {
     try {
@@ -669,7 +694,6 @@ async function showProductDetail(idStr) {
                     </div>
                 </div>
 
-                <!-- Phần nút đã được thiết kế lại: grid responsive, gọn gàng và không bị che bởi bottom nav trên mobile -->
                 <div class="grid grid-cols-1 ${certUrl && !certUrl.includes('placehold') ? 'md:grid-cols-2' : ''} gap-4 pt-6 border-t border-pink-50">
                     ${certUrl && !certUrl.includes('placehold') ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-violet-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
                     <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-pink-50 border border-pink-200 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
@@ -759,15 +783,6 @@ function startScanner() {
 
 function stopScanner() {
     if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop();
-}
-
-function enterDashboard() {
-    const intro = document.getElementById('intro-screen');
-    intro.style.opacity = '0';
-    setTimeout(() => {
-        intro.style.display = 'none';
-        document.getElementById('dashboard-content').classList.remove('hidden');
-    }, 800);
 }
 
 function showFunctionInfo(type) {
