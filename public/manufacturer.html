@@ -175,7 +175,9 @@
             }
             #create-product input,
             #create-product textarea,
-            #transfer-ownership input {
+            #transfer-ownership input,
+            #transferDetailsModal input,
+            #transferDetailsModal select {
                 padding: 12px 18px !important;
                 font-size: 15px !important;
                 min-height: 50px !important;
@@ -185,19 +187,18 @@
                 min-height: 50px !important;
                 padding: 12px 18px !important;
             }
-            /* Giảm kích thước form trên mobile cho phần Đăng ký & Chuyển giao */
             #create-product .p-10 {
                 padding: 24px !important;
             }
             #transfer-ownership .glass {
                 padding: 24px !important;
             }
-            #transfer-ownership button {
+            #transfer-ownership button,
+            #transferDetailsModal button {
                 padding-top: 20px !important;
                 padding-bottom: 20px !important;
                 font-size: 1.125rem !important;
             }
-            /* Chỉ chỉnh sửa phần này để nút chi tiết sản phẩm không bị che bởi bottom nav trên mobile */
             #sidebarContent {
                 padding-bottom: 120px !important;
             }
@@ -365,11 +366,8 @@
                         <h3 class="text-3xl font-bold text-slate-800 mb-8 flex items-center gap-4"><i class="fa-solid fa-truck-moving text-emerald-500"></i> Bàn giao sản phẩm</h3>
                         <div class="space-y-4 md:space-y-6">
                             <div><label class="block text-xs font-bold text-slate-400 uppercase mb-2">ID sản phẩm (6 ký tự)</label><input id="transferId" type="text" placeholder="Ví dụ: A1B2C3" maxlength="6" class="w-full px-5 py-4 md:px-8 md:py-5 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400 uppercase"></div>
-                            <div><label class="block text-xs font-bold text-slate-400 uppercase mb-2">Địa chỉ ví người nhận (Đại lý/NPP)</label><input id="newOwner" type="text" placeholder="0x..." class="w-full px-5 py-4 md:px-8 md:py-5 rounded-3xl border border-slate-200 bg-white/70 font-mono text-sm outline-none focus:ring-2 focus:ring-emerald-400"></div>
-                            <div><label class="block text-xs font-bold text-slate-400 uppercase mb-2">Vai trò người nhận</label><input id="newRole" type="text" placeholder="Ví dụ: Nhà phân phối Cấp 1" class="w-full px-5 py-4 md:px-8 md:py-5 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400"></div>
-                            <div><label class="block text-xs font-bold text-slate-400 uppercase mb-2">Tên công ty / Người nhận</label><input id="newName" type="text" placeholder="Ví dụ: Công ty TNHH XYZ" class="w-full px-5 py-4 md:px-8 md:py-5 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400"></div>
-                            <div><label class="block text-xs font-bold text-slate-400 uppercase mb-2">Địa chỉ vật lý</label><input id="newLocation" type="text" placeholder="Ví dụ: 123 Nguyễn Văn Linh, HCM" class="w-full px-5 py-4 md:px-8 md:py-5 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400"></div>
-                            <button onclick="transferOwnership()" class="w-full bg-gradient-to-r from-slate-900 to-emerald-700 hover:from-black hover:to-emerald-800 text-white font-bold py-5 md:py-7 rounded-3xl shadow-2xl transition-all text-lg md:text-xl mt-4">Xác nhận chuyển giao</button>
+                            <div><label class="block text-xs font-bold text-slate-400 uppercase mb-2">Địa chỉ ví người nhận</label><input id="newOwner" type="text" placeholder="0x..." class="w-full px-5 py-4 md:px-8 md:py-5 rounded-3xl border border-slate-200 bg-white/70 font-mono text-sm outline-none focus:ring-2 focus:ring-emerald-400"></div>
+                            <button onclick="verifyTransferData()" class="w-full bg-gradient-to-r from-slate-900 to-emerald-700 hover:from-black hover:to-emerald-800 text-white font-bold py-5 md:py-7 rounded-3xl shadow-2xl transition-all text-lg md:text-xl mt-4">Kiểm tra & Tiếp tục</button>
                         </div>
                     </div>
                 </div>
@@ -398,6 +396,7 @@
             </div>
             <div id="sidebarContent" class="flex-1 overflow-y-auto p-6 space-y-8"></div>
         </div>
+        
         <div id="certModal" class="modal" onclick="if(event.target.id==='certModal')this.classList.remove('active')">
             <div class="modal-content relative max-w-4xl">
                 <img id="modalCertImg" src="" class="max-w-full block rounded-3xl">
@@ -406,6 +405,7 @@
                 </button>
             </div>
         </div>
+        
         <div id="qrModal" class="modal" onclick="if(event.target.id==='qrModal')this.classList.remove('active')">
             <div class="modal-content p-10 text-center bg-white rounded-3xl max-w-md" onclick="event.stopPropagation()">
                 <h3 class="text-2xl font-bold mb-6 text-slate-800">Mã QR Truy xuất</h3>
@@ -413,6 +413,7 @@
                 <p class="mt-8 text-xs text-slate-400">Quét mã này để xem thông tin trên trang Verify</p>
             </div>
         </div>
+        
         <div id="functionModal" class="modal" onclick="if(event.target.id==='functionModal')this.classList.remove('active')">
             <div class="modal-content w-full max-w-lg mx-4 bg-white rounded-3xl p-8" onclick="event.stopPropagation()">
                 <div class="flex justify-between items-start mb-6">
@@ -422,6 +423,41 @@
                 <div id="functionDesc" class="text-slate-600 leading-relaxed"></div>
                 <div class="mt-8 flex justify-end">
                     <button onclick="document.getElementById('functionModal').classList.remove('active')" class="px-8 py-3 bg-emerald-600 text-white rounded-3xl font-medium">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="transferDetailsModal" class="modal" style="z-index: 10004;" onclick="if(event.target.id==='transferDetailsModal')this.classList.remove('active')">
+            <div class="modal-content w-full max-w-md mx-4 bg-white rounded-[2rem] p-8 shadow-2xl border border-slate-100" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-start mb-6">
+                    <h3 class="text-2xl font-bold text-slate-800">Thông tin nhận</h3>
+                    <button onclick="document.getElementById('transferDetailsModal').classList.remove('active')" class="text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                </div>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Vai trò người nhận</label>
+                        <select id="newRole" class="w-full px-5 py-4 md:px-6 md:py-4 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400 text-slate-700 cursor-pointer">
+                            <option value="" disabled selected>Chọn vai trò...</option>
+                            <option value="Nhà phân phối">Nhà phân phối</option>
+                            <option value="Nhà bán lẻ">Nhà bán lẻ</option>
+                            <option value="Đại lý cấp 1">Đại lý cấp 1</option>
+                            <option value="Đại lý cấp 2">Đại lý cấp 2</option>
+                            <option value="Khách hàng">Khách hàng</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tên công ty / Người nhận</label>
+                        <input id="newName" type="text" placeholder="Ví dụ: Công ty TNHH XYZ" class="w-full px-5 py-4 md:px-6 md:py-4 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Địa chỉ vật lý</label>
+                        <input id="newLocation" type="text" placeholder="Ví dụ: 123 Nguyễn Văn Linh, HCM" class="w-full px-5 py-4 md:px-6 md:py-4 rounded-3xl border border-slate-200 bg-white/70 outline-none focus:ring-2 focus:ring-emerald-400">
+                    </div>
+                    
+                    <button onclick="executeTransfer()" id="btnConfirmTransfer" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold py-4 rounded-2xl shadow-xl transition-all text-lg mt-4">
+                        Xác nhận chuyển giao
+                    </button>
                 </div>
             </div>
         </div>
@@ -437,7 +473,6 @@
     </div>
 
 <script>
-// Cập nhật Contract Address và ABI mới
 const contractAddress = "0x5fb38a482899ee0C716996872A0b7DD95038B98a";
 const abi = [
 	{
@@ -649,7 +684,7 @@ async function createProduct() {
     btn.disabled = true;
     btn.innerHTML = '<div class="loading-spinner inline-block mr-2"></div> Đang xử lý...';
     try {
-        const randomId = generateRandomID(); // Tự sinh mã 6 ký tự cho Frontend
+        const randomId = generateRandomID(); 
         const name = document.getElementById("name").value.trim();
         const batchID = document.getElementById("batchID").value.trim();
         const manufactureDate = document.getElementById("manufactureDate").value;
@@ -672,6 +707,13 @@ async function createProduct() {
         
         showToast(`Sản phẩm đã được tạo thành công! ID: ${randomId}`, "success");
         
+        // Reset form sau khi đăng ký
+        document.getElementById("name").value = "";
+        document.getElementById("batchID").value = "";
+        document.getElementById("ingredients").value = "";
+        document.getElementById("productImage").value = "";
+        document.getElementById("certification").value = "";
+
         loadProducts();
         showTab('list-products');
     } catch (err) {
@@ -693,7 +735,6 @@ async function loadProducts() {
             let activityHtml = '<div class="col-span-full max-w-4xl mx-auto w-full space-y-4">';
             let hasActivity = false;
 
-            // allProductIds là mảng 0-indexed, lặp từ count-1 về 0 để lấy mới nhất
             for (let i = count - 1; i >= 0; i--) {
                 const idStr = await contract.methods.allProductIds(i).call();
                 const p = await contract.methods.getProductBasicInfo(idStr).call();
@@ -742,7 +783,6 @@ async function loadProducts() {
         for (let i = count - 1; i >= 0; i--) {
             const idStr = await contract.methods.allProductIds(i).call();
             const p = await contract.methods.getProductBasicInfo(idStr).call();
-            // Lấy thông tin journey để lấy manufacturerName từ node đầu tiên
             const journey = await contract.methods.getProductJourney(idStr).call();
             const manufacturerName = journey.length > 0 ? journey[0].name : "N/A";
 
@@ -866,44 +906,86 @@ function showQrModal(url) {
     QRCode.toCanvas(canvas, url, { width: 250, margin: 2 }, (err) => { if (!err) modal.classList.add('active'); });
 }
 
-async function transferOwnership() {
+// BƯỚC 1: XÁC THỰC THÔNG TIN TRƯỚC KHI MỞ POPUP CHI TIẾT
+async function verifyTransferData() {
     const id = document.getElementById("transferId").value.trim().toUpperCase();
     const newOwner = document.getElementById("newOwner").value.trim();
-    const newRole = document.getElementById("newRole").value.trim();
-    const newName = document.getElementById("newName").value.trim();
-    const newLocation = document.getElementById("newLocation").value.trim();
     
-    if (!id || !newOwner || !newRole || !newName || !newLocation) {
-        return showToast("Vui lòng điền đầy đủ các trường thông tin!", "warning");
+    if (!id || !newOwner) {
+        return showToast("Vui lòng nhập ID sản phẩm và Địa chỉ ví người nhận!", "warning");
+    }
+
+    if (!web3 || !web3.utils) {
+         return showToast("Ví chưa được kết nối!", "error");
     }
 
     if (!web3.utils.isAddress(newOwner)) {
-        return showToast("Địa chỉ ví không hợp lệ! Hãy kiểm tra lại địa chỉ ví của đại lý.", "error");
+        return showToast("Địa chỉ ví không hợp lệ! Hãy kiểm tra lại địa chỉ ví của người nhận.", "error");
     }
 
     try {
+        // Kiểm tra ID sản phẩm có tồn tại không
         const exists = await contract.methods.productExists(id).call();
         if (!exists) {
             return showToast("ID Sản phẩm không tồn tại trong hệ thống!", "error");
         }
 
+        // Kiểm tra người đang thao tác có phải là chủ sở hữu hiện tại hay không
         const p = await contract.methods.getProductBasicInfo(id).call();
         if (p.owner.toLowerCase() !== account.toLowerCase()) {
             return showToast("Thao tác bị từ chối: Bạn không phải là chủ sở hữu của sản phẩm này!", "error");
         }
 
-        await contract.methods.transferOwnership(id, newOwner, newRole, newName, newLocation).send({ from: account });
-        showToast("Chuyển giao quyền sở hữu thành công!", "success");
-        loadProducts();
+        // Nếu mọi thông tin hợp lệ, mở modal để nhập các thông tin còn lại
+        document.getElementById('transferDetailsModal').classList.add('active');
     } catch (err) {
-        showToast(err.message, "error");
+        showToast("Lỗi kiểm tra thông tin: " + err.message, "error");
     }
 }
 
-// Logic kết nối ví và xử lý hiển thị / Deep Link tích hợp vào nút nhấn
+// BƯỚC 2: THỰC HIỆN LỆNH GIAO DỊCH BLOCKCHAIN
+async function executeTransfer() {
+    const id = document.getElementById("transferId").value.trim().toUpperCase();
+    const newOwner = document.getElementById("newOwner").value.trim();
+    const newRole = document.getElementById("newRole").value;
+    const newName = document.getElementById("newName").value.trim();
+    const newLocation = document.getElementById("newLocation").value.trim();
+    
+    if (!newRole || !newName || !newLocation) {
+        return showToast("Vui lòng điền đầy đủ các thông tin còn thiếu!", "warning");
+    }
+
+    const btn = document.getElementById('btnConfirmTransfer');
+    const originalBtnText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="loading-spinner inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div> Đang xử lý...';
+
+    try {
+        await contract.methods.transferOwnership(id, newOwner, newRole, newName, newLocation).send({ from: account });
+        
+        // Đóng popup thông tin sau khi giao dịch thành công
+        document.getElementById('transferDetailsModal').classList.remove('active');
+        
+        // Xoá các input
+        document.getElementById("transferId").value = "";
+        document.getElementById("newOwner").value = "";
+        document.getElementById("newRole").value = "";
+        document.getElementById("newName").value = "";
+        document.getElementById("newLocation").value = "";
+
+        showToast("Chuyển giao quyền sở hữu thành công!", "success");
+        loadProducts();
+        showTab('list-products');
+    } catch (err) {
+        showToast(err.message, "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+    }
+}
+
 async function enterDashboard() {
     if (window.ethereum) {
-        // Có ví MetaMask trên trình duyệt PC hoặc trong MetaMask in-app browser
         const success = await initApp();
         if (success) {
             const intro = document.getElementById('intro-screen');
@@ -914,21 +996,16 @@ async function enterDashboard() {
             }, 800);
         }
     } else {
-        // Kiểm tra xem thiết bị có phải là Mobile không
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
         if (isMobile) {
-            // Nếu là thiết bị di động, tự động Deep Link chuyển sang ứng dụng MetaMask
             showToast("Đang kết nối mở ứng dụng MetaMask...", "success");
             
             setTimeout(() => {
-                // Lấy URL hiện tại (loại bỏ http:// hoặc https://)
                 const dappUrl = window.location.href.replace(/^https?:\/\//, '');
-                // Chuyển hướng tới app MetaMask
                 window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
             }, 1500);
         } else {
-            // Nếu là PC nhưng chưa cài ext MetaMask
             showToast("Vui lòng cài đặt tiện ích ví MetaMask trên trình duyệt!", "error");
         }
     }
