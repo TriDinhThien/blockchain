@@ -466,7 +466,7 @@
             <div class="modal-content w-full max-w-sm mx-4 bg-white rounded-[2rem] p-8 text-center shadow-2xl border border-slate-100 transform transition-all" onclick="event.stopPropagation()">
                 <div id="alertIcon" class="mb-4 text-6xl"></div>
                 <h3 id="alertTitle" class="text-2xl font-bold text-slate-800 mb-3"></h3>
-                <p id="alertMessage" class="text-slate-500 mb-8 leading-relaxed text-sm break-words"></p>
+                <div id="alertMessage" class="text-slate-500 mb-8 leading-relaxed text-sm break-words"></div>
                 <button onclick="document.getElementById('alertModal').classList.remove('active')" id="alertBtn" class="w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5"></button>
             </div>
         </div>
@@ -614,6 +614,23 @@ function showToast(message, type = 'success') {
     }
 
     modal.classList.add('active');
+}
+
+// Hàm hiển thị chi tiết khi bấm nút (i)
+function showNodeDetails(wallet, time) {
+    showToast(`
+        <div class="text-left space-y-3 mt-4">
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider mb-1">Địa chỉ ví Metamask</span>
+                <span class="text-[11px] font-mono text-slate-600 break-all leading-relaxed">${wallet}</span>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider mb-1">Thời gian giao dịch</span>
+                <span class="text-[12px] text-slate-700 font-medium">${time}</span>
+            </div>
+        </div>
+    `, 'success');
+    document.getElementById('alertTitle').innerText = 'Chi tiết giao dịch';
 }
 
 // Hàm khởi tạo và kết nối ví
@@ -848,15 +865,23 @@ async function showProductDetail(idStr) {
         let journeyHTML = journey.map((node, index) => {
             let dotColor = index === 0 ? 'bg-sky-500 shadow-sm ring-2 ring-sky-100' : (index === journey.length - 1 ? 'bg-orange-500 shadow-sm' : 'bg-slate-300');
             let isLast = index === journey.length - 1;
-            let wrapperClass = isLast ? 'relative bg-orange-50 p-3 rounded-xl border border-orange-100' : 'relative';
+            let wrapperClass = isLast ? 'relative bg-orange-50 p-4 rounded-3xl border border-orange-100 shadow-sm' : 'relative pl-2';
+            const timeStr = new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN');
             
             return `
             <div class="${wrapperClass}">
-                <div class="absolute -left-[21px] ${isLast ? 'top-4' : 'top-1'} w-3 h-3 rounded-full ${dotColor} border-2 border-white"></div>
-                <div class="text-xs font-bold ${isLast ? 'text-orange-600 uppercase' : 'text-slate-800'}">${node.role}</div>
-                <div class="text-[10px] font-mono text-slate-500 mt-0.5 truncate">${node.name}</div>
-                <div class="text-[9px] text-slate-500 mt-0.5 break-all"><i class="fa-solid fa-wallet mr-1"></i>Ví: ${node.wallet}</div>
-                <div class="text-[9px] text-slate-400 mt-0.5"><i class="fa-regular fa-clock mr-1"></i>${new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN')}</div>
+                <div class="absolute -left-[21px] ${isLast ? 'top-6' : 'top-1'} w-3 h-3 rounded-full ${dotColor} border-2 border-white"></div>
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1">
+                        <div class="text-xs font-bold ${isLast ? 'text-orange-600 uppercase' : 'text-slate-800'}">${node.role}</div>
+                        <div class="text-[11px] font-semibold text-slate-700 mt-0.5">${node.name}</div>
+                        <div class="text-[10px] text-slate-500 mt-1 flex items-center gap-1"><i class="fa-solid fa-location-dot text-emerald-500"></i> ${node.location || 'N/A'}</div>
+                        ${isLast ? `<div class="mt-2 p-2 bg-white/60 rounded-xl border border-orange-100 text-[9px] font-mono text-slate-500 break-all"><i class="fa-solid fa-wallet mr-1 text-orange-400"></i>${node.wallet}</div>` : ''}
+                    </div>
+                    <button onclick="showNodeDetails('${node.wallet}', '${timeStr}')" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-sky-100 hover:text-sky-600 transition-all shrink-0">
+                        <i class="fa-solid fa-circle-info text-sm"></i>
+                    </button>
+                </div>
             </div>`;
         }).join('');
 
