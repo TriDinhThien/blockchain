@@ -217,7 +217,6 @@
             #reader {
                 height: 300px !important;
             }
-            /* Chỉnh sửa phần này để nút chi tiết sản phẩm không bị che bởi bottom nav trên mobile */
             #sidebarContent {
                 padding-bottom: 140px !important;
             }
@@ -305,7 +304,7 @@
                    
                     <div id="verify-trace" class="tab-content">
                         <div class="max-w-xl mx-auto glass p-8 rounded-[2.75rem] shadow-2xl border border-white/60">
-                            <div id="reader" class="rounded-3xl overflow-hidden border-4 border-white shadow-inner bg-slate-900 h-[380px] w-full"></div>
+                            <div id="reader" class="rounded-3xl overflow-hidden border-4 border-white shadow-inner bg-slate-900 h-[380px] w-full flex items-center justify-center"></div>
                             <p class="text-center text-slate-400 text-sm mt-6 font-medium">Đưa mã QR vào khung hình để kiểm tra tính minh bạch</p>
                         </div>
                     </div>
@@ -391,7 +390,6 @@
     </div>
 
 <script>
-// CẬP NHẬT CONTRACT MỚI & ABI
 const contractAddress = "0x5fb38a482899ee0C716996872A0b7DD95038B98a";
 const abi = [
 	{
@@ -521,12 +519,10 @@ function closeErrorModal() {
     document.getElementById('errorModal').classList.remove('active');
 }
 
-// Logic kết nối ví được chuyển vào hàm gọi nút nhấn
 async function enterDashboard() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         try {
-            // Yêu cầu người dùng kết nối MetaMask
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             account = accounts[0]?.toLowerCase();
             
@@ -539,7 +535,6 @@ async function enterDashboard() {
             contract = new web3.eth.Contract(abi, contractAddress);
             await switchToSepolia();
             
-            // Xử lý chuyển giao diện sau khi kết nối thành công
             const intro = document.getElementById('intro-screen');
             intro.style.opacity = '0';
             setTimeout(() => {
@@ -547,7 +542,6 @@ async function enterDashboard() {
                 document.getElementById('dashboard-content').classList.remove('hidden');
             }, 800);
 
-            // Bắt đầu tải dữ liệu
             loadProducts();
             
         } catch (err) {
@@ -555,15 +549,22 @@ async function enterDashboard() {
             showError('Lỗi kết nối ví', 'Bạn chưa cấp quyền kết nối MetaMask hoặc phiên làm việc đã bị từ chối.');
         }
     } else {
-        // Kiểm tra xem người dùng có đang dùng thiết bị di động không
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
         if (isMobile) {
-            // Nếu là thiết bị di động, tự động deep link mở ứng dụng MetaMask
-            const dappUrl = window.location.href.replace(/^https?:\/\//, '');
-            window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
+            // Tối ưu UX trên Mobile: Thêm thông báo chuyển giao diện để người dùng biết
+            document.querySelector('.intro-content').innerHTML = `
+                <div class="text-white text-center">
+                    <i class="fa-solid fa-spinner fa-spin text-5xl mb-6 text-pink-400"></i>
+                    <h2 class="text-2xl font-bold mb-2">Đang mở MetaMask...</h2>
+                    <p class="text-pink-100">Vui lòng thao tác bên trong ứng dụng ví.</p>
+                </div>`;
+            
+            setTimeout(() => {
+                const dappUrl = window.location.href.replace(/^https?:\/\//, '');
+                window.location.href = "https://metamask.app.link/dapp/" + dappUrl;
+            }, 1500);
         } else {
-            // Hiển thị lỗi thông thường trên PC
             showError('Thiếu MetaMask', 'Vui lòng cài đặt tiện ích ví MetaMask trên trình duyệt của bạn để tiếp tục.');
         }
     }
@@ -695,7 +696,7 @@ async function showProductDetail(idStr) {
                 </div>
 
                 <div class="grid grid-cols-1 ${certUrl && !certUrl.includes('placehold') ? 'md:grid-cols-2' : ''} gap-4 pt-6 border-t border-pink-50">
-                    ${certUrl && !certUrl.includes('placehold') ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-violet-200"><i class="fa-solid fa-file-shield"></i> Xem giấy chứng nhận sản phẩm</button>` : ''}
+                    ${certUrl && !certUrl.includes('placehold') ? `<button onclick="openCertModal('${certUrl}')" class="w-full py-4 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-3xl flex items-center justify-center gap-3 text-sm font-bold transition-all border border-violet-200"><i class="fa-solid fa-file-shield"></i> Xem chứng nhận</button>` : ''}
                     <button onclick="showQrModal('${verifyUrl}')" class="w-full py-4 bg-white hover:bg-pink-50 border border-pink-200 rounded-3xl flex items-center justify-center gap-3 text-slate-700 font-semibold transition-all">
                         <i class="fa-solid fa-qrcode text-pink-500"></i> Xem mã QR
                     </button>
@@ -777,7 +778,7 @@ function startScanner() {
         }
     ).catch(err => {
         console.error(err);
-        showError('Không thể bật camera', 'Bạn cần cấp quyền sử dụng camera hoặc thiết bị không hỗ trợ.');
+        showError('Không thể bật camera', 'Bạn cần cấp quyền sử dụng camera hoặc trình duyệt đang chặn truy cập.');
     });
 }
 
@@ -799,7 +800,7 @@ function showFunctionInfo(type) {
     }
     else if (type === 'verify-trace') {
         title = 'Quét mã xác thực';
-        desc = 'Sử dụng camera quét mã QR trên hộp sản phẩm. Hệ thống sẽ trích xuất ID (6 ký tự) và kiểm tra tính chính hãng trực tiếp thông qua Hợp đồng thông minh trên mạng Sepolia.';
+        desc = 'Sử dụng camera quét mã QR trên hộp sản phẩm. Hệ thống sẽ trích xuất ID (6 ký tự) và chuyển bạn đến trang Verify kiểm tra thông tin gốc từ Blockchain.';
     }
    
     titleEl.innerHTML = title;
