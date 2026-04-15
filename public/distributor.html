@@ -564,6 +564,11 @@ function showToast(message, type = 'success') {
         title.innerText = 'Cảnh báo';
         btn.className = 'w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r from-amber-500 to-amber-600';
         btn.innerText = 'Đã hiểu';
+    } else if (type === 'info') {
+        icon.innerHTML = '<i class="fa-solid fa-circle-info text-sky-500 drop-shadow-sm"></i>';
+        title.innerText = 'Thông tin chi tiết';
+        btn.className = 'w-full py-4 rounded-2xl font-bold text-white transition-all text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 bg-gradient-to-r from-sky-500 to-sky-600';
+        btn.innerText = 'Đóng';
     }
 
     modal.classList.add('active');
@@ -754,17 +759,29 @@ async function showProductDetail(idStr) {
             </div>` : '';
             
         let journeyHTML = journey.map((node, index) => {
-            let dotColor = index === 0 ? 'bg-sky-500 shadow-sm ring-2 ring-sky-100' : (index === journey.length - 1 ? 'bg-blue-500 shadow-sm' : 'bg-slate-300');
             let isLast = index === journey.length - 1;
-            let wrapperClass = isLast ? 'relative bg-blue-50 p-3 rounded-xl border border-blue-100' : 'relative';
+            let dotColor = index === 0 ? 'bg-sky-500 shadow-sm ring-2 ring-sky-100' : (isLast ? 'bg-blue-600 shadow-sm' : 'bg-slate-300');
+            let wrapperClass = isLast ? 'relative bg-blue-50 p-4 rounded-2xl border border-blue-100' : 'relative mb-4';
+            
+            // Format time
+            const dateStr = new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN');
             
             return `
             <div class="${wrapperClass}">
-                <div class="absolute -left-[21px] ${isLast ? 'top-4' : 'top-1'} w-3 h-3 rounded-full ${dotColor} border-2 border-white"></div>
-                <div class="text-xs font-bold ${isLast ? 'text-blue-600 uppercase' : 'text-slate-800'}">${node.role}</div>
-                <div class="text-[10px] font-mono text-slate-500 mt-0.5 truncate">${node.name}</div>
-                <div class="text-[9px] text-slate-500 mt-0.5 break-all"><i class="fa-solid fa-wallet mr-1"></i>Ví: ${node.wallet}</div>
-                <div class="text-[9px] text-slate-400 mt-0.5"><i class="fa-regular fa-clock mr-1"></i>${new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN')}</div>
+                <div class="absolute -left-[21px] ${isLast ? 'top-5' : 'top-1'} w-3 h-3 rounded-full ${dotColor} border-2 border-white"></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="text-xs font-bold ${isLast ? 'text-blue-700 uppercase' : 'text-slate-800'}">${node.role}</div>
+                        <div class="text-[12px] font-bold text-slate-900 mt-1">${node.name}</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>${node.location}</div>
+                        ${isLast ? `<div class="text-[9px] font-mono text-blue-600 mt-2 bg-white/80 p-1.5 rounded-lg border border-blue-100 break-all"><i class="fa-solid fa-wallet mr-1"></i>Ví: ${node.wallet}</div>` : ''}
+                    </div>
+                    ${!isLast ? `
+                    <button onclick="showNodeInfo('${node.wallet}', '${dateStr}')" class="w-7 h-7 flex items-center justify-center bg-slate-100 text-slate-500 hover:bg-blue-100 hover:text-blue-600 rounded-full transition-colors">
+                        <i class="fa-solid fa-circle-info text-sm"></i>
+                    </button>` : ''}
+                </div>
+                ${isLast ? `<div class="text-[9px] text-blue-400 mt-2 italic"><i class="fa-regular fa-clock mr-1"></i>Cập nhật: ${dateStr}</div>` : ''}
             </div>`;
         }).join('');
 
@@ -785,7 +802,7 @@ async function showProductDetail(idStr) {
                 ${ingredientsHTML}
                 <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                     <div class="text-slate-500 text-xs font-bold mb-5 flex items-center gap-2 uppercase tracking-wider"><i class="fa-solid fa-route"></i> Hành trình sản phẩm</div>
-                    <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                    <div class="relative pl-6 space-y-2 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
                         ${journeyHTML}
                     </div>
                 </div>
@@ -810,6 +827,22 @@ async function showProductDetail(idStr) {
     }
 }
 
+// Hàm hiển thị thông tin khi bấm vào nút (i)
+function showNodeInfo(wallet, time) {
+    showToast(`
+        <div class="text-left space-y-3">
+            <div>
+                <span class="block text-[10px] font-bold text-slate-400 uppercase">Địa chỉ ví MetaMask:</span>
+                <span class="block text-xs font-mono text-blue-600 bg-blue-50 p-2 rounded-lg border border-blue-100 break-all mt-1">${wallet}</span>
+            </div>
+            <div>
+                <span class="block text-[10px] font-bold text-slate-400 uppercase">Thời gian giao dịch:</span>
+                <span class="block text-xs text-slate-700 mt-1"><i class="fa-regular fa-clock mr-1"></i>${time}</span>
+            </div>
+        </div>
+    `, "info");
+}
+
 function closeSidebar() { document.getElementById('productDetailSidebar').classList.add('translate-x-full'); }
 function openCertModal(url) {
     const modal = document.getElementById('certModal');
@@ -822,7 +855,6 @@ function showQrModal(url) {
     QRCode.toCanvas(canvas, url, { width: 250, margin: 2 }, (err) => { if (!err) modal.classList.add('active'); });
 }
 
-// BƯỚC 1: KIỂM TRA ĐỊA CHỈ VÍ VÀ SẢN PHẨM TRƯỚC
 async function verifyTransferData() {
     const id = document.getElementById("transferId").value.trim().toUpperCase();
     const newOwner = document.getElementById("newOwner").value.trim();
@@ -850,14 +882,12 @@ async function verifyTransferData() {
             return showToast("Thao tác bị từ chối: Bạn không phải là chủ sở hữu của sản phẩm này!", "error");
         }
 
-        // Mở popup điền thông tin chi tiết
         document.getElementById('transferDetailsModal').classList.add('active');
     } catch (err) {
         showToast("Lỗi kiểm tra thông tin: " + err.message, "error");
     }
 }
 
-// BƯỚC 2: THỰC THI GIAO DỊCH BLOCKCHAIN
 async function executeTransfer() {
     const id = document.getElementById("transferId").value.trim().toUpperCase();
     const newOwner = document.getElementById("newOwner").value.trim();
@@ -877,10 +907,8 @@ async function executeTransfer() {
     try {
         await contract.methods.transferOwnership(id, newOwner, newRole, newName, newLocation).send({ from: account });
         
-        // Ẩn popup
         document.getElementById('transferDetailsModal').classList.remove('active');
         
-        // Reset form
         document.getElementById("transferId").value = "";
         document.getElementById("newOwner").value = "";
         document.getElementById("newRole").value = "";
