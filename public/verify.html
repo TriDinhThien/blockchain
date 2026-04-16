@@ -61,6 +61,11 @@
             border: 2px solid #fff;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+
+        /* Custom Scrollbar cho Modal */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #a7f3d0; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen text-slate-900 pb-12">
@@ -159,6 +164,21 @@
         </div>
     </div>
 
+    <div id="functionModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md hidden items-center justify-center z-[10000] p-4" onclick="if(event.target.id==='functionModal') this.classList.add('hidden'); this.classList.remove('flex')">
+        <div class="bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl relative" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-6 border-b border-slate-100 pb-4">
+                <h3 id="functionTitle" class="text-2xl font-bold text-emerald-700"></h3>
+                <button onclick="document.getElementById('functionModal').classList.add('hidden'); document.getElementById('functionModal').classList.remove('flex')" class="text-slate-400 hover:text-red-500 transition-colors bg-slate-50 w-10 h-10 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div id="functionDesc" class="text-slate-600 leading-relaxed custom-scrollbar max-h-[60vh] overflow-y-auto pr-2"></div>
+            <div class="mt-8 flex justify-end">
+                <button onclick="document.getElementById('functionModal').classList.add('hidden'); document.getElementById('functionModal').classList.remove('flex')" class="w-full py-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-2xl font-bold transition-all border border-emerald-200">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+
 <script>
 const contractAddress = "0x5fb38a482899ee0C716996872A0b7DD95038B98a";
 const abi = [
@@ -183,6 +203,15 @@ function formatUrl(url) {
 function truncateAddr(addr) {
     if(!addr) return "N/A";
     return addr.substring(0, 6) + "..." + addr.substring(addr.length - 4);
+}
+
+// Hàm hỗ trợ hiển thị nội dung tùy chỉnh HTML vào Modal Info
+function showCustomDetails(title, encodedHTML) {
+    const modal = document.getElementById('functionModal');
+    document.getElementById('functionTitle').innerText = title;
+    document.getElementById('functionDesc').innerHTML = decodeURIComponent(encodedHTML);
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
 }
 
 async function initWeb3() {
@@ -265,35 +294,128 @@ function renderSuccessUI() {
     const imgUrl = formatUrl(productData.productImageUrl);
     const certUrl = formatUrl(productData.certificationUrl);
 
-    let journeyHTML = journeyData.map((node, index) => {
-        const isLast = index === journeyData.length - 1;
-        const icon = node.role.toLowerCase().includes('nhà sản xuất') ? 'fa-factory' : 
-                     node.role.toLowerCase().includes('vận chuyển') ? 'fa-truck-fast' : 'fa-shop';
+    // Xử lý Hành trình sản phẩm (3 nút)
+    let journeyHTML = '';
+    if (journeyData.length > 0) {
+        const node1 = journeyData[0];
+        const currentOwner = journeyData[journeyData.length - 1];
+        const intermediaries = journeyData.slice(1, journeyData.length - 1);
+
+        const time1 = new Date(Number(node1.timestamp) * 1000).toLocaleString('vi-VN');
+        const timeCurrent = new Date(Number(currentOwner.timestamp) * 1000).toLocaleString('vi-VN');
+        const escapeQuote = (str) => (str || '').replace(/'/g, "\\'");
+
+        // Nút 1: Khởi điểm
+        const details1 = `
+            <div class="text-left space-y-3 mt-2">
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <span class="text-[10px] font-bold text-emerald-600 block uppercase tracking-wider mb-1">Địa chỉ ví</span>
+                    <span class="text-[12px] font-mono text-slate-700 break-all leading-relaxed">${node1.wallet}</span>
+                </div>
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <span class="text-[10px] font-bold text-emerald-600 block uppercase tracking-wider mb-1">Địa chỉ vật lý</span>
+                    <span class="text-[12px] text-slate-700 break-all leading-relaxed">${escapeQuote(node1.location)}</span>
+                </div>
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <span class="text-[10px] font-bold text-emerald-600 block uppercase tracking-wider mb-1">Thời gian tạo</span>
+                    <span class="text-[12px] text-slate-700 font-bold">${time1}</span>
+                </div>
+            </div>
+        `;
         
-        return `
-        <div class="relative flex gap-6 pb-10 last:pb-0">
-            ${!isLast ? '<div class="absolute left-[19px] top-10 bottom-0 w-0.5 timeline-line opacity-30"></div>' : ''}
-            <div class="relative z-10 w-10 h-10 rounded-2xl ${isLast ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'} flex items-center justify-center shrink-0 shadow-sm border-2 border-white">
-                <i class="fa-solid ${icon} text-sm"></i>
+        journeyHTML += `
+        <div class="relative flex gap-6 pb-10">
+            <div class="absolute left-[19px] top-10 bottom-0 w-0.5 timeline-line opacity-30"></div>
+            <div class="relative z-10 w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 border-2 border-white shadow-sm">
+                <i class="fa-solid fa-factory text-sm"></i>
             </div>
             <div class="flex-1">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
-                    <h5 class="font-bold text-slate-800">${node.role}</h5>
-                    <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">${new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN')}</span>
-                </div>
-                <div class="bg-white/50 border border-slate-100 p-4 rounded-2xl shadow-sm">
-                    <p class="text-sm font-bold text-emerald-700 mb-1">${node.name}</p>
-                    <p class="text-[11px] text-slate-500 flex items-center gap-1 mb-3">
-                        <i class="fa-solid fa-location-dot"></i> ${node.location}
-                    </p>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Ví Address:</span>
-                        <code class="truncate-address text-slate-600">${truncateAddr(node.wallet)}</code>
+                <div class="flex items-start justify-between gap-3 bg-white/50 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all hover:bg-white hover:shadow-md">
+                    <div class="flex-1">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Khởi điểm (Nhà sản xuất)</div>
+                        <h5 class="font-bold text-slate-800">${node1.name}</h5>
                     </div>
+                    <button onclick="showCustomDetails('Thông tin Nhà sản xuất', '${encodeURIComponent(details1)}')" class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 flex items-center justify-center transition-all shrink-0">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </button>
                 </div>
             </div>
         </div>`;
-    }).join('');
+
+        // Nút 2: Trung gian
+        let details2 = '<div class="text-left space-y-3 mt-2">';
+        if (intermediaries.length === 0) {
+            details2 += '<div class="text-sm text-slate-500 text-center py-4">Chưa qua điểm trung gian nào</div>';
+        } else {
+            intermediaries.forEach((mid, idx) => {
+                const t = new Date(Number(mid.timestamp) * 1000).toLocaleString('vi-VN');
+                details2 += `
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-3">
+                        <div class="font-bold text-sm text-slate-800 mb-2 text-emerald-700">${idx + 1}. ${escapeQuote(mid.role)} - ${escapeQuote(mid.name)}</div>
+                        <div class="text-[11px] text-slate-600 mt-1 flex items-start gap-2"><i class="fa-solid fa-location-dot mt-0.5 text-slate-400"></i> <span class="flex-1">${escapeQuote(mid.location)}</span></div>
+                        <div class="text-[11px] text-slate-600 mt-1 flex items-center gap-2"><i class="fa-regular fa-clock text-slate-400"></i> ${t}</div>
+                        <div class="text-[10px] font-mono text-slate-500 mt-3 p-2 bg-white rounded-lg border border-slate-100 break-all">${mid.wallet}</div>
+                    </div>
+                `;
+            });
+        }
+        details2 += '</div>';
+
+        journeyHTML += `
+        <div class="relative flex gap-6 pb-10">
+            <div class="absolute left-[19px] top-10 bottom-0 w-0.5 timeline-line opacity-30"></div>
+            <div class="relative z-10 w-10 h-10 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 border-2 border-white shadow-sm">
+                <i class="fa-solid fa-truck-fast text-sm"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-start justify-between gap-3 bg-white/50 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all hover:bg-white hover:shadow-md">
+                    <div class="flex-1">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Đã chuyển giao qua</div>
+                        <h5 class="font-bold text-slate-800">${intermediaries.length} điểm trung gian</h5>
+                    </div>
+                    <button onclick="showCustomDetails('Danh sách Trung gian', '${encodeURIComponent(details2)}')" class="w-8 h-8 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 flex items-center justify-center transition-all shrink-0">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                </div>
+            </div>
+        </div>`;
+
+        // Nút 3: Hiện tại
+        const details3 = `
+            <div class="text-left space-y-3 mt-2">
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <span class="text-[10px] font-bold text-emerald-600 block uppercase tracking-wider mb-1">Địa chỉ vật lý</span>
+                    <span class="text-[12px] text-slate-700 break-all leading-relaxed">${escapeQuote(currentOwner.location)}</span>
+                </div>
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <span class="text-[10px] font-bold text-emerald-600 block uppercase tracking-wider mb-1">Thời gian nhận</span>
+                    <span class="text-[12px] text-slate-700 font-bold">${timeCurrent}</span>
+                </div>
+            </div>
+        `;
+
+        journeyHTML += `
+        <div class="relative flex gap-6 pb-2">
+            <div class="relative z-10 w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm border-2 border-white">
+                <i class="fa-solid fa-shop text-sm"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-start justify-between gap-3 bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl shadow-sm transition-all hover:bg-emerald-50 hover:shadow-md">
+                    <div class="flex-1">
+                        <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Chủ sở hữu hiện tại (${currentOwner.role})</div>
+                        <h5 class="font-bold text-slate-800 mb-2">${currentOwner.name}</h5>
+                        <div class="flex items-center gap-2 bg-white py-1.5 px-3 rounded-xl border border-emerald-100/50 inline-flex">
+                            <i class="fa-solid fa-wallet text-emerald-500 text-[10px]"></i>
+                            <code class="text-[10px] font-mono text-slate-600">${truncateAddr(currentOwner.wallet)}</code>
+                        </div>
+                    </div>
+                    <button onclick="showCustomDetails('Thông tin Chủ sở hữu', '${encodeURIComponent(details3)}')" class="w-8 h-8 rounded-xl bg-white border border-emerald-100 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 flex items-center justify-center transition-all shrink-0">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }
 
     content.innerHTML = `
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -315,7 +437,7 @@ function renderSuccessUI() {
                     </div>
                     <div class="mt-8 space-y-3">
                         ${certUrl ? `<button onclick="window.open('${certUrl}')" class="w-full py-4 bg-emerald-50 text-emerald-700 rounded-2xl font-extrabold text-sm border border-emerald-100 hover:bg-emerald-100 transition-colors">XEM CHỨNG NHẬN GỐC</button>` : ''}
-                        <button onclick="showQrModal('${window.location.href}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-slate-200">CHIA SẺ MÃ TRUY XUẤT</button>
+                        <button onclick="showQrModal('${window.location.href}')" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-slate-200 hover:bg-slate-800 transition-colors">CHIA SẺ MÃ TRUY XUẤT</button>
                     </div>
                 </div>
             </div>
@@ -344,13 +466,13 @@ function renderFakeUI() {
 function showQrModal(url) {
     const modalHTML = `
         <div id="qrModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center z-[9999] p-4" onclick="this.remove()">
-            <div class="bg-white rounded-[3rem] p-10 text-center max-w-sm w-full shadow-2xl" onclick="event.stopPropagation()">
+            <div class="bg-white rounded-[3rem] p-10 text-center max-w-sm w-full shadow-2xl relative" onclick="event.stopPropagation()">
                 <div class="mb-6 flex justify-center">
                     <img src="2.png" class="brand-logo mb-2">
                 </div>
-                <h3 class="text-xl font-bold mb-2">QR Code Sản Phẩm</h3>
+                <h3 class="text-xl font-bold mb-2 text-slate-800">QR Code Sản Phẩm</h3>
                 <p class="text-slate-400 text-xs mb-6">Quét mã để truy xuất nguồn gốc tức thì</p>
-                <div class="bg-slate-50 p-6 rounded-3xl inline-block">
+                <div class="bg-slate-50 p-6 rounded-3xl inline-block border border-slate-100">
                     <canvas id="modalQrCanvas" class="mx-auto"></canvas>
                 </div>
                 <button onclick="document.getElementById('qrModal').remove()" class="mt-8 w-full py-4 bg-slate-100 text-slate-800 rounded-2xl font-bold hover:bg-slate-200 transition-colors">Đóng cửa sổ</button>
