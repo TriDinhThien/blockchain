@@ -616,7 +616,7 @@ function showToast(message, type = 'success') {
     modal.classList.add('active');
 }
 
-// Hàm hiển thị chi tiết khi bấm nút (i)
+// Hàm hiển thị chi tiết khi bấm nút (i) (Giữ lại cho tương thích chung)
 function showNodeDetails(wallet, time) {
     showToast(`
         <div class="text-left space-y-3 mt-4">
@@ -631,6 +631,13 @@ function showNodeDetails(wallet, time) {
         </div>
     `, 'success');
     document.getElementById('alertTitle').innerText = 'Chi tiết giao dịch';
+}
+
+// Hàm hỗ trợ hiển thị nội dung tùy chỉnh chi tiết hành trình từ nút 3 điểm
+function showCustomDetails(title, encodedHTML) {
+    const htmlContent = decodeURIComponent(encodedHTML);
+    showToast(htmlContent, 'success');
+    document.getElementById('alertTitle').innerText = title;
 }
 
 // Hàm khởi tạo và kết nối ví
@@ -862,28 +869,113 @@ async function showProductDetail(idStr) {
                 <div class="flex flex-wrap gap-2">${p.ingredients.map(item => `<span class="bg-white px-3 py-1 rounded-full text-xs text-amber-800 border border-amber-200">${item}</span>`).join('')}</div>
             </div>` : '';
             
-        let journeyHTML = journey.map((node, index) => {
-            let dotColor = index === 0 ? 'bg-sky-500 shadow-sm ring-2 ring-sky-100' : (index === journey.length - 1 ? 'bg-orange-500 shadow-sm' : 'bg-slate-300');
-            let isLast = index === journey.length - 1;
-            let wrapperClass = isLast ? 'relative bg-orange-50 p-4 rounded-3xl border border-orange-100 shadow-sm' : 'relative pl-2';
-            const timeStr = new Date(Number(node.timestamp) * 1000).toLocaleString('vi-VN');
+        let journeyHTML = '';
+        if (journey.length > 0) {
+            const node1 = journey[0];
+            const currentOwner = journey[journey.length - 1];
+            const intermediaries = journey.slice(1, journey.length - 1);
+
+            const time1 = new Date(Number(node1.timestamp) * 1000).toLocaleString('vi-VN');
+            const timeCurrent = new Date(Number(currentOwner.timestamp) * 1000).toLocaleString('vi-VN');
+
+            const escapeQuote = (str) => (str || '').replace(/'/g, "\\'");
+
+            // Cấu trúc nội dung chi tiết Nút 1
+            const details1 = `
+                <div class="text-left space-y-3 mt-4">
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider mb-1">Địa chỉ ví</span>
+                        <span class="text-[11px] font-mono text-slate-600 break-all leading-relaxed">${node1.wallet}</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider mb-1">Địa chỉ vật lý</span>
+                        <span class="text-[11px] text-slate-700 break-all leading-relaxed">${escapeQuote(node1.location)}</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider mb-1">Thời gian</span>
+                        <span class="text-[12px] text-slate-700 font-medium">${time1}</span>
+                    </div>
+                </div>
+            `;
             
-            return `
-            <div class="${wrapperClass}">
-                <div class="absolute -left-[21px] ${isLast ? 'top-6' : 'top-1'} w-3 h-3 rounded-full ${dotColor} border-2 border-white"></div>
+            journeyHTML += `
+            <div class="relative pl-2 pb-6">
+                <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-sky-500 shadow-sm ring-2 ring-sky-100 border-2 border-white"></div>
                 <div class="flex items-start justify-between gap-2">
                     <div class="flex-1">
-                        <div class="text-xs font-bold ${isLast ? 'text-orange-600 uppercase' : 'text-slate-800'}">${node.role}</div>
-                        <div class="text-[11px] font-semibold text-slate-700 mt-0.5">${node.name}</div>
-                        <div class="text-[10px] text-slate-500 mt-1 flex items-center gap-1"><i class="fa-solid fa-location-dot text-emerald-500"></i> ${node.location || 'N/A'}</div>
-                        ${isLast ? `<div class="mt-2 p-2 bg-white/60 rounded-xl border border-orange-100 text-[9px] font-mono text-slate-500 break-all"><i class="fa-solid fa-wallet mr-1 text-orange-400"></i>${node.wallet}</div>` : ''}
+                        <div class="text-xs font-bold text-slate-800 uppercase">Khởi điểm (Nhà sản xuất)</div>
+                        <div class="text-[11px] font-semibold text-slate-700 mt-0.5">${node1.name}</div>
                     </div>
-                    <button onclick="showNodeDetails('${node.wallet}', '${timeStr}')" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-sky-100 hover:text-sky-600 transition-all shrink-0">
+                    <button onclick="showCustomDetails('Thông tin Nhà sản xuất', '${encodeURIComponent(details1)}')" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-sky-100 hover:text-sky-600 transition-all shrink-0">
                         <i class="fa-solid fa-circle-info text-sm"></i>
                     </button>
                 </div>
             </div>`;
-        }).join('');
+
+            // Cấu trúc nội dung chi tiết Nút 2 (Người nhận trung gian)
+            let details2 = '<div class="text-left space-y-3 mt-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">';
+            if (intermediaries.length === 0) {
+                details2 += '<div class="text-sm text-slate-500 text-center py-4">Chưa có trung gian nào</div>';
+            } else {
+                intermediaries.forEach((mid, idx) => {
+                    const t = new Date(Number(mid.timestamp) * 1000).toLocaleString('vi-VN');
+                    details2 += `
+                        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 mb-2">
+                            <div class="font-bold text-xs text-slate-700">${idx + 1}. ${escapeQuote(mid.role)} - ${escapeQuote(mid.name)}</div>
+                            <div class="text-[10px] text-slate-500 mt-1"><i class="fa-solid fa-location-dot"></i> ${escapeQuote(mid.location)}</div>
+                            <div class="text-[10px] text-slate-500 mt-1"><i class="fa-regular fa-clock"></i> ${t}</div>
+                            <div class="text-[10px] font-mono text-slate-400 mt-1 break-all">${mid.wallet}</div>
+                        </div>
+                    `;
+                });
+            }
+            details2 += '</div>';
+
+            journeyHTML += `
+            <div class="relative pl-2 pb-6">
+                <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></div>
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1">
+                        <div class="text-xs font-bold text-slate-800 uppercase">Đã chuyển giao qua</div>
+                        <div class="text-[11px] font-semibold text-slate-700 mt-0.5">${intermediaries.length} điểm trung gian</div>
+                    </div>
+                    <button onclick="showCustomDetails('Danh sách Trung gian', '${encodeURIComponent(details2)}')" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all shrink-0">
+                        <i class="fa-solid fa-circle-info text-sm"></i>
+                    </button>
+                </div>
+            </div>`;
+
+            // Cấu trúc nội dung chi tiết Nút 3 (Chủ sở hữu hiện tại)
+            const details3 = `
+                <div class="text-left space-y-3 mt-4">
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider mb-1">Địa chỉ vật lý</span>
+                        <span class="text-[11px] text-slate-700 break-all leading-relaxed">${escapeQuote(currentOwner.location)}</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider mb-1">Thời gian nhận</span>
+                        <span class="text-[12px] text-slate-700 font-medium">${timeCurrent}</span>
+                    </div>
+                </div>
+            `;
+
+            journeyHTML += `
+            <div class="relative bg-orange-50 p-4 rounded-3xl border border-orange-100 shadow-sm">
+                <div class="absolute -left-[21px] top-6 w-3 h-3 rounded-full bg-orange-500 shadow-sm border-2 border-white"></div>
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1">
+                        <div class="text-xs font-bold text-orange-600 uppercase">Chủ sở hữu hiện tại</div>
+                        <div class="text-[11px] font-semibold text-slate-800 mt-0.5">${currentOwner.role} - ${currentOwner.name}</div>
+                        <div class="mt-2 p-2 bg-white/60 rounded-xl border border-orange-100 text-[9px] font-mono text-slate-500 break-all">
+                            <i class="fa-solid fa-wallet mr-1 text-orange-400"></i>${currentOwner.wallet}
+                        </div>
+                    </div>
+                    <button onclick="showCustomDetails('Thông tin Chủ sở hữu', '${encodeURIComponent(details3)}')" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-orange-400 hover:bg-orange-100 hover:text-orange-600 transition-all shrink-0 border border-orange-100">
+                        <i class="fa-solid fa-circle-info text-sm"></i>
+                    </button>
+                </div>
+            </div>`;
+        }
 
         content.innerHTML = `
             <div class="space-y-6">
@@ -902,7 +994,7 @@ async function showProductDetail(idStr) {
                 ${ingredientsHTML}
                 <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                     <div class="text-slate-500 text-xs font-bold mb-5 flex items-center gap-2 uppercase tracking-wider"><i class="fa-solid fa-route"></i> Hành trình sản phẩm</div>
-                    <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                    <div class="relative pl-6 space-y-0 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
                         ${journeyHTML}
                     </div>
                 </div>
